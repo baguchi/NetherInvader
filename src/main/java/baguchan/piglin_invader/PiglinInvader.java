@@ -1,15 +1,18 @@
 package baguchan.piglin_invader;
+
+import baguchan.piglin_invader.registry.ModBlockEntitys;
+import baguchan.piglin_invader.registry.ModBlocks;
+import baguchan.piglin_invader.registry.ModItems;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.packs.*;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.PathPackResources;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackSource;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AddPackFindersEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
@@ -29,6 +32,10 @@ public class PiglinInvader
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::addPiglinInvaderDatapack);
 
+        ModBlocks.BLOCKS.register(modEventBus);
+        ModItems.ITEMS.register(modEventBus);
+        ModBlockEntitys.BLOCK_ENTITIES.register(modEventBus);
+
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
     }
@@ -39,10 +46,10 @@ public class PiglinInvader
 
     public void addPiglinInvaderDatapack(AddPackFindersEvent event) {
         if (event.getPackType() == PackType.SERVER_DATA) {
-            var resourcePath = ModList.get().getModFileById(MODID).getFile().findResource("orbofdominance");
+            var resourcePath = ModList.get().getModFileById(MODID).getFile().findResource("nether_reactor");
             var supplier = new PathPackResources.PathResourcesSupplier(resourcePath, true);
 
-            var pack = createBuiltinPack("builtin/piglin_portal", supplier, Component.literal("piglin_invader"));
+            var pack = createBuiltinPack("builtin/nether_reactor", supplier, Component.literal("Enable Nether Reactor"));
 
             event.addRepositorySource(packConsumer -> packConsumer.accept(pack));
         }

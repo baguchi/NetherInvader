@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "piglin_invader:block/nether_reactor"
+    }
+  }
+}

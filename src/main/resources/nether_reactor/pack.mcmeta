@@ -1,0 +1,11 @@
+{
+  "pack": {
+    "pack_format": 18,
+    "description": "Enable Nether Reactor"
+  },
+  "features": {
+    "enabled": [
+      "piglin_invader:nether_reactor"
+    ]
+  }
+}
