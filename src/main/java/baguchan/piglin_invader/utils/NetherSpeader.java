@@ -158,7 +158,6 @@ public class NetherSpeader {
                         }
                     }
                 }
-                p_222256_.levelEvent(2001, sculkspreader$chargecursor.getPos(), Block.getId(Blocks.NETHERRACK.defaultBlockState()));
 
             }
 

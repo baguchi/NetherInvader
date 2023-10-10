@@ -1,7 +1,10 @@
 {
   "variants": {
-    "": {
+    "active=false": {
       "model": "piglin_invader:block/nether_reactor"
+    },
+    "active=true": {
+      "model": "piglin_invader:block/nether_reactor_active"
     }
   }
 }

@@ -1,24 +1,29 @@
 package baguchan.piglin_invader.utils;
 
 import net.minecraft.core.*;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.BiomeTags;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeResolver;
+import net.minecraft.world.level.biome.Biomes;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.BonemealableBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.common.Tags;
 import org.apache.commons.lang3.mutable.MutableInt;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 public interface NetherBehaviour {
@@ -70,43 +75,70 @@ public interface NetherBehaviour {
             BlockState blockstate = Blocks.CRIMSON_NYLIUM.defaultBlockState();
 
             p_222364_.setBlock(p_222365_, blockstate, 3);
+            p_222364_.levelEvent(2001, p_222365_, Block.getId(blockstate));
+            changeBiome(p_222364_, p_222365_, p_222366_);
             return true;
         } else if (p_222366_.is(BlockTags.OVERWORLD_CARVER_REPLACEABLES)) {
 
             BlockState blockstate = Blocks.NETHERRACK.defaultBlockState();
 
-            MutableInt mutableint = new MutableInt(0);
-            BoundingBox boundingbox = BoundingBox.fromCorners(p_222365_, p_222365_.above(9));
+            p_222364_.setBlock(p_222365_, blockstate, 3);
 
-            Optional<Holder<Biome>> biomeHolder = ForgeRegistries.BIOMES.getHolder(new ResourceLocation("minecraft:nether_wastes"));
+            p_222364_.levelEvent(2001, p_222365_, Block.getId(blockstate));
 
-            if (p_222364_ instanceof ServerLevel serverLevel)
-                if (biomeHolder.isPresent()) {
-                    ChunkAccess chunkaccess = serverLevel.getChunk(SectionPos.blockToSectionCoord(boundingbox.minX()), SectionPos.blockToSectionCoord(boundingbox.minZ()), ChunkStatus.FULL, false);
-
-                    p_222364_.setBlock(p_222365_, blockstate, 3);
-                    p_222364_.getChunk(p_222365_).fillBiomesFromNoise(makeResolver(mutableint, chunkaccess, boundingbox, biomeHolder.get()), serverLevel.getChunkSource().randomState().sampler());
-                    p_222364_.getChunk(p_222365_).setUnsaved(true);
-
-                }
+            changeBiome(p_222364_, p_222365_, p_222366_);
             return true;
 
         }
         return false;
     }
 
-    private static BiomeResolver makeResolver(MutableInt p_262615_, ChunkAccess p_262698_, BoundingBox p_262622_, Holder<Biome> p_262705_) {
+    static void changeBiome(LevelAccessor levelAccessor, BlockPos blockPos, BlockState blockState) {
+
+        MutableInt mutableint = new MutableInt(0);
+        BoundingBox boundingbox = new BoundingBox(blockPos.getX() - 1, blockPos.getY(), blockPos.getZ() - 1, blockPos.getX() + 1, blockPos.getY() + 20, blockPos.getZ() + 1);
+
+        List<ChunkAccess> list = new ArrayList<>();
+
+        if (levelAccessor instanceof ServerLevel serverLevel) {
+            for (int k = SectionPos.blockToSectionCoord(boundingbox.minZ()); k <= SectionPos.blockToSectionCoord(boundingbox.maxZ()); ++k) {
+                for (int l = SectionPos.blockToSectionCoord(boundingbox.minX()); l <= SectionPos.blockToSectionCoord(boundingbox.maxX()); ++l) {
+                    ChunkAccess chunkaccess = serverLevel.getChunk(l, k, ChunkStatus.FULL, false);
+                    list.add(chunkaccess);
+                }
+            }
+
+            for (ChunkAccess chunkaccess1 : list) {
+                chunkaccess1.fillBiomesFromNoise(makeResolver(levelAccessor, mutableint, chunkaccess1, boundingbox), serverLevel.getChunkSource().randomState().sampler());
+                chunkaccess1.setUnsaved(true);
+            }
+            serverLevel.getChunkSource().chunkMap.resendBiomesForChunks(list);
+        }
+    }
+
+    private static BiomeResolver makeResolver(LevelAccessor levelAccessor, MutableInt p_262615_, ChunkAccess p_262698_, BoundingBox p_262622_) {
+
         return (p_262550_, p_262551_, p_262552_, p_262553_) -> {
             int i = QuartPos.toBlock(p_262550_);
             int j = QuartPos.toBlock(p_262551_);
             int k = QuartPos.toBlock(p_262552_);
             Holder<Biome> holder = p_262698_.getNoiseBiome(p_262550_, p_262551_, p_262552_);
-            if (p_262622_.isInside(i, j, k) && holder != p_262705_) {
+            if (p_262622_.isInside(i, j, k) && !holder.is(BiomeTags.IS_NETHER)) {
                 p_262615_.increment();
-                return p_262705_;
+                if (holder.is(Tags.Biomes.IS_SANDY)) {
+                    Optional<Holder.Reference<Biome>> biomeHolder = levelAccessor.registryAccess().registryOrThrow(Registries.BIOME).getHolder(Biomes.NETHER_WASTES);
+                    if (biomeHolder.isPresent()) {
+                        return biomeHolder.get();
+                    }
+                }
+                Optional<Holder.Reference<Biome>> biomeHolder = levelAccessor.registryAccess().registryOrThrow(Registries.BIOME).getHolder(Biomes.CRIMSON_FOREST);
+                if (biomeHolder.isPresent()) {
+                    return biomeHolder.get();
+                }
             } else {
                 return holder;
             }
+            return holder;
         };
     }
 
