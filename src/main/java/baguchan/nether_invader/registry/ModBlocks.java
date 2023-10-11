@@ -18,7 +18,7 @@ import java.util.function.Supplier;
 public class ModBlocks {
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, NetherInvader.MODID);
 
-    public static final RegistryObject<Block> NETHER_REACTOR = register("nether_reactor", () -> new NetherReactorBlock(BlockBehaviour.Properties.of().strength(5.0F, 10.0F).sound(SoundType.NETHERITE_BLOCK)));
+    public static final RegistryObject<Block> NETHER_REACTOR = register("nether_reactor", () -> new NetherReactorBlock(BlockBehaviour.Properties.of().strength(5.0F, 10.0F).requiresCorrectToolForDrops().sound(SoundType.NETHERITE_BLOCK)));
 
 
     private static <T extends Block> RegistryObject<T> baseRegister(String name, Supplier<? extends T> block, Function<RegistryObject<T>, Supplier<? extends Item>> item) {
