@@ -1,4 +1,4 @@
-package baguchan.piglin_invader.utils;
+package baguchan.nether_invader.utils;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;

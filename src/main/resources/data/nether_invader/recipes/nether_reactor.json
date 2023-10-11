@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "G#G",
+    "#S#",
+    "G#G"
+  ],
+  "key": {
+    "#": {
+      "item": "minecraft:diamond"
+    },
+    "G": {
+      "item": "minecraft:gold_ingot"
+    },
+    "S": {
+      "item": "minecraft:crying_obsidian"
+    }
+  },
+  "result": {
+    "item": "nether_invader:netherite_reactor",
+    "count": 1
+  }
+}

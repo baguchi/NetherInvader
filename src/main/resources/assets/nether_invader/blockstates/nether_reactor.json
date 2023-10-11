@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "active=false": {
+      "model": "nether_invader:block/nether_reactor"
+    },
+    "active=true": {
+      "model": "nether_invader:block/nether_reactor_active"
+    }
+  }
+}

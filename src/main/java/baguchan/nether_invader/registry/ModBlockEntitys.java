@@ -1,7 +1,7 @@
-package baguchan.piglin_invader.registry;
+package baguchan.nether_invader.registry;
 
-import baguchan.piglin_invader.NetherInvader;
-import baguchan.piglin_invader.blockentity.NetherReactorBlockEntity;
+import baguchan.nether_invader.NetherInvader;
+import baguchan.nether_invader.blockentity.NetherReactorBlockEntity;
 import com.mojang.datafixers.types.Type;
 import net.minecraft.Util;
 import net.minecraft.util.datafix.fixes.References;

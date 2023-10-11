@@ -1,4 +1,4 @@
-package baguchan.piglin_invader.utils;
+package baguchan.nether_invader.utils;
 
 import net.minecraft.core.*;
 import net.minecraft.core.registries.Registries;
@@ -32,9 +32,9 @@ public interface NetherBehaviour {
 
         public boolean attemptSpreadVein(LevelAccessor p_222048_, BlockPos p_222049_, BlockState p_222050_, @Nullable Collection<Direction> p_222051_, boolean p_222052_) {
             if (p_222051_ == null) {
-                return regrowNetherPlant(p_222048_, p_222049_, p_222050_, p_222051_) || NetherBehaviour.super.attemptSpreadVein(p_222048_, p_222049_, p_222050_, p_222051_, p_222052_);
+                return NetherBehaviour.super.attemptSpreadVein(p_222048_, p_222049_, p_222050_, p_222051_, p_222052_);
             } else if (!p_222051_.isEmpty()) {
-                return regrowNetherPlant(p_222048_, p_222049_, p_222050_, p_222051_);
+                return NetherBehaviour.super.attemptSpreadVein(p_222048_, p_222049_, p_222050_, p_222051_, p_222052_);
             } else {
                 return NetherBehaviour.super.attemptSpreadVein(p_222048_, p_222049_, p_222050_, p_222051_, p_222052_);
             }
@@ -50,9 +50,8 @@ public interface NetherBehaviour {
         }
     };
 
-    public static boolean regrowNetherPlant(LevelAccessor p_222364_, BlockPos p_222365_, BlockState p_222366_, Collection<Direction> p_222367_) {
-        boolean flag = false;
-        BlockState blockstate = Blocks.LAVA.defaultBlockState();
+    public static boolean regrowNether(LevelAccessor p_222364_, BlockPos p_222365_, BlockState p_222366_, Collection<Direction> p_222367_) {
+
         if ((p_222366_.is(BlockTags.NYLIUM) || p_222366_.getBlock() instanceof FungusBlock) && p_222366_.getBlock() instanceof BonemealableBlock bonemealableBlock) {
             if (p_222364_ instanceof ServerLevel serverLevel) {
                 if (serverLevel.random.nextInt(16) == 0) {
@@ -62,16 +61,12 @@ public interface NetherBehaviour {
             }
         }
 
+        if (p_222366_.is(Blocks.GOLD_ORE) || p_222366_.is(Blocks.DEEPSLATE_GOLD_ORE) || p_222366_.is(Blocks.IRON_ORE) || p_222366_.is(Blocks.DEEPSLATE_IRON_ORE)) {
+            BlockState blockstate = Blocks.NETHER_GOLD_ORE.defaultBlockState();
 
-        if (p_222366_.is(Blocks.WATER)) {
             p_222364_.setBlock(p_222365_, blockstate, 3);
             return true;
         }
-
-        return false;
-    }
-
-    public static boolean regrowNether(LevelAccessor p_222364_, BlockPos p_222365_, BlockState p_222366_, Collection<Direction> p_222367_) {
 
         if (p_222366_.is(Blocks.GRASS_BLOCK)) {
 

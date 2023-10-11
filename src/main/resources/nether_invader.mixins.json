@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "package": "baguchan.nether_invader.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "minVersion": "0.8",
+  "refmap": "revampedwolf.refmap.json",
+  "mixins": [
+    "AbstractPiglinMixin"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

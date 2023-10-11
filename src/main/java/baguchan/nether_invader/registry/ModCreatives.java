@@ -1,6 +1,6 @@
-package baguchan.piglin_invader.registry;
+package baguchan.nether_invader.registry;
 
-import baguchan.piglin_invader.NetherInvader;
+import baguchan.nether_invader.NetherInvader;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;

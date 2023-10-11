@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:block/cube_all",
   "textures": {
-    "all": "piglin_invader:block/nether_reactor_active"
+    "all": "nether_invader:block/nether_reactor"
   }
 }

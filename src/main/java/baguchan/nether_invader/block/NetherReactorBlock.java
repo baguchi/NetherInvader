@@ -1,7 +1,7 @@
-package baguchan.piglin_invader.block;
+package baguchan.nether_invader.block;
 
-import baguchan.piglin_invader.blockentity.NetherReactorBlockEntity;
-import baguchan.piglin_invader.registry.ModBlockEntitys;
+import baguchan.nether_invader.blockentity.NetherReactorBlockEntity;
+import baguchan.nether_invader.registry.ModBlockEntitys;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -43,21 +43,15 @@ public class NetherReactorBlock extends BaseEntityBlock {
             p_54525_.playSound(null, p_54526_, SoundEvents.BEACON_ACTIVATE, SoundSource.BLOCKS, 2.0F, 1.0F);
             return InteractionResult.sidedSuccess(p_54525_.isClientSide);
         } else {
-            return InteractionResult.CONSUME;
+            return super.use(p_54524_, p_54525_, p_54526_, p_54527_, p_54528_, p_54529_);
         }
     }
 
     public void changeBlocks(LevelAccessor world, BlockPos pos) {
-        for (int y = -1; y <= 1; y++) {
-            for (int x = -1; x < 1; x++) {
-                for (int z = -1; z < 1; z++) {
-                    if (y != 0 && x != 0 && z != 0) {
-                        if (!world.getBlockState(pos.offset(x, y, z)).isAir()) {
-                            world.setBlock(pos.offset(x, y, z), Blocks.BLACKSTONE.defaultBlockState(), 3);
+        for (BlockPos blockPos : BlockPos.betweenClosed(pos.offset(-1, -1, -1), pos.offset(1, 1, 1))) {
+            if (!world.getBlockState(blockPos).isAir() && !world.getBlockState(blockPos).is(this)) {
+                world.setBlock(blockPos, Blocks.BLACKSTONE.defaultBlockState(), 3);
                         }
-                    }
-                }
-            }
         }
     }
 
@@ -70,15 +64,17 @@ public class NetherReactorBlock extends BaseEntityBlock {
                             if (!world.getBlockState(pos.offset(x, y, z)).is(this)) {
                                 return false;
                             }
-                        } else if (x == 0 || z == 0) {
-                            if (!world.getBlockState(pos.offset(x, y, z)).is(Blocks.GILDED_BLACKSTONE)) {
-                                return false;
+                        } else {
+                            if (x == 0 && z != 0 || z == 0 && x != 0) {
+                                if (!world.getBlockState(pos.offset(x, y, z)).isAir()) {
+                                    return false;
+                                }
+                            } else {
+                                if (!world.getBlockState(pos.offset(x, y, z)).is(Blocks.GILDED_BLACKSTONE)) {
+                                    return false;
+                                }
                             }
 
-                        } else {
-                            if (!world.getBlockState(pos.offset(x, y, z)).isAir()) {
-                                return false;
-                            }
                         }
                     } else if (y == 1) {
                         if (x == 0 || z == 0) {
@@ -92,8 +88,14 @@ public class NetherReactorBlock extends BaseEntityBlock {
                             }
                         }
                     } else {
-                        if (!world.getBlockState(pos.offset(x, y, z)).is(Blocks.GILDED_BLACKSTONE)) {
-                            return false;
+                        if (x == 0 || z == 0) {
+                            if (!world.getBlockState(pos.offset(x, y, z)).is(Blocks.GILDED_BLACKSTONE)) {
+                                return false;
+                            }
+                        } else {
+                            if (!world.getBlockState(pos.offset(x, y, z)).is(Blocks.GOLD_BLOCK)) {
+                                return false;
+                            }
                         }
                     }
                 }

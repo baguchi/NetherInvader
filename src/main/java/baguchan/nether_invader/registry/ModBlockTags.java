@@ -1,4 +1,4 @@
-package baguchan.piglin_invader.registry;
+package baguchan.nether_invader.registry;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
