@@ -37,6 +37,7 @@ public class NetherReactorBlockEntity extends BlockEntity {
 
     public static void serverTick(Level p_222780_, BlockPos p_222781_, BlockState p_222782_, NetherReactorBlockEntity p_222783_) {
         if (p_222783_.active && p_222783_.tick > 3600) {
+            p_222783_.active = false;
             p_222780_.playSound(null, p_222781_, SoundEvents.RESPAWN_ANCHOR_DEPLETE.get(), SoundSource.BLOCKS, 2.0F, 1.0F);
 
             p_222780_.setBlock(p_222781_, p_222782_.setValue(NetherReactorBlock.ACTIVE, false), 3);
@@ -95,7 +96,7 @@ public class NetherReactorBlockEntity extends BlockEntity {
                 }
             }
         }
-        this.summonCooldown = 400;
+        this.summonCooldown = 200;
     }
 
     public void load(CompoundTag p_222787_) {
