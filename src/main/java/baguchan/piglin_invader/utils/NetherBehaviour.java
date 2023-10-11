@@ -13,6 +13,7 @@ import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.BonemealableBlock;
+import net.minecraft.world.level.block.FungusBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkStatus;
@@ -52,10 +53,12 @@ public interface NetherBehaviour {
     public static boolean regrowNetherPlant(LevelAccessor p_222364_, BlockPos p_222365_, BlockState p_222366_, Collection<Direction> p_222367_) {
         boolean flag = false;
         BlockState blockstate = Blocks.LAVA.defaultBlockState();
-        if (p_222366_.is(BlockTags.NYLIUM) && p_222366_.getBlock() instanceof BonemealableBlock bonemealableBlock) {
+        if ((p_222366_.is(BlockTags.NYLIUM) || p_222366_.getBlock() instanceof FungusBlock) && p_222366_.getBlock() instanceof BonemealableBlock bonemealableBlock) {
             if (p_222364_ instanceof ServerLevel serverLevel) {
-                bonemealableBlock.performBonemeal(serverLevel, p_222364_.getRandom(), p_222365_, p_222366_);
-                return true;
+                if (serverLevel.random.nextInt(16) == 0) {
+                    bonemealableBlock.performBonemeal(serverLevel, p_222364_.getRandom(), p_222365_, p_222366_);
+                    return true;
+                }
             }
         }
 
@@ -78,6 +81,13 @@ public interface NetherBehaviour {
             p_222364_.levelEvent(2001, p_222365_, Block.getId(blockstate));
             changeBiome(p_222364_, p_222365_, p_222366_);
             return true;
+        } else if (p_222366_.is(Tags.Blocks.STONE)) {
+            BlockState blockstate = Blocks.BLACKSTONE.defaultBlockState();
+
+            p_222364_.setBlock(p_222365_, blockstate, 3);
+            p_222364_.levelEvent(2001, p_222365_, Block.getId(blockstate));
+            changeBiome(p_222364_, p_222365_, p_222366_);
+            return true;
         } else if (p_222366_.is(BlockTags.OVERWORLD_CARVER_REPLACEABLES)) {
 
             BlockState blockstate = Blocks.NETHERRACK.defaultBlockState();
@@ -88,7 +98,6 @@ public interface NetherBehaviour {
 
             changeBiome(p_222364_, p_222365_, p_222366_);
             return true;
-
         }
         return false;
     }
