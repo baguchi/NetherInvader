@@ -1,5 +1,6 @@
 package baguchan.nether_invader.utils;
 
+import baguchan.nether_invader.registry.ModBlockTags;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -19,7 +20,6 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
@@ -58,11 +58,11 @@ public class NetherSpeader {
     }
 
     public static NetherSpeader createLevelSpreader() {
-        return new NetherSpeader(false, BlockTags.OVERWORLD_CARVER_REPLACEABLES, 10, 1, 16, 5);
+        return new NetherSpeader(false, ModBlockTags.REPLACEABLE_FOR_REACTOR, 10, 1, 16, 5);
     }
 
     public static NetherSpeader createWorldGenSpreader() {
-        return new NetherSpeader(true, BlockTags.SCULK_REPLACEABLE_WORLD_GEN, 50, 1, 5, 10);
+        return new NetherSpeader(true, ModBlockTags.REPLACEABLE_FOR_REACTOR, 50, 1, 5, 10);
     }
 
     public TagKey<Block> replaceableBlocks() {
@@ -314,7 +314,7 @@ public class NetherSpeader {
             for (Vec3i vec3i : getRandomizedNonCornerNeighbourOffsets(p_222310_)) {
                 blockpos$mutableblockpos1.setWithOffset(p_222309_, vec3i);
                 BlockState blockstate = p_222308_.getBlockState(blockpos$mutableblockpos1);
-                if (blockstate.is(BlockTags.NETHER_CARVER_REPLACEABLES) && isMovementUnobstructed(p_222308_, p_222309_, blockpos$mutableblockpos1)) {
+                if (blockstate.is(ModBlockTags.MOVE_SPREAD) && isMovementUnobstructed(p_222308_, p_222309_, blockpos$mutableblockpos1)) {
                     blockpos$mutableblockpos.set(blockpos$mutableblockpos1);
                 }
             }

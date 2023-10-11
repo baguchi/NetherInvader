@@ -48,14 +48,14 @@ public class NetherReactorBlockEntity extends BlockEntity {
                 p_222783_.summon(p_222780_, p_222781_);
             }
             if (p_222783_.netherSpreader.getCursors().isEmpty() || p_222783_.netherSpreader.getCursors().size() < 4) {
-                p_222783_.netherSpreader.addCursors(p_222781_, 8);
+                p_222783_.netherSpreader.addCursors(p_222781_, 3);
             }
 
-            if (p_222783_.tick % 3 == 0) {
+            if (p_222783_.tick % 2 == 0) {
                 p_222783_.netherSpreader.updateCursors(p_222780_, p_222781_, p_222780_.getRandom(), true);
             }
             ++p_222783_.tick;
-            p_222780_.destroyBlockProgress(0, p_222783_.getBlockPos(), (p_222783_.tick / 3600) * 10);
+            p_222780_.destroyBlockProgress(0, p_222783_.getBlockPos(), (p_222783_.tick * 10 / 3600));
         } else {
             p_222783_.active = p_222782_.getValue(NetherReactorBlock.ACTIVE);
         }

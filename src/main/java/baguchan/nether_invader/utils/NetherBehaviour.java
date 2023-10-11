@@ -61,7 +61,7 @@ public interface NetherBehaviour {
             }
         }
 
-        if (p_222366_.is(Blocks.GOLD_ORE) || p_222366_.is(Blocks.DEEPSLATE_GOLD_ORE) || p_222366_.is(Blocks.IRON_ORE) || p_222366_.is(Blocks.DEEPSLATE_IRON_ORE)) {
+        if (p_222366_.is(Blocks.COAL_ORE) || p_222366_.is(Blocks.DEEPSLATE_COAL_ORE) || p_222366_.is(Blocks.GOLD_ORE) || p_222366_.is(Blocks.DEEPSLATE_GOLD_ORE) || p_222366_.is(Blocks.IRON_ORE) || p_222366_.is(Blocks.DEEPSLATE_IRON_ORE)) {
             BlockState blockstate = Blocks.NETHER_GOLD_ORE.defaultBlockState();
 
             p_222364_.setBlock(p_222365_, blockstate, 3);

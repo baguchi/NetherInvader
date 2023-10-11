@@ -5,7 +5,8 @@
   "minVersion": "0.8",
   "refmap": "revampedwolf.refmap.json",
   "mixins": [
-    "AbstractPiglinMixin"
+    "AbstractPiglinMixin",
+    "HoglinMixin"
   ],
   "client": [
   ],
