@@ -48,14 +48,14 @@ public class NetherInvader
     }
 
     public void addPiglinInvaderDatapack(AddPackFindersEvent event) {
-        if (event.getPackType() == PackType.SERVER_DATA) {
+        /*if (event.getPackType() == PackType.SERVER_DATA) {
             var resourcePath = ModList.get().getModFileById(MODID).getFile().findResource("nether_raid");
             var supplier = new PathPackResources.PathResourcesSupplier(resourcePath, true);
 
             var pack = createBuiltinPack("builtin/nether_raid", supplier, Component.literal("Enable Nether Raid(WIP)"));
 
             event.addRepositorySource(packConsumer -> packConsumer.accept(pack));
-        }
+        }*/
 
         if (event.getPackType() == PackType.SERVER_DATA) {
             var resourcePath = ModList.get().getModFileById(MODID).getFile().findResource("nether_reactor");
