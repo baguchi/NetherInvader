@@ -36,7 +36,7 @@ public class NetherReactorBlockEntity extends BlockEntity {
 
 
     public static void serverTick(Level p_222780_, BlockPos p_222781_, BlockState p_222782_, NetherReactorBlockEntity p_222783_) {
-        if (p_222783_.active && p_222783_.tick > 3600) {
+        if (p_222783_.active && p_222783_.tick > NetherConfigs.COMMON.nether_reactor_deactive_time.get()) {
             p_222783_.active = false;
             p_222780_.playSound(null, p_222781_, SoundEvents.RESPAWN_ANCHOR_DEPLETE.get(), SoundSource.BLOCKS, 2.0F, 1.0F);
 
@@ -55,7 +55,7 @@ public class NetherReactorBlockEntity extends BlockEntity {
                 p_222783_.netherSpreader.updateCursors(p_222780_, p_222781_, p_222780_.getRandom(), true);
             }
             ++p_222783_.tick;
-            p_222780_.destroyBlockProgress(0, p_222783_.getBlockPos(), (p_222783_.tick * 10 / 3600));
+            p_222780_.destroyBlockProgress(0, p_222783_.getBlockPos(), (p_222783_.tick * 10 / NetherConfigs.COMMON.nether_reactor_deactive_time.get()));
         } else {
             p_222783_.active = p_222782_.getValue(NetherReactorBlock.ACTIVE);
         }
@@ -67,9 +67,9 @@ public class NetherReactorBlockEntity extends BlockEntity {
             for (int i = 0; i < 16; ++i) {
 
                 BlockPos blockPos = pos.offset(-10 + p_222780_.random.nextInt(20), -10 + p_222780_.random.nextInt(20), -10 + p_222780_.random.nextInt(20));
-                if (serverLevel.isEmptyBlock(blockPos.above()) && serverLevel.isEmptyBlock(blockPos.above(2)) && !serverLevel.isEmptyBlock(blockPos.below())) {
+                if (serverLevel.isEmptyBlock(blockPos) && serverLevel.isEmptyBlock(blockPos.above()) && !serverLevel.isEmptyBlock(blockPos.below())) {
                     Entity piglin = ForgeRegistries.ENTITY_TYPES.getValue(ResourceLocation.tryParse(NetherConfigs.COMMON.nether_reactor_spawn_whitelist.get().get(p_222780_.random.nextInt(NetherConfigs.COMMON.nether_reactor_spawn_whitelist.get().size())))).create(serverLevel);
-                    if (level.random.nextInt(16) == 0) {
+                    if (level.random.nextInt(8) == 0) {
                         piglin = ForgeRegistries.ENTITY_TYPES.getValue(ResourceLocation.tryParse(NetherConfigs.COMMON.nether_reactor_spawn_whitelist.get().get(p_222780_.random.nextInt(NetherConfigs.COMMON.nether_reactor_spawn_whitelist.get().size())))).create(serverLevel);
                     }
 

@@ -2,10 +2,5 @@
   "pack": {
     "pack_format": 18,
     "description": "Enable Piglin Raiding Overworld"
-  },
-  "features": {
-    "enabled": [
-      "piglin_invader:nether_raid"
-    ]
   }
 }

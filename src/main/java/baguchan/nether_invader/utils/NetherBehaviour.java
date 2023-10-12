@@ -1,5 +1,6 @@
 package baguchan.nether_invader.utils;
 
+import baguchan.nether_invader.registry.ModBlockTags;
 import net.minecraft.core.*;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
@@ -83,7 +84,7 @@ public interface NetherBehaviour {
             p_222364_.levelEvent(2001, p_222365_, Block.getId(blockstate));
             changeBiome(p_222364_, p_222365_, p_222366_);
             return true;
-        } else if (p_222366_.is(BlockTags.OVERWORLD_CARVER_REPLACEABLES)) {
+        } else if (p_222366_.is(ModBlockTags.REPLACEABLE_FOR_REACTOR)) {
 
             BlockState blockstate = Blocks.NETHERRACK.defaultBlockState();
 

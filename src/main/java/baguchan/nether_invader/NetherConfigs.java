@@ -22,6 +22,8 @@ public class NetherConfigs {
     public static class Common {
         public final ForgeConfigSpec.ConfigValue<List<? extends String>> nether_reactor_spawn_whitelist;
         public final ForgeConfigSpec.ConfigValue<List<? extends String>> nether_reactor_spawn_rare_whitelist;
+        public final ForgeConfigSpec.BooleanValue enable_nether_invader_feature_default;
+        public final ForgeConfigSpec.IntValue nether_reactor_deactive_time;
 
         public Common(ForgeConfigSpec.Builder builder) {
             Predicate<Object> validator = o -> o instanceof String;
@@ -36,6 +38,14 @@ public class NetherConfigs {
                     .defineList("Nether Reactor Spawn Rare Whitelist"
                             , Lists.newArrayList("minecraft:piglin_brute")
                             , validator);
+            enable_nether_invader_feature_default = builder
+                    .comment("Make Enable Nether Invader mod feature by default(If you want to set it individually, turn this off, restart, and set it again in Experimental Feature.)")
+                    .define("Enable Nether Invader mod feature by default"
+                            , false);
+            nether_reactor_deactive_time = builder
+                    .comment("Change How long does Nether Reactor take to be deactivated")
+                    .defineInRange("Nether Reactor Deactive Time"
+                            , 3600, 0, 36000);
         }
     }
 
