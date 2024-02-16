@@ -3,8 +3,9 @@ package baguchan.nether_invader.blockentity;
 import baguchan.nether_invader.NetherConfigs;
 import baguchan.nether_invader.block.NetherReactorBlock;
 import baguchan.nether_invader.registry.ModBlockEntitys;
-import baguchan.nether_invader.utils.NetherSpeader;
+import baguchan.nether_invader.utils.NetherSpreaderUtil;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -26,12 +27,11 @@ import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.List;
 
 public class NetherReactorBlockEntity extends BlockEntity {
-    private final NetherSpeader netherSpreader = NetherSpeader.createLevelSpreader();
+    private final NetherSpreaderUtil netherSpreaderUtil = NetherSpreaderUtil.createLevelSpreader();
 
     private int tick;
     private boolean active;
@@ -46,7 +46,7 @@ public class NetherReactorBlockEntity extends BlockEntity {
     public static void serverTick(Level p_222780_, BlockPos p_222781_, BlockState p_222782_, NetherReactorBlockEntity p_222783_) {
         if (p_222783_.active && p_222783_.tick > NetherConfigs.COMMON.nether_reactor_deactive_time.get()) {
             p_222783_.active = false;
-            p_222780_.playSound(null, p_222781_, SoundEvents.RESPAWN_ANCHOR_DEPLETE.get(), SoundSource.BLOCKS, 2.0F, 1.0F);
+            p_222780_.playSound(null, p_222781_, SoundEvents.RESPAWN_ANCHOR_DEPLETE.value(), SoundSource.BLOCKS, 2.0F, 1.0F);
             p_222783_.tick = 0;
             p_222780_.setBlock(p_222781_, p_222782_.setValue(NetherReactorBlock.ACTIVE, false), 3);
         } else if (p_222783_.active) {
@@ -61,12 +61,12 @@ public class NetherReactorBlockEntity extends BlockEntity {
             } else {
                 p_222783_.summonItem(p_222780_, p_222781_);
             }
-            if (p_222783_.netherSpreader.getCursors().isEmpty() || p_222783_.netherSpreader.getCursors().size() < 4) {
-                p_222783_.netherSpreader.addCursors(p_222781_, 3);
+            if (p_222783_.netherSpreaderUtil.getCursors().isEmpty() || p_222783_.netherSpreaderUtil.getCursors().size() < 4) {
+                p_222783_.netherSpreaderUtil.addCursors(p_222781_, 3);
             }
 
             if (p_222783_.tick % 2 == 0) {
-                p_222783_.netherSpreader.updateCursors(p_222780_, p_222781_, p_222780_.getRandom(), true);
+                p_222783_.netherSpreaderUtil.updateCursors(p_222780_, p_222781_, p_222780_.getRandom(), true);
             }
             ++p_222783_.tick;
             p_222780_.destroyBlockProgress(0, p_222783_.getBlockPos(), (p_222783_.tick * 10 / NetherConfigs.COMMON.nether_reactor_deactive_time.get()));
@@ -122,9 +122,9 @@ public class NetherReactorBlockEntity extends BlockEntity {
 
                 BlockPos blockPos = pos.offset(-10 + p_222780_.random.nextInt(20), -10 + p_222780_.random.nextInt(20), -10 + p_222780_.random.nextInt(20));
                 if (serverLevel.isEmptyBlock(blockPos) && serverLevel.isEmptyBlock(blockPos.above()) && !serverLevel.isEmptyBlock(blockPos.below())) {
-                    Entity piglin = ForgeRegistries.ENTITY_TYPES.getValue(ResourceLocation.tryParse(NetherConfigs.COMMON.nether_reactor_spawn_whitelist.get().get(p_222780_.random.nextInt(NetherConfigs.COMMON.nether_reactor_spawn_whitelist.get().size())))).create(serverLevel);
+                    Entity piglin = BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.tryParse(NetherConfigs.COMMON.nether_reactor_spawn_whitelist.get().get(p_222780_.random.nextInt(NetherConfigs.COMMON.nether_reactor_spawn_whitelist.get().size())))).create(serverLevel);
                     if (level.random.nextInt(8) == 0) {
-                        piglin = ForgeRegistries.ENTITY_TYPES.getValue(ResourceLocation.tryParse(NetherConfigs.COMMON.nether_reactor_spawn_whitelist.get().get(p_222780_.random.nextInt(NetherConfigs.COMMON.nether_reactor_spawn_whitelist.get().size())))).create(serverLevel);
+                        piglin = BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.tryParse(NetherConfigs.COMMON.nether_reactor_spawn_whitelist.get().get(p_222780_.random.nextInt(NetherConfigs.COMMON.nether_reactor_spawn_whitelist.get().size())))).create(serverLevel);
                     }
 
                     if (!(piglin instanceof Mob mob)) continue;
@@ -154,14 +154,14 @@ public class NetherReactorBlockEntity extends BlockEntity {
     }
 
     public void load(CompoundTag p_222787_) {
-        this.netherSpreader.load(p_222787_);
+        this.netherSpreaderUtil.load(p_222787_);
         this.active = p_222787_.getBoolean("active");
         this.summonCooldown = p_222787_.getInt("summonCooldown");
         this.summonItemCooldown = p_222787_.getInt("summonItemCooldown");
     }
 
     protected void saveAdditional(CompoundTag p_222789_) {
-        this.netherSpreader.save(p_222789_);
+        this.netherSpreaderUtil.save(p_222789_);
         super.saveAdditional(p_222789_);
         p_222789_.putBoolean("active", this.active);
         p_222789_.putInt("summonCooldown", this.summonCooldown);

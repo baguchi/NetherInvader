@@ -19,7 +19,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
-import net.minecraftforge.common.Tags;
+import net.neoforged.neoforge.common.Tags;
 import org.apache.commons.lang3.mutable.MutableInt;
 
 import javax.annotation.Nullable;
@@ -42,7 +42,7 @@ public interface NetherBehaviour {
         }
 
 
-        public int attemptUseCharge(NetherSpeader.ChargeCursor p_222054_, LevelAccessor p_222055_, BlockPos p_222056_, RandomSource p_222057_, NetherSpeader p_222058_, boolean p_222059_) {
+        public int attemptUseCharge(NetherSpreaderUtil.ChargeCursor p_222054_, LevelAccessor p_222055_, BlockPos p_222056_, RandomSource p_222057_, NetherSpreaderUtil p_222058_, boolean p_222059_) {
             return p_222054_.getCharge();
         }
 
@@ -79,6 +79,20 @@ public interface NetherBehaviour {
             return true;
         } else if (p_222366_.is(Tags.Blocks.STONE)) {
             BlockState blockstate = Blocks.BLACKSTONE.defaultBlockState();
+
+            p_222364_.setBlock(p_222365_, blockstate, 3);
+            p_222364_.levelEvent(2001, p_222365_, Block.getId(blockstate));
+            changeBiome(p_222364_, p_222365_, p_222366_);
+            return true;
+        } else if (p_222366_.is(Blocks.MUD) || p_222366_.is(Blocks.SAND)) {
+            BlockState blockstate = Blocks.SOUL_SAND.defaultBlockState();
+
+            p_222364_.setBlock(p_222365_, blockstate, 3);
+            p_222364_.levelEvent(2001, p_222365_, Block.getId(blockstate));
+            changeBiome(p_222364_, p_222365_, p_222366_);
+            return true;
+        } else if (p_222366_.is(Blocks.SANDSTONE)) {
+            BlockState blockstate = Blocks.SOUL_SOIL.defaultBlockState();
 
             p_222364_.setBlock(p_222365_, blockstate, 3);
             p_222364_.levelEvent(2001, p_222365_, Block.getId(blockstate));
@@ -131,12 +145,19 @@ public interface NetherBehaviour {
             if (p_262622_.isInside(i, j, k) && !holder.is(BiomeTags.IS_NETHER)) {
                 p_262615_.increment();
                 if (holder.is(Tags.Biomes.IS_SANDY)) {
-                    Optional<Holder.Reference<Biome>> biomeHolder = levelAccessor.registryAccess().registryOrThrow(Registries.BIOME).getHolder(Biomes.NETHER_WASTES);
+                    Optional<Holder.Reference<Biome>> biomeHolder = levelAccessor.registryAccess().registryOrThrow(Registries.BIOME).getHolder(Biomes.SOUL_SAND_VALLEY);
                     if (biomeHolder.isPresent()) {
                         return biomeHolder.get();
                     }
                 }
-                Optional<Holder.Reference<Biome>> biomeHolder = levelAccessor.registryAccess().registryOrThrow(Registries.BIOME).getHolder(Biomes.CRIMSON_FOREST);
+
+                if (holder.is(BiomeTags.IS_FOREST) || holder.is(Tags.Biomes.IS_SWAMP)) {
+                    Optional<Holder.Reference<Biome>> biomeHolder = levelAccessor.registryAccess().registryOrThrow(Registries.BIOME).getHolder(Biomes.CRIMSON_FOREST);
+                    if (biomeHolder.isPresent()) {
+                        return biomeHolder.get();
+                    }
+                }
+                Optional<Holder.Reference<Biome>> biomeHolder = levelAccessor.registryAccess().registryOrThrow(Registries.BIOME).getHolder(Biomes.NETHER_WASTES);
                 if (biomeHolder.isPresent()) {
                     return biomeHolder.get();
                 }
@@ -170,5 +191,5 @@ public interface NetherBehaviour {
         return 1;
     }
 
-    int attemptUseCharge(NetherSpeader.ChargeCursor p_222039_, LevelAccessor p_222040_, BlockPos p_222041_, RandomSource p_222042_, NetherSpeader p_222043_, boolean p_222044_);
+    int attemptUseCharge(NetherSpreaderUtil.ChargeCursor p_222039_, LevelAccessor p_222040_, BlockPos p_222041_, RandomSource p_222042_, NetherSpreaderUtil p_222043_, boolean p_222044_);
 }

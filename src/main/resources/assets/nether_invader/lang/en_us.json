@@ -1,3 +1,4 @@
 {
-  "block.nether_invader.nether_reactor": "Nether Reactor"
+  "block.nether_invader.nether_reactor": "Nether Reactor",
+  "entity.nether_invader.nether_spreader": "Nether Spreader"
 }

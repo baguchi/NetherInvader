@@ -33,7 +33,7 @@ import org.slf4j.Logger;
 import javax.annotation.Nullable;
 import java.util.*;
 
-public class NetherSpeader {
+public class NetherSpreaderUtil {
     public static final int MAX_GROWTH_RATE_RADIUS = 24;
     public static final int MAX_CHARGE = 1000;
     public static final float MAX_DECAY_FACTOR = 0.5F;
@@ -45,10 +45,10 @@ public class NetherSpeader {
     private final int noGrowthRadius;
     private final int chargeDecayRate;
     private final int additionalDecayRate;
-    private List<NetherSpeader.ChargeCursor> cursors = new ArrayList<>();
+    private List<NetherSpreaderUtil.ChargeCursor> cursors = new ArrayList<>();
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    public NetherSpeader(boolean p_222248_, TagKey<Block> p_222249_, int p_222250_, int p_222251_, int p_222252_, int p_222253_) {
+    public NetherSpreaderUtil(boolean p_222248_, TagKey<Block> p_222249_, int p_222250_, int p_222251_, int p_222252_, int p_222253_) {
         this.isWorldGeneration = p_222248_;
         this.replaceableBlocks = p_222249_;
         this.growthSpawnCost = p_222250_;
@@ -57,12 +57,12 @@ public class NetherSpeader {
         this.additionalDecayRate = p_222253_;
     }
 
-    public static NetherSpeader createLevelSpreader() {
-        return new NetherSpeader(false, ModBlockTags.REPLACEABLE_FOR_REACTOR, 10, 1, 16, 5);
+    public static NetherSpreaderUtil createLevelSpreader() {
+        return new NetherSpreaderUtil(false, ModBlockTags.REPLACEABLE_FOR_REACTOR, 10, 1, 16, 5);
     }
 
-    public static NetherSpeader createWorldGenSpreader() {
-        return new NetherSpeader(true, ModBlockTags.REPLACEABLE_FOR_REACTOR, 50, 1, 5, 10);
+    public static NetherSpreaderUtil createWorldGenSpreader() {
+        return new NetherSpreaderUtil(true, ModBlockTags.REPLACEABLE_FOR_REACTOR, 50, 1, 5, 10);
     }
 
     public TagKey<Block> replaceableBlocks() {
@@ -90,7 +90,7 @@ public class NetherSpeader {
     }
 
     @VisibleForTesting
-    public List<NetherSpeader.ChargeCursor> getCursors() {
+    public List<NetherSpreaderUtil.ChargeCursor> getCursors() {
         return this.cursors;
     }
 
@@ -101,7 +101,7 @@ public class NetherSpeader {
     public void load(CompoundTag p_222270_) {
         if (p_222270_.contains("cursors", 9)) {
             this.cursors.clear();
-            List<NetherSpeader.ChargeCursor> list = NetherSpeader.ChargeCursor.CODEC.listOf().parse(new Dynamic<>(NbtOps.INSTANCE, p_222270_.getList("cursors", 10))).resultOrPartial(LOGGER::error).orElseGet(ArrayList::new);
+            List<NetherSpreaderUtil.ChargeCursor> list = NetherSpreaderUtil.ChargeCursor.CODEC.listOf().parse(new Dynamic<>(NbtOps.INSTANCE, p_222270_.getList("cursors", 10))).resultOrPartial(LOGGER::error).orElseGet(ArrayList::new);
             int i = Math.min(list.size(), 32);
 
             for (int j = 0; j < i; ++j) {
@@ -112,7 +112,7 @@ public class NetherSpeader {
     }
 
     public void save(CompoundTag p_222276_) {
-        NetherSpeader.ChargeCursor.CODEC.listOf().encodeStart(NbtOps.INSTANCE, this.cursors).resultOrPartial(LOGGER::error).ifPresent((p_222273_) -> {
+        NetherSpreaderUtil.ChargeCursor.CODEC.listOf().encodeStart(NbtOps.INSTANCE, this.cursors).resultOrPartial(LOGGER::error).ifPresent((p_222273_) -> {
             p_222276_.put("cursors", p_222273_);
         });
     }
@@ -120,13 +120,13 @@ public class NetherSpeader {
     public void addCursors(BlockPos p_222267_, int p_222268_) {
         while (p_222268_ > 0) {
             int i = Math.min(p_222268_, 1000);
-            this.addCursor(new NetherSpeader.ChargeCursor(p_222267_, i));
+            this.addCursor(new NetherSpreaderUtil.ChargeCursor(p_222267_, i));
             p_222268_ -= i;
         }
 
     }
 
-    private void addCursor(NetherSpeader.ChargeCursor p_222261_) {
+    private void addCursor(NetherSpreaderUtil.ChargeCursor p_222261_) {
         if (this.cursors.size() < 32) {
             this.cursors.add(p_222261_);
         }
@@ -134,18 +134,18 @@ public class NetherSpeader {
 
     public void updateCursors(LevelAccessor p_222256_, BlockPos p_222257_, RandomSource p_222258_, boolean p_222259_) {
         if (!this.cursors.isEmpty()) {
-            List<NetherSpeader.ChargeCursor> list = new ArrayList<>();
-            Map<BlockPos, NetherSpeader.ChargeCursor> map = new HashMap<>();
+            List<NetherSpreaderUtil.ChargeCursor> list = new ArrayList<>();
+            Map<BlockPos, NetherSpreaderUtil.ChargeCursor> map = new HashMap<>();
             Object2IntMap<BlockPos> object2intmap = new Object2IntOpenHashMap<>();
 
-            for (NetherSpeader.ChargeCursor sculkspreader$chargecursor : this.cursors) {
+            for (NetherSpreaderUtil.ChargeCursor sculkspreader$chargecursor : this.cursors) {
                 sculkspreader$chargecursor.update(p_222256_, p_222257_, p_222258_, this, p_222259_);
                 if (sculkspreader$chargecursor.charge > 0) {
                     BlockPos blockpos = sculkspreader$chargecursor.getPos();
                     object2intmap.computeInt(blockpos, (p_222264_, p_222265_) -> {
                         return (p_222265_ == null ? 0 : p_222265_) + sculkspreader$chargecursor.charge;
                     });
-                    NetherSpeader.ChargeCursor sculkspreader$chargecursor1 = map.get(blockpos);
+                    NetherSpreaderUtil.ChargeCursor sculkspreader$chargecursor1 = map.get(blockpos);
                     if (sculkspreader$chargecursor1 == null) {
                         map.put(blockpos, sculkspreader$chargecursor);
                         list.add(sculkspreader$chargecursor);
@@ -164,7 +164,7 @@ public class NetherSpeader {
             for (Object2IntMap.Entry<BlockPos> entry : object2intmap.object2IntEntrySet()) {
                 BlockPos blockpos1 = entry.getKey();
                 int k = entry.getIntValue();
-                NetherSpeader.ChargeCursor sculkspreader$chargecursor2 = map.get(blockpos1);
+                NetherSpreaderUtil.ChargeCursor sculkspreader$chargecursor2 = map.get(blockpos1);
                 Collection<Direction> collection = sculkspreader$chargecursor2 == null ? null : sculkspreader$chargecursor2.getFacingData();
                 if (k > 0 && collection != null) {
                     int i = (int) (Math.log1p((double) k) / (double) 2.3F) + 1;
@@ -193,12 +193,12 @@ public class NetherSpeader {
         private static final Codec<Set<Direction>> DIRECTION_SET = Direction.CODEC.listOf().xmap((p_222340_) -> {
             return Sets.newEnumSet(p_222340_, Direction.class);
         }, Lists::newArrayList);
-        public static final Codec<NetherSpeader.ChargeCursor> CODEC = RecordCodecBuilder.create((p_222330_) -> {
-            return p_222330_.group(BlockPos.CODEC.fieldOf("pos").forGetter(NetherSpeader.ChargeCursor::getPos), Codec.intRange(0, 1000).fieldOf("charge").orElse(0).forGetter(NetherSpeader.ChargeCursor::getCharge), Codec.intRange(0, 1).fieldOf("decay_delay").orElse(1).forGetter(NetherSpeader.ChargeCursor::getDecayDelay), Codec.intRange(0, Integer.MAX_VALUE).fieldOf("update_delay").orElse(0).forGetter((p_222346_) -> {
+        public static final Codec<NetherSpreaderUtil.ChargeCursor> CODEC = RecordCodecBuilder.create((p_222330_) -> {
+            return p_222330_.group(BlockPos.CODEC.fieldOf("pos").forGetter(NetherSpreaderUtil.ChargeCursor::getPos), Codec.intRange(0, 1000).fieldOf("charge").orElse(0).forGetter(NetherSpreaderUtil.ChargeCursor::getCharge), Codec.intRange(0, 1).fieldOf("decay_delay").orElse(1).forGetter(NetherSpreaderUtil.ChargeCursor::getDecayDelay), Codec.intRange(0, Integer.MAX_VALUE).fieldOf("update_delay").orElse(0).forGetter((p_222346_) -> {
                 return p_222346_.updateDelay;
             }), DIRECTION_SET.optionalFieldOf("facings").forGetter((p_222343_) -> {
                 return Optional.ofNullable(p_222343_.getFacingData());
-            })).apply(p_222330_, NetherSpeader.ChargeCursor::new);
+            })).apply(p_222330_, NetherSpreaderUtil.ChargeCursor::new);
         });
 
         private ChargeCursor(BlockPos p_222299_, int p_222300_, int p_222301_, int p_222302_, Optional<Set<Direction>> p_222303_) {
@@ -243,7 +243,7 @@ public class NetherSpeader {
             }
         }
 
-        public void update(LevelAccessor p_222312_, BlockPos p_222313_, RandomSource p_222314_, NetherSpeader p_222315_, boolean p_222316_) {
+        public void update(LevelAccessor p_222312_, BlockPos p_222313_, RandomSource p_222314_, NetherSpreaderUtil p_222315_, boolean p_222316_) {
             if (this.shouldUpdate(p_222312_, p_222313_, p_222315_.isWorldGeneration)) {
                 if (this.updateDelay > 0) {
                     --this.updateDelay;
@@ -284,7 +284,7 @@ public class NetherSpeader {
             }
         }
 
-        void mergeWith(NetherSpeader.ChargeCursor p_222332_) {
+        void mergeWith(NetherSpreaderUtil.ChargeCursor p_222332_) {
             this.charge += p_222332_.charge;
             p_222332_.charge = 0;
             this.updateDelay = Math.min(this.updateDelay, p_222332_.updateDelay);

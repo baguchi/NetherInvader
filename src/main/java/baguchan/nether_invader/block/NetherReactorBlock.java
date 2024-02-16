@@ -2,6 +2,7 @@ package baguchan.nether_invader.block;
 
 import baguchan.nether_invader.blockentity.NetherReactorBlockEntity;
 import baguchan.nether_invader.registry.ModBlockEntitys;
+import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -29,6 +30,11 @@ public class NetherReactorBlock extends BaseEntityBlock {
     public NetherReactorBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any().setValue(ACTIVE, Boolean.valueOf(false)));
+    }
+
+    @Override
+    protected MapCodec<? extends BaseEntityBlock> codec() {
+        return null;
     }
 
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> p_222211_) {

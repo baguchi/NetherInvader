@@ -2,21 +2,20 @@ package baguchan.nether_invader;
 
 import baguchan.nether_invader.registry.ModBlockEntitys;
 import baguchan.nether_invader.registry.ModBlocks;
+import baguchan.nether_invader.registry.ModEntitys;
 import baguchan.nether_invader.registry.ModItems;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.PathPackResources;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackSource;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.AddPackFindersEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModList;
+import net.neoforged.fml.ModLoadingContext;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.event.AddPackFindersEvent;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(NetherInvader.MODID)
@@ -26,20 +25,17 @@ public class NetherInvader
     public static final String MODID = "nether_invader";
     // Directly reference a slf4j logger
 
-    public NetherInvader()
+    public NetherInvader(IEventBus modEventBus)
     {
-        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
-
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::addPiglinInvaderDatapack);
 
         ModBlocks.BLOCKS.register(modEventBus);
         ModItems.ITEMS.register(modEventBus);
+        ModEntitys.ENTITIES_REGISTRY.register(modEventBus);
         ModBlockEntitys.BLOCK_ENTITIES.register(modEventBus);
 
-        // Register ourselves for server and other game events we are interested in
-        MinecraftForge.EVENT_BUS.register(this);
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, NetherConfigs.COMMON_SPEC);
     }
 
