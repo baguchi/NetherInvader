@@ -1,10 +1,9 @@
 package baguchan.nether_invader;
 
-import baguchan.nether_invader.registry.ModBlockEntitys;
-import baguchan.nether_invader.registry.ModBlocks;
-import baguchan.nether_invader.registry.ModEntitys;
-import baguchan.nether_invader.registry.ModItems;
+import baguchan.nether_invader.region.OverworldNetherRegion;
+import baguchan.nether_invader.registry.*;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.PathPackResources;
 import net.minecraft.server.packs.repository.Pack;
@@ -16,6 +15,8 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.event.AddPackFindersEvent;
+import terrablender.api.Regions;
+import terrablender.api.SurfaceRuleManager;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(NetherInvader.MODID)
@@ -41,6 +42,15 @@ public class NetherInvader
 
     private void commonSetup(final FMLCommonSetupEvent event)
     {
+        event.enqueueWork(() ->
+        {
+
+            // Weights are kept intentionally low as we add minimal biomes
+            Regions.register(new OverworldNetherRegion(new ResourceLocation(MODID, "overworld_nether"), 3));
+
+            // Register our surface rules
+            SurfaceRuleManager.addSurfaceRules(SurfaceRuleManager.RuleCategory.OVERWORLD, MODID, ModSurfaceRuleData.makeRules());
+        });
     }
 
     public void addPiglinInvaderDatapack(AddPackFindersEvent event) {

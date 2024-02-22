@@ -22,6 +22,8 @@ public class NetherConfigs {
         public final ModConfigSpec.ConfigValue<List<? extends String>> nether_reactor_spawn_rare_whitelist;
         public final ModConfigSpec.BooleanValue enable_nether_invader_feature_default;
         public final ModConfigSpec.IntValue nether_reactor_deactive_time;
+        public final ModConfigSpec.BooleanValue nether_spawn_in_overworld;
+
 
         public Common(ModConfigSpec.Builder builder) {
             Predicate<Object> validator = o -> o instanceof String;
@@ -44,6 +46,10 @@ public class NetherConfigs {
                     .comment("Change How long does Nether Reactor take to be deactivated")
                     .defineInRange("Nether Reactor Deactive Time"
                             , 3600, 0, 36000);
+            nether_spawn_in_overworld = builder
+                    .comment("Nether Now Spawn in overworld but Not a complete rewrite to the Nether")
+                    .define("Nether Spawn In Overworld"
+                            , true);
         }
     }
 

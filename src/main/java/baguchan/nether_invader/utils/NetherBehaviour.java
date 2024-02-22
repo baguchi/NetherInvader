@@ -1,5 +1,6 @@
 package baguchan.nether_invader.utils;
 
+import baguchan.nether_invader.registry.ModBiomes;
 import baguchan.nether_invader.registry.ModBlockTags;
 import net.minecraft.core.*;
 import net.minecraft.core.registries.Registries;
@@ -10,7 +11,6 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeResolver;
-import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.BonemealableBlock;
@@ -144,20 +144,13 @@ public interface NetherBehaviour {
             Holder<Biome> holder = p_262698_.getNoiseBiome(p_262550_, p_262551_, p_262552_);
             if (p_262622_.isInside(i, j, k) && !holder.is(BiomeTags.IS_NETHER)) {
                 p_262615_.increment();
-                if (holder.is(Tags.Biomes.IS_SANDY)) {
-                    Optional<Holder.Reference<Biome>> biomeHolder = levelAccessor.registryAccess().registryOrThrow(Registries.BIOME).getHolder(Biomes.SOUL_SAND_VALLEY);
-                    if (biomeHolder.isPresent()) {
-                        return biomeHolder.get();
-                    }
-                }
-
                 if (holder.is(BiomeTags.IS_FOREST) || holder.is(Tags.Biomes.IS_SWAMP)) {
-                    Optional<Holder.Reference<Biome>> biomeHolder = levelAccessor.registryAccess().registryOrThrow(Registries.BIOME).getHolder(Biomes.CRIMSON_FOREST);
+                    Optional<Holder.Reference<Biome>> biomeHolder = levelAccessor.registryAccess().registryOrThrow(Registries.BIOME).getHolder(ModBiomes.CRIMSON_FOREST);
                     if (biomeHolder.isPresent()) {
                         return biomeHolder.get();
                     }
                 }
-                Optional<Holder.Reference<Biome>> biomeHolder = levelAccessor.registryAccess().registryOrThrow(Registries.BIOME).getHolder(Biomes.NETHER_WASTES);
+                Optional<Holder.Reference<Biome>> biomeHolder = levelAccessor.registryAccess().registryOrThrow(Registries.BIOME).getHolder(ModBiomes.NETHER_WASTES);
                 if (biomeHolder.isPresent()) {
                     return biomeHolder.get();
                 }

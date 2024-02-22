@@ -1,0 +1,32 @@
+{
+  "fallback": "minecraft:empty",
+  "elements": [
+    {
+      "weight": 5,
+      "element": {
+        "location": "nether_invader:nether_portal/road/road_1",
+        "processors": "minecraft:empty",
+        "element_type": "minecraft:legacy_single_pool_element",
+        "projection": "terrain_matching"
+      }
+    },
+    {
+      "weight": 2,
+      "element": {
+        "location": "nether_invader:nether_portal/road/road_2",
+        "processors": "minecraft:empty",
+        "element_type": "minecraft:legacy_single_pool_element",
+        "projection": "terrain_matching"
+      }
+    },
+    {
+      "weight": 2,
+      "element": {
+        "location": "nether_invader:nether_portal/road/road_3",
+        "processors": "minecraft:empty",
+        "element_type": "minecraft:legacy_single_pool_element",
+        "projection": "terrain_matching"
+      }
+    }
+  ]
+}

@@ -121,9 +121,11 @@ public class NetherSpreader extends Mob implements Enemy {
     @Override
     public void tick() {
         super.tick();
-        if (this.oldSpreaderProgress != this.getSpreaderProgress()) {
-            this.onPeekAmountChange();
-        }
+    }
+
+    @Override
+    public boolean removeWhenFarAway(double p_21542_) {
+        return false;
     }
 
     @Override
@@ -143,30 +145,6 @@ public class NetherSpreader extends Mob implements Enemy {
                 this.level().explode(this, (DamageSource) null, EXPLOSION_DAMAGE_CALCULATOR, this.getX(), this.getY(), this.getZ(), (float) (2), false, Level.ExplosionInteraction.BLOW, ParticleTypes.GUST, ParticleTypes.GUST_EMITTER, SoundEvents.GENERIC_EXPLODE);
             } else {
                 this.setSpreaderProgress(this.getSpreaderProgress() + 0.005F);
-            }
-        }
-    }
-
-    private void onPeekAmountChange() {
-        this.reapplyPosition();
-        float f = this.getSpreaderProgress();
-        float f1 = this.oldSpreaderProgress;
-        float f2 = f - f1;
-        if (!(f2 <= 0.0F)) {
-            for (Entity entity : this.level()
-                    .getEntities(
-                            this,
-                            getBoundingBox(),
-                            EntitySelector.NO_SPECTATORS.and(p_149771_ -> !p_149771_.isPassengerOfSameVehicle(this))
-                    )) {
-                if (!(entity instanceof NetherSpreader) && !entity.noPhysics) {
-                    entity.move(
-                            MoverType.SHULKER,
-                            new Vec3(
-                                    0, (double) (f2), 0
-                            )
-                    );
-                }
             }
         }
     }

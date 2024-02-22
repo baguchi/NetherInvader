@@ -17,7 +17,7 @@ public class NetherSpreaderRenderer<T extends NetherSpreader> extends MobRendere
 
     @Override
     protected boolean isShaking(T p_115304_) {
-        return p_115304_.getSpreaderProgress() > 0.8F;
+        return p_115304_.getSpreaderProgress() > 0.75F;
     }
 
     @Override

@@ -1,0 +1,14 @@
+{
+  "structures": [
+    {
+      "structure": "nether_invader:nether_portal",
+      "weight": 1
+    }
+  ],
+  "placement": {
+    "type": "minecraft:random_spread",
+    "salt": 16324620,
+    "spacing": 5,
+    "separation": 4
+  }
+}
