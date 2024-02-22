@@ -44,12 +44,13 @@ public class NetherInvader
     {
         event.enqueueWork(() ->
         {
+            if (NetherConfigs.COMMON.nether_spawn_in_overworld.get()) {
+                // Weights are kept intentionally low as we add minimal biomes
+                Regions.register(new OverworldNetherRegion(new ResourceLocation(MODID, "overworld_nether"), 3));
 
-            // Weights are kept intentionally low as we add minimal biomes
-            Regions.register(new OverworldNetherRegion(new ResourceLocation(MODID, "overworld_nether"), 3));
-
-            // Register our surface rules
-            SurfaceRuleManager.addSurfaceRules(SurfaceRuleManager.RuleCategory.OVERWORLD, MODID, ModSurfaceRuleData.makeRules());
+                // Register our surface rules
+                SurfaceRuleManager.addSurfaceRules(SurfaceRuleManager.RuleCategory.OVERWORLD, MODID, ModSurfaceRuleData.makeRules());
+            }
         });
     }
 

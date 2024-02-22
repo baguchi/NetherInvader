@@ -39,8 +39,8 @@ public class NetherConfigs {
                             , Lists.newArrayList("minecraft:piglin_brute")
                             , validator);
             enable_nether_invader_feature_default = builder
-                    .comment("Make Enable Nether Invader mod feature by default(If you want to set it individually, turn this off, restart, and set it again in Experimental Feature.)")
-                    .define("Enable Nether Invader mod feature by default"
+                    .comment("Make Enable Nether Reactor feature by default(If you want to set it individually, turn this off, restart, and set it again in Experimental Feature.)")
+                    .define("Enable Nether Reactor feature by default"
                             , false);
             nether_reactor_deactive_time = builder
                     .comment("Change How long does Nether Reactor take to be deactivated")

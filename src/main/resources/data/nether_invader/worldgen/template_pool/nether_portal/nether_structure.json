@@ -2,7 +2,7 @@
   "fallback": "minecraft:empty",
   "elements": [
     {
-      "weight": 1,
+      "weight": 2,
       "element": {
         "location": "nether_invader:nether_portal/nether_structure/nether_spreader",
         "processors": "minecraft:empty",
@@ -11,7 +11,25 @@
       }
     },
     {
-      "weight": 5,
+      "weight": 1,
+      "element": {
+        "location": "nether_invader:nether_portal/nether_structure/bastion",
+        "processors": "minecraft:bridge",
+        "projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      }
+    },
+    {
+      "weight": 2,
+      "element": {
+        "location": "nether_invader:nether_portal/nether_structure/nether_hut",
+        "processors": "minecraft:bridge",
+        "projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      }
+    },
+    {
+      "weight": 3,
       "element": {
         "element_type": "minecraft:empty_pool_element"
       }
