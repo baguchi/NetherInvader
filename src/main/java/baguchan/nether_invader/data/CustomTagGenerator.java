@@ -31,7 +31,8 @@ public class CustomTagGenerator {
         protected void addTags(HolderLookup.Provider provider) {
             tag(BiomeTags.IS_NETHER).add(ModBiomes.CRIMSON_FOREST, ModBiomes.NETHER_WASTES);
             tag(HAS_NETHER_PORTAL).add(ModBiomes.CRIMSON_FOREST, ModBiomes.NETHER_WASTES);
-
+            this.tag(BiomeTags.HAS_BASTION_REMNANT).remove(ModBiomes.CRIMSON_FOREST).remove(ModBiomes.NETHER_WASTES);
+            this.tag(BiomeTags.HAS_NETHER_FORTRESS).remove(ModBiomes.CRIMSON_FOREST).remove(ModBiomes.NETHER_WASTES);
             //vanilla
             tag(BiomeTags.WITHOUT_ZOMBIE_SIEGES).add(ModBiomes.CRIMSON_FOREST, ModBiomes.NETHER_WASTES);
             tag(BiomeTags.WITHOUT_PATROL_SPAWNS).add(ModBiomes.CRIMSON_FOREST, ModBiomes.NETHER_WASTES);
