@@ -1,6 +1,7 @@
 package baguchan.nether_invader.client;
 
 import baguchan.nether_invader.NetherInvader;
+import baguchan.nether_invader.client.layer.NetherSpreaderCrackinessLayer;
 import baguchan.nether_invader.client.model.NetherSpreaderModel;
 import baguchan.nether_invader.entity.NetherSpreader;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -9,10 +10,11 @@ import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
 
 public class NetherSpreaderRenderer<T extends NetherSpreader> extends MobRenderer<T, NetherSpreaderModel<T>> {
-    public static final ResourceLocation TEXTURE = new ResourceLocation(NetherInvader.MODID, "textures/entity/nether_spreader.png");
+    public static final ResourceLocation TEXTURE = new ResourceLocation(NetherInvader.MODID, "textures/entity/nether_spreader/nether_spreader.png");
 
     public NetherSpreaderRenderer(EntityRendererProvider.Context p_174289_) {
         super(p_174289_, new NetherSpreaderModel<>(p_174289_.bakeLayer(ModModelLayers.NETHER_SPREADER)), 1.0F);
+        this.addLayer(new NetherSpreaderCrackinessLayer<>(this));
     }
 
     @Override

@@ -1,6 +1,7 @@
 package baguchan.nether_invader.entity;
 
 import baguchan.nether_invader.utils.NetherSpreaderUtil;
+import com.google.common.collect.ImmutableList;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -28,7 +29,10 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class NetherSpreader extends Mob implements Enemy {
     public static final NetherReactorExplosionCalculator EXPLOSION_DAMAGE_CALCULATOR = new NetherReactorExplosionCalculator();
@@ -171,7 +175,7 @@ public class NetherSpreader extends Mob implements Enemy {
     public void die(DamageSource p_21014_) {
         super.die(p_21014_);
         if (this.level().isClientSide()) {
-            this.spawnBreakingParticle();
+            this.spawnBreakingParticle(10);
         }
         this.playSound(SoundEvents.GENERIC_EXPLODE, 2.0F, 1.0F);
         this.discard();
@@ -179,15 +183,23 @@ public class NetherSpreader extends Mob implements Enemy {
 
     @Override
     public boolean hurt(DamageSource p_21016_, float p_21017_) {
-        if (this.level().isClientSide()) {
-            this.spawnBreakingParticle();
+        NetherSpreader.Crackiness irongolem$crackiness = this.getCrackiness();
+        boolean flag = super.hurt(p_21016_, p_21017_);
+        if (flag && this.getCrackiness() != irongolem$crackiness) {
+            this.playSound(SoundEvents.IRON_GOLEM_DAMAGE, 1.0F, 1.0F);
+            if (this.level().isClientSide()) {
+                this.spawnBreakingParticle(20);
+            }
+        } else if (flag && this.level().isClientSide()) {
+            this.spawnBreakingParticle(15);
         }
-        return super.hurt(p_21016_, p_21017_);
+
+        return flag;
     }
 
-    protected void spawnBreakingParticle() {
+    protected void spawnBreakingParticle(int count) {
         BlockState blockstate = Blocks.NETHERITE_BLOCK.defaultBlockState();
-        for (int i = 0; i < 15; i++) {
+        for (int i = 0; i < count; i++) {
             double d0 = this.getX() + (this.random.nextDouble() - 0.5) * (double) this.getDimensions(this.getPose()).width;
             double d1 = this.getY() + (this.random.nextDouble()) * (double) this.getDimensions(this.getPose()).height;
             double d2 = this.getZ() + (this.random.nextDouble() - 0.5) * (double) this.getDimensions(this.getPose()).width;
@@ -215,12 +227,47 @@ public class NetherSpreader extends Mob implements Enemy {
         return HumanoidArm.RIGHT;
     }
 
+    public NetherSpreader.Crackiness getCrackiness() {
+        return NetherSpreader.Crackiness.byFraction(this.getHealth() / this.getMaxHealth());
+    }
+
     public static final class NetherReactorExplosionCalculator extends ExplosionDamageCalculator {
         public NetherReactorExplosionCalculator() {
         }
 
         public boolean shouldDamageEntity(Explosion p_314513_, Entity p_314456_) {
             return !(p_314456_ instanceof AbstractPiglin) && !(p_314456_ instanceof Hoglin) && !(p_314456_ instanceof NetherSpreader);
+        }
+    }
+
+    public static enum Crackiness {
+        NONE(1.0F),
+        LOW(0.75F),
+        MEDIUM(0.5F),
+        HIGH(0.25F);
+
+        private static final List<NetherSpreader.Crackiness> BY_DAMAGE = (List) Stream.of(values()).sorted(Comparator.comparingDouble((p_28904_) -> {
+            return (double) p_28904_.fraction;
+        })).collect(ImmutableList.toImmutableList());
+        private final float fraction;
+
+        private Crackiness(float p_28900_) {
+            this.fraction = p_28900_;
+        }
+
+        public static NetherSpreader.Crackiness byFraction(float p_28902_) {
+            Iterator var1 = BY_DAMAGE.iterator();
+
+            NetherSpreader.Crackiness irongolem$crackiness;
+            do {
+                if (!var1.hasNext()) {
+                    return NONE;
+                }
+
+                irongolem$crackiness = (NetherSpreader.Crackiness) var1.next();
+            } while (!(p_28902_ < irongolem$crackiness.fraction));
+
+            return irongolem$crackiness;
         }
     }
 }
