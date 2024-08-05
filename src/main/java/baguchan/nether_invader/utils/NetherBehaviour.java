@@ -150,6 +150,12 @@ public interface NetherBehaviour {
                         return biomeHolder.get();
                     }
                 }
+                if (holder.is(Tags.Biomes.IS_SANDY)) {
+                    Optional<Holder.Reference<Biome>> biomeHolder = levelAccessor.registryAccess().registryOrThrow(Registries.BIOME).getHolder(ModBiomes.SOUL_SAND_VALLEYS);
+                    if (biomeHolder.isPresent()) {
+                        return biomeHolder.get();
+                    }
+                }
                 Optional<Holder.Reference<Biome>> biomeHolder = levelAccessor.registryAccess().registryOrThrow(Registries.BIOME).getHolder(ModBiomes.NETHER_WASTES);
                 if (biomeHolder.isPresent()) {
                     return biomeHolder.get();

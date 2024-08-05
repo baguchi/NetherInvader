@@ -23,6 +23,54 @@ import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 public class ModBiomes {
     public static final ResourceKey<Biome> CRIMSON_FOREST = register("crimson_forest");
     public static final ResourceKey<Biome> NETHER_WASTES = register("nether_wastes");
+    public static final ResourceKey<Biome> SOUL_SAND_VALLEYS = register("soul_sand_valleys");
+
+    public static Biome soulSandValley(HolderGetter<PlacedFeature> p_256586_, HolderGetter<ConfiguredWorldCarver<?>> p_256434_) {
+        double d0 = 0.7;
+        double d1 = 0.15;
+        MobSpawnSettings mobspawnsettings = new MobSpawnSettings.Builder()
+                .addSpawn(MobCategory.MONSTER, new MobSpawnSettings.SpawnerData(EntityType.SKELETON, 20, 5, 5))
+                .addSpawn(MobCategory.MONSTER, new MobSpawnSettings.SpawnerData(EntityType.ENDERMAN, 1, 4, 4))
+                .addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.STRIDER, 60, 1, 2))
+                .addMobCharge(EntityType.SKELETON, 0.7, 0.15)
+                .addMobCharge(EntityType.ENDERMAN, 0.7, 0.15)
+                .addMobCharge(EntityType.STRIDER, 0.7, 0.15)
+                .build();
+        BiomeGenerationSettings.Builder biomegenerationsettings$builder = new BiomeGenerationSettings.Builder(p_256586_, p_256434_)
+                .addCarver(GenerationStep.Carving.AIR, Carvers.NETHER_CAVE)
+                .addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, MiscOverworldPlacements.SPRING_LAVA)
+                .addFeature(GenerationStep.Decoration.LOCAL_MODIFICATIONS, NetherPlacements.BASALT_PILLAR)
+                .addFeature(GenerationStep.Decoration.UNDERGROUND_DECORATION, NetherPlacements.SPRING_OPEN)
+                .addFeature(GenerationStep.Decoration.UNDERGROUND_DECORATION, NetherPlacements.PATCH_FIRE)
+                .addFeature(GenerationStep.Decoration.UNDERGROUND_DECORATION, NetherPlacements.PATCH_SOUL_FIRE)
+                .addFeature(GenerationStep.Decoration.UNDERGROUND_DECORATION, NetherPlacements.GLOWSTONE_EXTRA)
+                .addFeature(GenerationStep.Decoration.UNDERGROUND_DECORATION, NetherPlacements.GLOWSTONE)
+                .addFeature(GenerationStep.Decoration.UNDERGROUND_DECORATION, NetherPlacements.PATCH_CRIMSON_ROOTS)
+                .addFeature(GenerationStep.Decoration.UNDERGROUND_DECORATION, OrePlacements.ORE_MAGMA)
+                .addFeature(GenerationStep.Decoration.UNDERGROUND_DECORATION, NetherPlacements.SPRING_CLOSED)
+                .addFeature(GenerationStep.Decoration.UNDERGROUND_DECORATION, OrePlacements.ORE_SOUL_SAND);
+        BiomeDefaultFeatures.addNetherDefaultOres(biomegenerationsettings$builder);
+        return new Biome.BiomeBuilder()
+                .hasPrecipitation(false)
+                .temperature(2.0F)
+                .downfall(0.0F)
+                .specialEffects(
+                        new BiomeSpecialEffects.Builder()
+                                .waterColor(4159204)
+                                .waterFogColor(329011)
+                                .fogColor(1787717)
+                                .skyColor(calculateSkyColor(2.0F))
+                                .ambientParticle(new AmbientParticleSettings(ParticleTypes.ASH, 0.00625F))
+                                .ambientLoopSound(SoundEvents.AMBIENT_SOUL_SAND_VALLEY_LOOP)
+                                .ambientMoodSound(new AmbientMoodSettings(SoundEvents.AMBIENT_SOUL_SAND_VALLEY_MOOD, 6000, 8, 2.0))
+                                .ambientAdditionsSound(new AmbientAdditionsSettings(SoundEvents.AMBIENT_SOUL_SAND_VALLEY_ADDITIONS, 0.0111))
+                                .backgroundMusic(Musics.createGameMusic(SoundEvents.MUSIC_BIOME_SOUL_SAND_VALLEY))
+                                .build()
+                )
+                .mobSpawnSettings(mobspawnsettings)
+                .generationSettings(biomegenerationsettings$builder.build())
+                .build();
+    }
 
     public static Biome netherWastes(HolderGetter<PlacedFeature> p_255840_, HolderGetter<ConfiguredWorldCarver<?>> p_255956_) {
         MobSpawnSettings mobspawnsettings = new MobSpawnSettings.Builder()
@@ -120,6 +168,7 @@ public class ModBiomes {
         HolderGetter<ConfiguredWorldCarver<?>> vanillaConfiguredCarvers = context.lookup(Registries.CONFIGURED_CARVER);
         context.register(CRIMSON_FOREST, crimsonForest(placedFeatures, vanillaConfiguredCarvers));
         context.register(NETHER_WASTES, netherWastes(placedFeatures, vanillaConfiguredCarvers));
+        context.register(SOUL_SAND_VALLEYS, soulSandValley(placedFeatures, vanillaConfiguredCarvers));
     }
 
     private static ResourceKey<Biome> register(String name) {
