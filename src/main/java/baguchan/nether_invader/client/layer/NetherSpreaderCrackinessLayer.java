@@ -23,14 +23,14 @@ public class NetherSpreaderCrackinessLayer<T extends NetherSpreader> extends Ren
         if (!p_117151_.isInvisible()) {
             NetherSpreader.Crackiness irongolem$crackiness = p_117151_.getCrackiness();
             if (irongolem$crackiness != NetherSpreader.Crackiness.NONE) {
-                ResourceLocation resourcelocation = (ResourceLocation) resourceLocations.get(irongolem$crackiness);
-                renderColoredCutoutModel(this.getParentModel(), resourcelocation, p_117148_, p_117149_, p_117150_, p_117151_, 1.0F, 1.0F, 1.0F);
+                ResourceLocation resourcelocation = resourceLocations.get(irongolem$crackiness);
+                renderColoredCutoutModel(this.getParentModel(), resourcelocation, p_117148_, p_117149_, p_117150_, p_117151_, -1);
             }
         }
 
     }
 
     static {
-        resourceLocations = ImmutableMap.of(NetherSpreader.Crackiness.LOW, new ResourceLocation(NetherInvader.MODID, "textures/entity/nether_spreader/nether_spreader_cracked_1.png"), NetherSpreader.Crackiness.MEDIUM, new ResourceLocation(NetherInvader.MODID, "textures/entity/nether_spreader/nether_spreader_cracked_2.png"), NetherSpreader.Crackiness.HIGH, new ResourceLocation(NetherInvader.MODID, "textures/entity/nether_spreader/nether_spreader_cracked_3.png"));
+        resourceLocations = ImmutableMap.of(NetherSpreader.Crackiness.LOW, ResourceLocation.fromNamespaceAndPath(NetherInvader.MODID, "textures/entity/nether_spreader/nether_spreader_cracked_1.png"), NetherSpreader.Crackiness.MEDIUM, ResourceLocation.fromNamespaceAndPath(NetherInvader.MODID, "textures/entity/nether_spreader/nether_spreader_cracked_2.png"), NetherSpreader.Crackiness.HIGH, ResourceLocation.fromNamespaceAndPath(NetherInvader.MODID, "textures/entity/nether_spreader/nether_spreader_cracked_3.png"));
     }
 }

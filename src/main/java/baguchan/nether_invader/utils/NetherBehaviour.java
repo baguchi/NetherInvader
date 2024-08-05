@@ -17,7 +17,7 @@ import net.minecraft.world.level.block.BonemealableBlock;
 import net.minecraft.world.level.block.FungusBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.neoforged.neoforge.common.Tags;
 import org.apache.commons.lang3.mutable.MutableInt;
@@ -77,7 +77,7 @@ public interface NetherBehaviour {
             p_222364_.levelEvent(2001, p_222365_, Block.getId(blockstate));
             changeBiome(p_222364_, p_222365_, p_222366_);
             return true;
-        } else if (p_222366_.is(Tags.Blocks.STONE)) {
+        } else if (p_222366_.is(Tags.Blocks.STONES)) {
             BlockState blockstate = Blocks.BLACKSTONE.defaultBlockState();
 
             p_222364_.setBlock(p_222365_, blockstate, 3);

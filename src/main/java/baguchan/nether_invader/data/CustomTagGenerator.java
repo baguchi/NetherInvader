@@ -24,7 +24,7 @@ public class CustomTagGenerator {
         }
 
         private static TagKey<Biome> create(String p_207631_) {
-            return TagKey.create(Registries.BIOME, new ResourceLocation(NetherInvader.MODID, p_207631_));
+            return TagKey.create(Registries.BIOME, ResourceLocation.fromNamespaceAndPath(NetherInvader.MODID, p_207631_));
         }
 
         @Override

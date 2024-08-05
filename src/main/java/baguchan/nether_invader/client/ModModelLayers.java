@@ -5,6 +5,6 @@ import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.resources.ResourceLocation;
 
 public class ModModelLayers {
-    public static final ModelLayerLocation NETHER_SPREADER = new ModelLayerLocation(new ResourceLocation(NetherInvader.MODID, "nether_spreader"), "nether_spreader");
+    public static final ModelLayerLocation NETHER_SPREADER = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(NetherInvader.MODID, "nether_spreader"), "main");
 
 }

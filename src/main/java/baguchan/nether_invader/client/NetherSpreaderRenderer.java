@@ -10,7 +10,7 @@ import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
 
 public class NetherSpreaderRenderer<T extends NetherSpreader> extends MobRenderer<T, NetherSpreaderModel<T>> {
-    public static final ResourceLocation TEXTURE = new ResourceLocation(NetherInvader.MODID, "textures/entity/nether_spreader/nether_spreader.png");
+    public static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(NetherInvader.MODID, "textures/entity/nether_spreader/nether_spreader.png");
 
     public NetherSpreaderRenderer(EntityRendererProvider.Context p_174289_) {
         super(p_174289_, new NetherSpreaderModel<>(p_174289_.bakeLayer(ModModelLayers.NETHER_SPREADER)), 1.0F);
@@ -23,8 +23,8 @@ public class NetherSpreaderRenderer<T extends NetherSpreader> extends MobRendere
     }
 
     @Override
-    protected void setupRotations(T p_115317_, PoseStack p_115318_, float p_115319_, float p_115320_, float p_115321_) {
-        super.setupRotations(p_115317_, p_115318_, p_115319_, p_115320_, p_115321_);
+    protected void setupRotations(T p_115317_, PoseStack p_115318_, float p_115319_, float p_115320_, float p_115321_, float p_320045_) {
+        super.setupRotations(p_115317_, p_115318_, p_115319_, p_115320_, p_115321_, p_320045_);
         p_115318_.translate(0.0, -6F + p_115317_.getSpreaderProgressScale(p_115321_) * 6F, 0.0);
     }
 

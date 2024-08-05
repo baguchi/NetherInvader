@@ -49,9 +49,9 @@ public class NetherSpreader extends Mob implements Enemy {
     }
 
     @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        this.entityData.define(DATA_PROGRESS, 0F);
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(DATA_PROGRESS, 0F);
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -146,7 +146,7 @@ public class NetherSpreader extends Mob implements Enemy {
                 for (int i = 0; i < 5; i++) {
                     this.netherSpreaderUtil.addCursors(this.blockPosition().below(), 10);
                 }
-                this.level().explode(this, (DamageSource) null, EXPLOSION_DAMAGE_CALCULATOR, this.getX(), this.getY(), this.getZ(), (float) (2), false, Level.ExplosionInteraction.BLOW, ParticleTypes.GUST, ParticleTypes.GUST_EMITTER, SoundEvents.GENERIC_EXPLODE);
+                this.level().explode(this, (DamageSource) null, EXPLOSION_DAMAGE_CALCULATOR, this.getX(), this.getY(), this.getZ(), (float) (2), false, Level.ExplosionInteraction.NONE, ParticleTypes.GUST, ParticleTypes.GUST_EMITTER_LARGE, SoundEvents.GENERIC_EXPLODE);
             } else {
                 this.setSpreaderProgress(this.getSpreaderProgress() + 0.005F);
             }
@@ -159,12 +159,12 @@ public class NetherSpreader extends Mob implements Enemy {
 
     @Nullable
     @Override
-    public SpawnGroupData finalizeSpawn(ServerLevelAccessor p_21434_, DifficultyInstance p_21435_, MobSpawnType p_21436_, @Nullable SpawnGroupData p_21437_, @Nullable CompoundTag p_21438_) {
+    public SpawnGroupData finalizeSpawn(ServerLevelAccessor p_21434_, DifficultyInstance p_21435_, MobSpawnType p_21436_, @Nullable SpawnGroupData p_21437_) {
         if (p_21436_ == MobSpawnType.STRUCTURE) {
             this.setNoAi(false);
         }
 
-        return super.finalizeSpawn(p_21434_, p_21435_, p_21436_, p_21437_, p_21438_);
+        return super.finalizeSpawn(p_21434_, p_21435_, p_21436_, p_21437_);
     }
 
     public float getSpreaderProgressScale(float p_29570_) {
@@ -177,7 +177,7 @@ public class NetherSpreader extends Mob implements Enemy {
         if (this.level().isClientSide()) {
             this.spawnBreakingParticle(10);
         }
-        this.playSound(SoundEvents.GENERIC_EXPLODE, 2.0F, 1.0F);
+        this.playSound(SoundEvents.GENERIC_EXPLODE.value(), 2.0F, 1.0F);
         this.discard();
     }
 
@@ -200,9 +200,9 @@ public class NetherSpreader extends Mob implements Enemy {
     protected void spawnBreakingParticle(int count) {
         BlockState blockstate = Blocks.NETHERITE_BLOCK.defaultBlockState();
         for (int i = 0; i < count; i++) {
-            double d0 = this.getX() + (this.random.nextDouble() - 0.5) * (double) this.getDimensions(this.getPose()).width;
-            double d1 = this.getY() + (this.random.nextDouble()) * (double) this.getDimensions(this.getPose()).height;
-            double d2 = this.getZ() + (this.random.nextDouble() - 0.5) * (double) this.getDimensions(this.getPose()).width;
+            double d0 = this.getX() + (this.random.nextDouble() - 0.5) * (double) this.getDimensions(this.getPose()).width();
+            double d1 = this.getY() + (this.random.nextDouble()) * (double) this.getDimensions(this.getPose()).height();
+            double d2 = this.getZ() + (this.random.nextDouble() - 0.5) * (double) this.getDimensions(this.getPose()).width();
             this.level().addParticle(new BlockParticleOption(ParticleTypes.BLOCK, blockstate), d0, d1, d2, 0F, 0F, 0F);
         }
     }
