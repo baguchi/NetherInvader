@@ -17,7 +17,6 @@ import java.util.concurrent.CompletableFuture;
 
 public class CustomTagGenerator {
     public static class BiomeTagGenerator extends BiomeTagsProvider {
-        public static final TagKey<Biome> HAS_NETHER_PORTAL = create("has_structure/nether_portal");
 
         public BiomeTagGenerator(PackOutput output, CompletableFuture<HolderLookup.Provider> future, @Nullable ExistingFileHelper existingFileHelper) {
             super(output, future, NetherInvader.MODID, existingFileHelper);
@@ -30,7 +29,6 @@ public class CustomTagGenerator {
         @Override
         protected void addTags(HolderLookup.Provider provider) {
             tag(BiomeTags.IS_NETHER).add(ModBiomes.CRIMSON_FOREST, ModBiomes.NETHER_WASTES, ModBiomes.SOUL_SAND_VALLEYS);
-            tag(HAS_NETHER_PORTAL).add(ModBiomes.CRIMSON_FOREST, ModBiomes.NETHER_WASTES, ModBiomes.SOUL_SAND_VALLEYS);
             this.tag(BiomeTags.HAS_BASTION_REMNANT).remove(ModBiomes.CRIMSON_FOREST).remove(ModBiomes.NETHER_WASTES).remove(ModBiomes.SOUL_SAND_VALLEYS);
             this.tag(BiomeTags.HAS_NETHER_FORTRESS).remove(ModBiomes.CRIMSON_FOREST).remove(ModBiomes.NETHER_WASTES).remove(ModBiomes.SOUL_SAND_VALLEYS);
             //vanilla

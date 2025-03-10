@@ -2,6 +2,7 @@ package baguchan.nether_invader;
 
 import baguchan.nether_invader.registry.ModEntitys;
 import baguchan.nether_invader.registry.ModItems;
+import baguchan.nether_invader.registry.ModPotions;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
@@ -21,6 +22,8 @@ public class NetherInvader
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
         ModItems.ITEMS.register(modEventBus);
+        ModPotions.MOB_EFFECTS.register(modEventBus);
+        ModPotions.POTIONS.register(modEventBus);
         ModEntitys.ENTITIES_REGISTRY.register(modEventBus);
 
         modContainer.registerConfig(ModConfig.Type.COMMON, NetherConfigs.COMMON_SPEC);

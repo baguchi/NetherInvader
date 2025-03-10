@@ -1,5 +1,9 @@
 {
-  "block.nether_invader.nether_reactor": "Nether Reactor",
+  "effect.nether_invader.awkward": "Strong Awkward",
+  "item.minecraft.potion.effect.strong_awkward": "Potion of Strong Awkward",
+  "item.minecraft.splash_potion.effect.strong_awkward": "Splash Potion of Strong Awkward",
+  "item.minecraft.lingering_potion.effect.strong_awkward": "Lingering Potion of Strong Awkward",
+  "item.minecraft.tipped_arrow.effect.strong_awkward": "Arrow of Strong Awkward",
   "entity.nether_invader.nether_spreader": "Nether Spreader",
   "biome.nether_invader.nether_wastes": "Nether Wastes",
   "biome.nether_invader.crimson_forest": "Crimson Forest"
