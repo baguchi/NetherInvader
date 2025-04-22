@@ -1,6 +1,7 @@
-package baguchan.nether_invader.client;
+package baguchan.nether_invader.client.render;
 
 import baguchan.nether_invader.NetherInvader;
+import baguchan.nether_invader.client.ModModelLayers;
 import baguchan.nether_invader.client.layer.NetherSpreaderCrackinessLayer;
 import baguchan.nether_invader.client.model.NetherSpreaderModel;
 import baguchan.nether_invader.entity.NetherSpreader;

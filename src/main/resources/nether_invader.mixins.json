@@ -6,7 +6,9 @@
   "refmap": "nether_invader.refmap.json",
   "mixins": [
     "AbstractPiglinMixin",
-    "HoglinMixin"
+    "BehaviorUtilMixin",
+    "HoglinMixin",
+    "NearestVisibleLivingEntitiesMixin"
   ],
   "client": [
   ],
