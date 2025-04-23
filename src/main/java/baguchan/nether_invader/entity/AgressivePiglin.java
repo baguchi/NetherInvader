@@ -16,6 +16,8 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.VisibleForDebug;
+import net.minecraft.util.profiling.Profiler;
+import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.damagesource.DamageSource;
@@ -66,7 +68,7 @@ public class AgressivePiglin extends AbstractPiglin implements CrossbowAttackMob
     private final SimpleContainer inventory = new SimpleContainer(8);
     private boolean cannotHunt;
     protected static final ImmutableList<SensorType<? extends Sensor<? super AgressivePiglin>>> SENSOR_TYPES = ImmutableList.of(
-            bagu_chan.bagus_lib.register.ModSensors.SMART_NEAREST_LIVING_ENTITY_SENSOR.get(), SensorType.NEAREST_ITEMS, SensorType.HURT_BY, ModSensors.ANGER_PIGLIN_SENSOR.get()
+            baguchi.bagus_lib.register.ModSensors.SMART_NEAREST_LIVING_ENTITY_SENSOR.get(), SensorType.NEAREST_PLAYERS, SensorType.NEAREST_ITEMS, SensorType.HURT_BY, ModSensors.ANGER_PIGLIN_SENSOR.get()
     );
     protected static final ImmutableList<MemoryModuleType<?>> MEMORY_TYPES = ImmutableList.of(
             MemoryModuleType.LOOK_TARGET,
@@ -124,8 +126,8 @@ public class AgressivePiglin extends AbstractPiglin implements CrossbowAttackMob
     @Override
     public void readAdditionalSaveData(CompoundTag p_34725_) {
         super.readAdditionalSaveData(p_34725_);
-        this.setBaby(p_34725_.getBoolean("IsBaby"));
-        this.setCannotHunt(p_34725_.getBoolean("CannotHunt"));
+        this.setBaby(p_34725_.getBooleanOr("IsBaby", false));
+        this.setCannotHunt(p_34725_.getBooleanOr("CannotHunt", false));
         this.readInventoryFromTag(p_34725_, this.registryAccess());
     }
 
@@ -141,10 +143,10 @@ public class AgressivePiglin extends AbstractPiglin implements CrossbowAttackMob
         if (p_34697_.getEntity() instanceof Creeper creeper && creeper.canDropMobsSkull()) {
             ItemStack itemstack = new ItemStack(Items.PIGLIN_HEAD);
             creeper.increaseDroppedSkulls();
-            this.spawnAtLocation(itemstack);
+            this.spawnAtLocation(p_348503_, itemstack);
         }
 
-        this.inventory.removeAllItems().forEach(this::spawnAtLocation);
+        this.inventory.removeAllItems().forEach(stack -> spawnAtLocation(p_348503_, stack));
     }
 
     protected ItemStack addToInventory(ItemStack p_34779_) {
@@ -176,16 +178,16 @@ public class AgressivePiglin extends AbstractPiglin implements CrossbowAttackMob
     }
 
     public static boolean checkPiglinSpawnRules(
-            EntityType<Piglin> p_219198_, LevelAccessor p_219199_, MobSpawnType p_219200_, BlockPos p_219201_, RandomSource p_219202_
+            EntityType<Piglin> p_219198_, LevelAccessor p_219199_, EntitySpawnReason p_219200_, BlockPos p_219201_, RandomSource p_219202_
     ) {
         return !p_219199_.getBlockState(p_219201_.below()).is(Blocks.NETHER_WART_BLOCK);
     }
 
     @Nullable
     @Override
-    public SpawnGroupData finalizeSpawn(ServerLevelAccessor p_34717_, DifficultyInstance p_34718_, MobSpawnType p_34719_, @Nullable SpawnGroupData p_34720_) {
+    public SpawnGroupData finalizeSpawn(ServerLevelAccessor p_34717_, DifficultyInstance p_34718_, EntitySpawnReason p_34719_, @Nullable SpawnGroupData p_34720_) {
         RandomSource randomsource = p_34717_.getRandom();
-        if (p_34719_ != MobSpawnType.STRUCTURE) {
+        if (p_34719_ != EntitySpawnReason.STRUCTURE) {
             if (randomsource.nextFloat() < 0.2F) {
                 this.setBaby(true);
             }
@@ -288,23 +290,28 @@ public class AgressivePiglin extends AbstractPiglin implements CrossbowAttackMob
         return !this.cannotHunt;
     }
 
+
     @Override
-    protected void customServerAiStep() {
-        this.level().getProfiler().push("piglinBrain");
+    protected void customServerAiStep(ServerLevel p_376586_) {
+
+        ProfilerFiller profilerfiller = Profiler.get();
+        profilerfiller.push("piglinBrain");
         this.getBrain().tick((ServerLevel) this.level(), this);
-        this.level().getProfiler().pop();
+        profilerfiller.pop();
         RevampedPiglinAi.updateActivity(this);
-        super.customServerAiStep();
+        super.customServerAiStep(p_376586_);
     }
 
     @Override
-    protected int getBaseExperienceReward() {
+    protected int getBaseExperienceReward(ServerLevel p_376894_) {
         return this.xpReward;
     }
 
     @Override
     protected void finishConversion(ServerLevel p_34756_) {
-        this.inventory.removeAllItems().forEach(this::spawnAtLocation);
+        this.inventory.removeAllItems().forEach(stack -> {
+            spawnAtLocation(p_34756_, stack);
+        });
         super.finishConversion(p_34756_);
     }
 
@@ -348,13 +355,13 @@ public class AgressivePiglin extends AbstractPiglin implements CrossbowAttackMob
     }
 
     @Override
-    public boolean hurt(DamageSource p_34694_, float p_34695_) {
-        boolean flag = super.hurt(p_34694_, p_34695_);
+    public boolean hurtServer(ServerLevel serverLevel, DamageSource p_34694_, float p_34695_) {
+        boolean flag = super.hurtServer(serverLevel, p_34694_, p_34695_);
         if (this.level().isClientSide) {
             return false;
         } else {
             if (flag && p_34694_.getEntity() instanceof LivingEntity) {
-                RevampedPiglinAi.wasHurtBy(this, (LivingEntity) p_34694_.getEntity());
+                RevampedPiglinAi.wasHurtBy(serverLevel, this, (LivingEntity) p_34694_.getEntity());
             }
 
             return flag;

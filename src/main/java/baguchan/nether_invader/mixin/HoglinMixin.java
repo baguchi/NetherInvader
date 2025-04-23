@@ -39,7 +39,7 @@ public abstract class HoglinMixin extends Animal implements IPiglinImmunite {
 
     @Inject(method = "readAdditionalSaveData", at = @At("TAIL"))
     public void readAdditionalSaveData(CompoundTag p_34661_, CallbackInfo ci) {
-        netherInvader$immuniteByPotion = p_34661_.getBoolean("immunite_by_potion");
+        netherInvader$immuniteByPotion = p_34661_.getBooleanOr("immunite_by_potion", false);
     }
 
     @Unique

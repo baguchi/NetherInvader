@@ -53,15 +53,15 @@ public abstract class AbstractPiglinMixin extends Monster implements IPiglinImmu
     }
 
     @Inject(method = "customServerAiStep", at = @At("HEAD"))
-    protected void customServerAiStep(CallbackInfo ci) {
+    protected void customServerAiStep(ServerLevel serverLevel, CallbackInfo ci) {
         if (this.level() instanceof ServerLevel && this.isAlive()) {
             PiglinRaid raid = this.netherInvader$getCurrentRaid();
             if (this.netherInvader$canJoinRaid()) {
                 if (raid == null) {
                     if (this.level().getGameTime() % 20L == 0L) {
-                        PiglinRaid raid1 = PiglinRaidData.get(this.level()).getNearbyRaid(this.blockPosition(), 9216);
-                        if (raid1 != null && PiglinRaidData.canJoinRaid((AbstractPiglin) (Object) this, raid1)) {
-                            raid1.joinRaid(raid1.getGroupsSpawned(), (AbstractPiglin) (Object) this, null, true);
+                        PiglinRaid raid1 = PiglinRaidData.get(this.level()).getPiglinRaidAt(this.blockPosition());
+                        if (raid1 != null && PiglinRaidData.canJoinPiglinRaid((PiglinRaider) (Object) this)) {
+                            raid1.joinRaid(serverLevel, raid1.getGroupsSpawned(), (AbstractPiglin) (Object) this, null, true);
                         }
                     }
                 } else {
@@ -88,7 +88,7 @@ public abstract class AbstractPiglinMixin extends Monster implements IPiglinImmu
 
     @Inject(method = "readAdditionalSaveData", at = @At("TAIL"))
     public void readAdditionalSaveData(CompoundTag p_34661_, CallbackInfo ci) {
-        netherInvader$immuniteByPotion = p_34661_.getBoolean("immunite_by_potion");
+        netherInvader$immuniteByPotion = p_34661_.getBooleanOr("immunite_by_potion", false);
     }
 
     @Unique
@@ -160,7 +160,7 @@ public abstract class AbstractPiglinMixin extends Monster implements IPiglinImmu
     public boolean netherInvader$hasRaid() {
         return !(this.level() instanceof ServerLevel serverlevel)
                 ? false
-                : this.netherInvader$getCurrentRaid() != null || PiglinRaidData.get(serverlevel).getRaidAt(this.blockPosition()) != null;
+                : this.netherInvader$getCurrentRaid() != null || PiglinRaidData.get(serverlevel).getPiglinRaidAt(this.blockPosition()) != null;
     }
 
     @Unique
@@ -179,7 +179,7 @@ public abstract class AbstractPiglinMixin extends Monster implements IPiglinImmu
 
     @Override
     public void die(DamageSource p_37847_) {
-        if (this.level() instanceof ServerLevel) {
+        if (this.level() instanceof ServerLevel serverLevel) {
             Entity entity = p_37847_.getEntity();
             PiglinRaid raid = this.netherInvader$getCurrentRaid();
             if (raid != null) {
@@ -191,7 +191,7 @@ public abstract class AbstractPiglinMixin extends Monster implements IPiglinImmu
                     raid.addHeroOfTheVillage(entity);
                 }
 
-                raid.removeFromRaid((AbstractPiglin) (Object) this, false);
+                raid.removeFromRaid(serverLevel, (AbstractPiglin) (Object) this, false);
             }
         }
 

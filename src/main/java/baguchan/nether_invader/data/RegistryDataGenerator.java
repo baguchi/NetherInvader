@@ -1,7 +1,6 @@
 package baguchan.nether_invader.data;
 
 import baguchan.nether_invader.NetherInvader;
-import baguchan.nether_invader.registry.ModBiomes;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.core.registries.Registries;
@@ -30,7 +29,8 @@ public class RegistryDataGenerator extends DatapackBuiltinEntriesProvider {
             })
             .add(Registries.DIMENSION_TYPE, (context) -> {
             })
-            .add(Registries.BIOME, ModBiomes::bootstrap);
+            .add(Registries.BIOME, (context) -> {
+            });
 
 
     public RegistryDataGenerator(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {

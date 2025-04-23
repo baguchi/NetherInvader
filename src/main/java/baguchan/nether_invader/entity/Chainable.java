@@ -3,9 +3,10 @@ package baguchan.nether_invader.entity;
 import baguchan.nether_invader.network.ChainPacket;
 import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Either;
+import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtUtils;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.Items;
@@ -26,39 +27,21 @@ public interface Chainable {
 
 
     @Nullable
-    default ChainData readChainData(CompoundTag p_352410_) {
-        if (p_352410_.contains("chain", 10)) {
-            return new Chainable.ChainData(Either.left(p_352410_.getCompound("chain").getUUID("UUID")));
-        } else {
-            if (p_352410_.contains("chain", 11)) {
-                Either<UUID, BlockPos> either = NbtUtils.readBlockPos(p_352410_, "chain").<Either<UUID, BlockPos>>map(Either::right).orElse(null);
-                if (either != null) {
-                    return new Chainable.ChainData(either);
-                }
-            }
-
-            return null;
+    default void readChainData(CompoundTag p_390528_) {
+        Chainable.ChainData leashable$leashdata = (Chainable.ChainData) p_390528_.read("chain", Chainable.ChainData.CODEC).orElse((ChainData) null);
+        if (this.getChainData() != null && leashable$leashdata == null) {
+            this.removeChain();
         }
+
+        this.setChainData(leashable$leashdata);
+    }
+
+    default void removeChain() {
+        dropChain((Entity & Chainable) this, true, false);
     }
 
     default void writeChainData(CompoundTag p_352349_, @Nullable Chainable.ChainData p_352363_) {
-        if (p_352363_ != null) {
-            Either<UUID, BlockPos> either = p_352363_.delayedChainInfo;
-            /*if (p_352363_.chainHolder instanceof ChainFenceKnotEntity chainfenceknotentity) {
-                either = Either.right(chainfenceknotentity.getPos());
-            } else */
-            if (p_352363_.chainHolder != null) {
-                either = Either.left(p_352363_.chainHolder.getUUID());
-            }
-
-            if (either != null) {
-                p_352349_.put("chain", either.map(p_352326_ -> {
-                    CompoundTag compoundtag = new CompoundTag();
-                    compoundtag.putUUID("UUID", p_352326_);
-                    return compoundtag;
-                }, NbtUtils::writeBlockPos));
-            }
-        }
+        p_352349_.storeNullable("chain", ChainData.CODEC, p_352363_);
     }
 
     default <E extends Entity & Chainable> void restoreChainFromSave(E p_352354_, Chainable.ChainData p_352106_) {
@@ -74,7 +57,7 @@ public interface Chainable {
             }
 
             if (p_352354_.tickCount > 100) {
-                p_352354_.spawnAtLocation(Items.CHAIN);
+                p_352354_.spawnAtLocation((ServerLevel) p_352354_.level(), Items.CHAIN);
                 p_352354_.setChainData(null);
             }
         }
@@ -127,7 +110,7 @@ public interface Chainable {
         if (leashable$leashdata != null && leashable$leashdata.chainHolder != null) {
             p_352163_.setChainData(null);
             if (!p_352163_.level().isClientSide && p_352272_) {
-                p_352163_.spawnAtLocation(Items.CHAIN);
+                p_352163_.spawnAtLocation((ServerLevel) p_352163_.level(), Items.CHAIN);
             }
 
             if (p_352286_ && p_352163_.level() instanceof ServerLevel serverlevel) {
@@ -295,6 +278,7 @@ public interface Chainable {
 
 
     public static final class ChainData {
+        public static final Codec<ChainData> CODEC;
         int delayedChainHolderId;
         @Nullable
         public Entity chainHolder;
@@ -317,6 +301,13 @@ public interface Chainable {
             this.chainHolder = p_352464_;
             this.delayedChainInfo = null;
             this.delayedChainHolderId = 0;
+        }
+
+        static {
+            CODEC = Codec.xor(UUIDUtil.CODEC.fieldOf("UUID").codec(), BlockPos.CODEC).xmap(ChainData::new, (p_412912_) -> {
+                Entity patt0$temp = p_412912_.chainHolder;
+                return p_412912_.chainHolder != null ? Either.left(p_412912_.chainHolder.getUUID()) : (Either) Objects.requireNonNull(p_412912_.delayedChainInfo, "Invalid LeashData had no attachment");
+            });
         }
     }
 }

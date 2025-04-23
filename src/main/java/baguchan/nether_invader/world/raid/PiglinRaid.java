@@ -9,16 +9,16 @@ import baguchan.nether_invader.registry.ModPotions;
 import baguchan.nether_invader.world.savedata.PiglinRaidData;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.SectionPos;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NbtUtils;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.server.level.ServerBossEvent;
@@ -28,7 +28,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
-import net.minecraft.util.Unit;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.BossEvent;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
@@ -40,7 +40,8 @@ import net.minecraft.world.entity.monster.piglin.AbstractPiglin;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BannerPattern;
 import net.minecraft.world.level.block.entity.BannerPatternLayers;
@@ -54,6 +55,9 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 public class PiglinRaid {
+
+    public static final MapCodec<PiglinRaid> MAP_CODEC = RecordCodecBuilder.mapCodec((p_400925_) -> p_400925_.group(Codec.BOOL.fieldOf("started").forGetter((p_400913_) -> p_400913_.started), Codec.BOOL.fieldOf("active").forGetter((p_400917_) -> p_400917_.active), Codec.LONG.fieldOf("ticks_active").forGetter((p_400918_) -> p_400918_.ticksActive), Codec.INT.fieldOf("raid_omen_level").forGetter((p_400924_) -> p_400924_.raidOmenLevel), Codec.INT.fieldOf("groups_spawned").forGetter((p_400921_) -> p_400921_.groupsSpawned), Codec.INT.fieldOf("cooldown_ticks").forGetter((p_400926_) -> p_400926_.raidCooldownTicks), Codec.INT.fieldOf("post_raid_ticks").forGetter((p_400914_) -> p_400914_.postRaidTicks), Codec.FLOAT.fieldOf("total_health").forGetter((p_400919_) -> p_400919_.totalHealth), Codec.INT.fieldOf("group_count").forGetter((p_400915_) -> p_400915_.numGroups), RaidStatus.CODEC.fieldOf("status").forGetter((p_400927_) -> p_400927_.status), BlockPos.CODEC.fieldOf("center").forGetter((p_400923_) -> p_400923_.center), UUIDUtil.CODEC_SET.fieldOf("heroes_of_the_village").forGetter((p_400920_) -> p_400920_.heroesOfTheVillage)).apply(p_400925_, PiglinRaid::new));
+
     private static final int SECTION_RADIUS_FOR_FINDING_NEW_VILLAGE_CENTER = 2;
     private static final int ATTEMPT_RAID_FARTHEST = 0;
     private static final int ATTEMPT_RAID_CLOSE = 1;
@@ -83,53 +87,48 @@ public class PiglinRaid {
     private final Set<UUID> heroesOfTheVillage = Sets.newHashSet();
     private long ticksActive;
     private BlockPos center;
-    private final ServerLevel level;
     private boolean started;
-    private final int id;
     private float totalHealth;
     private int raidOmenLevel;
     private boolean active;
     private int groupsSpawned;
-    private final ServerBossEvent raidEvent = new ServerBossEvent(RAID_NAME_COMPONENT, BossEvent.BossBarColor.RED, BossEvent.BossBarOverlay.NOTCHED_10);
+    private final ServerBossEvent raidEvent;
     private int postRaidTicks;
     private int raidCooldownTicks;
-    private final RandomSource random = RandomSource.create();
+    private final RandomSource random;
     private final int numGroups;
     private RaidStatus status;
     private int celebrationTicks;
     private Optional<BlockPos> waveSpawnPos = Optional.empty();
 
-    public PiglinRaid(int p_37692_, ServerLevel p_37693_, BlockPos p_37694_) {
-        this.id = p_37692_;
-        this.level = p_37693_;
+    public PiglinRaid(BlockPos p_401301_, Difficulty p_401426_) {
+        this.raidEvent = new ServerBossEvent(RAID_NAME_COMPONENT, BossEvent.BossBarColor.RED, BossEvent.BossBarOverlay.NOTCHED_10);
+        this.random = RandomSource.create();
+        this.waveSpawnPos = Optional.empty();
         this.active = true;
         this.raidCooldownTicks = 300;
         this.raidEvent.setProgress(0.0F);
-        this.center = p_37694_;
-        this.numGroups = this.getNumGroups(p_37693_.getDifficulty());
+        this.center = p_401301_;
+        this.numGroups = this.getNumGroups(p_401426_);
         this.status = RaidStatus.ONGOING;
     }
 
-    public PiglinRaid(ServerLevel p_37696_, CompoundTag p_37697_) {
-        this.level = p_37696_;
-        this.id = p_37697_.getInt("Id");
-        this.started = p_37697_.getBoolean("Started");
-        this.active = p_37697_.getBoolean("Active");
-        this.ticksActive = p_37697_.getLong("TicksActive");
-        this.raidOmenLevel = p_37697_.getInt("BadOmenLevel");
-        this.groupsSpawned = p_37697_.getInt("GroupsSpawned");
-        this.raidCooldownTicks = p_37697_.getInt("PreRaidTicks");
-        this.postRaidTicks = p_37697_.getInt("PostRaidTicks");
-        this.totalHealth = p_37697_.getFloat("TotalHealth");
-        this.center = new BlockPos(p_37697_.getInt("CX"), p_37697_.getInt("CY"), p_37697_.getInt("CZ"));
-        this.numGroups = p_37697_.getInt("NumGroups");
-        this.status = RaidStatus.getByName(p_37697_.getString("Status"));
-        this.heroesOfTheVillage.clear();
-        if (p_37697_.contains("HeroesOfTheVillage", 9)) {
-            for (Tag tag : p_37697_.getList("HeroesOfTheVillage", 11)) {
-                this.heroesOfTheVillage.add(NbtUtils.loadUUID(tag));
-            }
-        }
+    private PiglinRaid(boolean p_401323_, boolean p_401294_, long p_401064_, int p_37692_, int p_401428_, int p_401382_, int p_401117_, float p_401178_, int p_401042_, RaidStatus p_401122_, BlockPos p_37694_, Set<UUID> p_401136_) {
+        this.raidEvent = new ServerBossEvent(RAID_NAME_COMPONENT, BossEvent.BossBarColor.RED, BossEvent.BossBarOverlay.NOTCHED_10);
+        this.random = RandomSource.create();
+        this.waveSpawnPos = Optional.empty();
+        this.started = p_401323_;
+        this.active = p_401294_;
+        this.ticksActive = p_401064_;
+        this.raidOmenLevel = p_37692_;
+        this.groupsSpawned = p_401428_;
+        this.raidCooldownTicks = p_401382_;
+        this.postRaidTicks = p_401117_;
+        this.totalHealth = p_401178_;
+        this.center = p_37694_;
+        this.numGroups = p_401042_;
+        this.status = p_401122_;
+        this.heroesOfTheVillage.addAll(p_401136_);
     }
 
     public boolean isOver() {
@@ -170,10 +169,6 @@ public class PiglinRaid {
         return set;
     }
 
-    public Level getLevel() {
-        return this.level;
-    }
-
     public boolean isStarted() {
         return this.started;
     }
@@ -182,16 +177,16 @@ public class PiglinRaid {
         return this.groupsSpawned;
     }
 
-    private Predicate<ServerPlayer> validPlayer() {
+    private Predicate<ServerPlayer> validPlayer(ServerLevel serverLevel) {
         return p_352841_ -> {
             BlockPos blockpos = p_352841_.blockPosition();
-            return p_352841_.isAlive() && PiglinRaidData.get(this.level).getNearbyRaid(blockpos, 9216) == this;
+            return p_352841_.isAlive() && PiglinRaidData.get(serverLevel).getNearbyPiglinRaid(blockpos, 9216) == this;
         };
     }
 
-    private void updatePlayers() {
+    private void updatePlayers(ServerLevel serverLevel) {
         Set<ServerPlayer> set = Sets.newHashSet(this.raidEvent.getPlayers());
-        List<ServerPlayer> list = this.level.getPlayers(this.validPlayer());
+        List<ServerPlayer> list = serverLevel.getPlayers(this.validPlayer(serverLevel));
 
         for (ServerPlayer serverplayer : list) {
             if (!set.contains(serverplayer)) {
@@ -238,12 +233,12 @@ public class PiglinRaid {
         this.status = RaidStatus.STOPPED;
     }
 
-    public void tick() {
+    public void tick(ServerLevel serverLevel) {
         if (!this.isStopped()) {
             if (this.status == RaidStatus.ONGOING) {
                 boolean flag = this.active;
-                this.active = this.level.hasChunkAt(this.center);
-                if (this.level.getDifficulty() == Difficulty.PEACEFUL) {
+                this.active = serverLevel.hasChunkAt(this.center);
+                if (serverLevel.getDifficulty() == Difficulty.PEACEFUL) {
                     this.stop();
                     return;
                 }
@@ -256,11 +251,11 @@ public class PiglinRaid {
                     return;
                 }
 
-                if (!this.level.isVillage(this.center)) {
-                    this.moveRaidCenterToNearbyVillageSection();
+                if (!serverLevel.isVillage(this.center)) {
+                    this.moveRaidCenterToNearbyVillageSection(serverLevel);
                 }
 
-                if (!this.level.isVillage(this.center)) {
+                if (!serverLevel.isVillage(this.center)) {
                     if (this.groupsSpawned > 0) {
                         this.status = RaidStatus.LOSS;
                     } else {
@@ -285,7 +280,7 @@ public class PiglinRaid {
                     } else {
                         boolean flag1 = this.waveSpawnPos.isPresent();
                         boolean flag2 = !flag1 && this.raidCooldownTicks % 5 == 0;
-                        if (flag1 && !this.level.isPositionEntityTicking(this.waveSpawnPos.get())) {
+                        if (flag1 && !serverLevel.isPositionEntityTicking(this.waveSpawnPos.get())) {
                             flag2 = true;
                         }
 
@@ -297,11 +292,11 @@ public class PiglinRaid {
                                 j = 2;
                             }
 
-                            this.waveSpawnPos = this.getValidSpawnPos(j);
+                            this.waveSpawnPos = this.getValidSpawnPos(serverLevel, j);
                         }
 
                         if (this.raidCooldownTicks == 300 || this.raidCooldownTicks % 20 == 0) {
-                            this.updatePlayers();
+                            this.updatePlayers(serverLevel);
                         }
 
                         this.raidCooldownTicks--;
@@ -310,8 +305,8 @@ public class PiglinRaid {
                 }
 
                 if (this.ticksActive % 20L == 0L) {
-                    this.updatePlayers();
-                    this.updateRaiders();
+                    this.updatePlayers(serverLevel);
+                    this.updateRaiders(serverLevel);
                     if (i > 0) {
                         if (i <= 2) {
                             this.raidEvent
@@ -328,12 +323,12 @@ public class PiglinRaid {
                 int k = 0;
 
                 while (this.shouldSpawnGroup()) {
-                    BlockPos blockpos = this.waveSpawnPos.isPresent() ? this.waveSpawnPos.get() : this.findRandomSpawnPos(k, 20);
+                    BlockPos blockpos = this.waveSpawnPos.isPresent() ? this.waveSpawnPos.get() : this.findRandomSpawnPos(serverLevel, k, 20);
                     if (blockpos != null) {
                         this.started = true;
-                        this.spawnGroup(blockpos);
+                        this.spawnGroup(serverLevel, blockpos);
                         if (!flag3) {
-                            this.playSound(blockpos);
+                            this.playSound(serverLevel, blockpos);
                             flag3 = true;
                         }
                     } else {
@@ -353,7 +348,7 @@ public class PiglinRaid {
                         this.status = RaidStatus.VICTORY;
 
                         for (UUID uuid : this.heroesOfTheVillage) {
-                            Entity entity = this.level.getEntity(uuid);
+                            Entity entity = serverLevel.getEntity(uuid);
                             if (entity instanceof LivingEntity) {
                                 LivingEntity livingentity = (LivingEntity) entity;
                                 if (!entity.isSpectator()) {
@@ -369,7 +364,7 @@ public class PiglinRaid {
                     }
                 }
 
-                this.setDirty();
+                this.setDirty(serverLevel);
             } else if (this.isOver()) {
                 this.celebrationTicks++;
                 if (this.celebrationTicks >= 600) {
@@ -378,7 +373,7 @@ public class PiglinRaid {
                 }
 
                 if (this.celebrationTicks % 20 == 0) {
-                    this.updatePlayers();
+                    this.updatePlayers(serverLevel);
                     this.raidEvent.setVisible(true);
                     if (this.isVictory()) {
                         this.raidEvent.setProgress(0.0F);
@@ -391,17 +386,17 @@ public class PiglinRaid {
         }
     }
 
-    private void moveRaidCenterToNearbyVillageSection() {
+    private void moveRaidCenterToNearbyVillageSection(ServerLevel serverLevel) {
         Stream<SectionPos> stream = SectionPos.cube(SectionPos.of(this.center), 2);
-        stream.filter(this.level::isVillage)
+        stream.filter(serverLevel::isVillage)
                 .map(SectionPos::center)
                 .min(Comparator.comparingDouble(p_37766_ -> p_37766_.distSqr(this.center)))
                 .ifPresent(this::setCenter);
     }
 
-    private Optional<BlockPos> getValidSpawnPos(int p_37764_) {
+    private Optional<BlockPos> getValidSpawnPos(ServerLevel serverLevel, int p_37764_) {
         for (int i = 0; i < 3; i++) {
-            BlockPos blockpos = this.findRandomSpawnPos(p_37764_, 1);
+            BlockPos blockpos = this.findRandomSpawnPos(serverLevel, p_37764_, 1);
             if (blockpos != null) {
                 return Optional.of(blockpos);
             }
@@ -430,7 +425,7 @@ public class PiglinRaid {
         return this.isFinalWave() && this.getTotalRaidersAlive() == 0 && this.hasBonusWave();
     }
 
-    private void updateRaiders() {
+    private void updateRaiders(ServerLevel serverLevel) {
         Iterator<Set<AbstractPiglin>> iterator = this.groupRaiderMap.values().iterator();
         Set<AbstractPiglin> set = Sets.newHashSet();
 
@@ -439,15 +434,15 @@ public class PiglinRaid {
 
             for (AbstractPiglin raider : set1) {
                 BlockPos blockpos = raider.blockPosition();
-                if (raider.isRemoved() || raider.level().dimension() != this.level.dimension() || this.center.distSqr(blockpos) >= 12544.0) {
+                if (raider.isRemoved() || raider.level().dimension() != serverLevel.dimension() || this.center.distSqr(blockpos) >= 12544.0) {
                     set.add(raider);
                 } else if (raider.tickCount > 600) {
-                    if (this.level.getEntity(raider.getUUID()) == null) {
+                    if (serverLevel.getEntity(raider.getUUID()) == null) {
                         set.add(raider);
                     }
 
                     if (raider instanceof PiglinRaider raider1) {
-                        if (!this.level.isVillage(blockpos) && raider.getNoActionTime() > 2400) {
+                        if (!serverLevel.isVillage(blockpos) && raider.getNoActionTime() > 2400) {
                             raider1.netherInvader$setTicksOutsideRaid(raider1.netherInvader$getTicksOutsideRaid() + 1);
                         }
 
@@ -460,17 +455,17 @@ public class PiglinRaid {
         }
 
         for (AbstractPiglin raider1 : set) {
-            this.removeFromRaid(raider1, true);
+            this.removeFromRaid(serverLevel, raider1, true);
         }
     }
 
-    private void playSound(BlockPos p_37744_) {
+    private void playSound(ServerLevel serverLevel, BlockPos p_37744_) {
         float f = 13.0F;
         int i = 64;
         Collection<ServerPlayer> collection = this.raidEvent.getPlayers();
         long j = this.random.nextLong();
 
-        for (ServerPlayer serverplayer : this.level.players()) {
+        for (ServerPlayer serverplayer : serverLevel.players()) {
             Vec3 vec3 = serverplayer.position();
             Vec3 vec31 = Vec3.atCenterOf(p_37744_);
             double d0 = Math.sqrt((vec31.x - vec3.x) * (vec31.x - vec3.x) + (vec31.z - vec3.z) * (vec31.z - vec3.z));
@@ -483,11 +478,11 @@ public class PiglinRaid {
         }
     }
 
-    private void spawnGroup(BlockPos p_37756_) {
+    private void spawnGroup(ServerLevel serverLevel, BlockPos p_37756_) {
         boolean flag = false;
         int i = this.groupsSpawned + 1;
         this.totalHealth = 0.0F;
-        DifficultyInstance difficultyinstance = this.level.getCurrentDifficultyAt(p_37756_);
+        DifficultyInstance difficultyinstance = serverLevel.getCurrentDifficultyAt(p_37756_);
         boolean flag1 = this.shouldSpawnBonusGroup();
 
         for (RaiderType raid$raidertype : RaiderType.VALUES) {
@@ -496,7 +491,7 @@ public class PiglinRaid {
             int k = 0;
 
             for (int l = 0; l < j; l++) {
-                AbstractPiglin raider = raid$raidertype.entityTypeSupplier.get().create(this.level);
+                AbstractPiglin raider = raid$raidertype.entityTypeSupplier.get().create(serverLevel, EntitySpawnReason.EVENT);
                 if (raider == null) {
                     break;
                 }
@@ -511,37 +506,37 @@ public class PiglinRaid {
                 }
 
                 if (this.random.nextFloat() < 0.15F) {
-                    Scaffolding scaffolding = ModEntitys.SCAFFOLDING.get().create(level);
-                    ChainedGhast chainedGhast = ModEntitys.CHAINED_GHAST.get().create(level);
+                    Scaffolding scaffolding = ModEntitys.SCAFFOLDING.get().create(serverLevel, EntitySpawnReason.EVENT);
+                    ChainedGhast chainedGhast = ModEntitys.CHAINED_GHAST.get().create(serverLevel, EntitySpawnReason.EVENT);
 
                     if (scaffolding != null && chainedGhast != null) {
-                        scaffolding.moveTo(p_37756_.getX(), p_37756_.getY() + 10, p_37756_.getZ(), raider.getYRot(), 0.0F);
-                        chainedGhast.moveTo(p_37756_.getX(), p_37756_.getY() + 10, p_37756_.getZ(), raider.getYRot(), 0.0F);
+                        scaffolding.snapTo(p_37756_.getX(), p_37756_.getY() + 10, p_37756_.getZ(), raider.getYRot(), 0.0F);
+                        chainedGhast.snapTo(p_37756_.getX(), p_37756_.getY() + 10, p_37756_.getZ(), raider.getYRot(), 0.0F);
 
 
                         chainedGhast.targetPos = this.center;
 
-                        this.level.addFreshEntity(scaffolding);
-                        this.level.addFreshEntity(chainedGhast);
+                        serverLevel.addFreshEntity(scaffolding);
+                        serverLevel.addFreshEntity(chainedGhast);
                         raider.startRiding(scaffolding);
 
                         scaffolding.setChainedTo(chainedGhast, true);
-                        this.joinRaid(i, raider, p_37756_, false);
+                        this.joinRaid(serverLevel, i, raider, p_37756_, false);
 
                     }
                 } else if (this.random.nextFloat() < 0.1F) {
-                    Hoglin agressiveHoglin = EntityType.HOGLIN.create(level);
+                    Hoglin agressiveHoglin = EntityType.HOGLIN.create(serverLevel, EntitySpawnReason.EVENT);
 
                     if (agressiveHoglin != null) {
                         agressiveHoglin.addEffect(new MobEffectInstance(ModPotions.AWKWARD, 120000));
 
-                        agressiveHoglin.moveTo(p_37756_.getX(), p_37756_.getY(), p_37756_.getZ(), raider.getYRot(), 0.0F);
-                        this.level.addFreshEntity(agressiveHoglin);
+                        agressiveHoglin.snapTo(p_37756_.getX(), p_37756_.getY(), p_37756_.getZ(), raider.getYRot(), 0.0F);
+                        serverLevel.addFreshEntity(agressiveHoglin);
                         raider.startRiding(agressiveHoglin);
-                        this.joinRaid(i, raider, p_37756_, false);
+                        this.joinRaid(serverLevel, i, raider, p_37756_, false);
                     }
                 } else {
-                    this.joinRaid(i, raider, p_37756_, false);
+                    this.joinRaid(serverLevel, i, raider, p_37756_, false);
                 }
             }
         }
@@ -549,11 +544,11 @@ public class PiglinRaid {
         this.waveSpawnPos = Optional.empty();
         this.groupsSpawned++;
         this.updateBossbar();
-        this.setDirty();
+        this.setDirty(serverLevel);
     }
 
-    public void joinRaid(int p_37714_, AbstractPiglin p_37715_, @Nullable BlockPos p_37716_, boolean p_37717_) {
-        boolean flag = this.addWaveMob(p_37714_, p_37715_);
+    public void joinRaid(ServerLevel serverLevel, int p_37714_, AbstractPiglin p_37715_, @Nullable BlockPos p_37716_, boolean p_37717_) {
+        boolean flag = this.addWaveMob(serverLevel, p_37714_, p_37715_);
         if (flag) {
             if (p_37715_ instanceof PiglinRaider piglinRaider) {
 
@@ -563,10 +558,10 @@ public class PiglinRaid {
                 piglinRaider.netherInvader$setTicksOutsideRaid(0);
                 if (!p_37717_ && p_37716_ != null) {
                     p_37715_.setPos((double) p_37716_.getX() + 0.5, (double) p_37716_.getY() + 1.0, (double) p_37716_.getZ() + 0.5);
-                    p_37715_.finalizeSpawn(this.level, this.level.getCurrentDifficultyAt(p_37716_), MobSpawnType.EVENT, null);
-                    piglinRaider.netherInvader$applyRaidBuffs(this.level, p_37714_, false);
+                    p_37715_.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(p_37716_), EntitySpawnReason.EVENT, null);
+                    piglinRaider.netherInvader$applyRaidBuffs(serverLevel, p_37714_, false);
                     p_37715_.setOnGround(true);
-                    this.level.addFreshEntityWithPassengers(p_37715_);
+                    serverLevel.addFreshEntityWithPassengers(p_37715_);
                 }
             }
         }
@@ -596,7 +591,7 @@ public class PiglinRaid {
         return this.groupRaiderMap.values().stream().mapToInt(Set::size).sum();
     }
 
-    public void removeFromRaid(AbstractPiglin p_37741_, boolean p_37742_) {
+    public void removeFromRaid(ServerLevel serverLevel, AbstractPiglin p_37741_, boolean p_37742_) {
         if (p_37741_ instanceof PiglinRaider piglinRaider) {
             Set<AbstractPiglin> set = this.groupRaiderMap.get(piglinRaider.netherInvader$getWave());
             if (set != null) {
@@ -608,14 +603,14 @@ public class PiglinRaid {
 
                     piglinRaider.netherInvader$setCurrentRaid(null);
                     this.updateBossbar();
-                    this.setDirty();
+                    this.setDirty(serverLevel);
                 }
             }
         }
     }
 
-    private void setDirty() {
-        PiglinRaidData.get(this.level).setDirty();
+    private void setDirty(ServerLevel serverLevel) {
+        PiglinRaidData.get(serverLevel).setDirty();
     }
 
     public static ItemStack getLeaderBannerInstance(HolderGetter<BannerPattern> p_332748_) {
@@ -625,8 +620,9 @@ public class PiglinRaid {
                 .addIfRegistered(p_332748_, BannerPatterns.GRADIENT, DyeColor.ORANGE)
                 .build();
         itemstack.set(DataComponents.BANNER_PATTERNS, bannerpatternlayers);
-        itemstack.set(DataComponents.HIDE_ADDITIONAL_TOOLTIP, Unit.INSTANCE);
+        itemstack.set(DataComponents.TOOLTIP_DISPLAY, TooltipDisplay.DEFAULT.withHidden(DataComponents.BANNER_PATTERNS, true));
         itemstack.set(DataComponents.ITEM_NAME, OMINOUS_BANNER_PATTERN_NAME);
+        itemstack.set(DataComponents.RARITY, Rarity.UNCOMMON);
         return itemstack;
     }
 
@@ -636,31 +632,31 @@ public class PiglinRaid {
     }
 
     @Nullable
-    private BlockPos findRandomSpawnPos(int p_37708_, int p_37709_) {
+    private BlockPos findRandomSpawnPos(ServerLevel serverLevel, int p_37708_, int p_37709_) {
         int i = p_37708_ == 0 ? 2 : 2 - p_37708_;
         BlockPos.MutableBlockPos blockpos$mutableblockpos = new BlockPos.MutableBlockPos();
         SpawnPlacementType spawnplacementtype = SpawnPlacements.getPlacementType(EntityType.RAVAGER);
 
         for (int i1 = 0; i1 < p_37709_; i1++) {
-            float f = this.level.random.nextFloat() * (float) (Math.PI * 2);
-            int j = this.center.getX() + Mth.floor(Mth.cos(f) * 32.0F * (float) i) + this.level.random.nextInt(5);
-            int l = this.center.getZ() + Mth.floor(Mth.sin(f) * 32.0F * (float) i) + this.level.random.nextInt(5);
-            int k = this.level.getHeight(Heightmap.Types.WORLD_SURFACE, j, l);
+            float f = serverLevel.random.nextFloat() * (float) (Math.PI * 2);
+            int j = this.center.getX() + Mth.floor(Mth.cos(f) * 32.0F * (float) i) + serverLevel.random.nextInt(5);
+            int l = this.center.getZ() + Mth.floor(Mth.sin(f) * 32.0F * (float) i) + serverLevel.random.nextInt(5);
+            int k = serverLevel.getHeight(Heightmap.Types.WORLD_SURFACE, j, l);
             blockpos$mutableblockpos.set(j, k, l);
-            if (!this.level.isVillage(blockpos$mutableblockpos) || p_37708_ >= 2) {
+            if (!serverLevel.isVillage(blockpos$mutableblockpos) || p_37708_ >= 2) {
                 int j1 = 10;
-                if (this.level
+                if (serverLevel
                         .hasChunksAt(
                                 blockpos$mutableblockpos.getX() - 10,
                                 blockpos$mutableblockpos.getZ() - 10,
                                 blockpos$mutableblockpos.getX() + 10,
                                 blockpos$mutableblockpos.getZ() + 10
                         )
-                        && this.level.isPositionEntityTicking(blockpos$mutableblockpos)
+                        && serverLevel.isPositionEntityTicking(blockpos$mutableblockpos)
                         && (
-                        spawnplacementtype.isSpawnPositionOk(this.level, blockpos$mutableblockpos, EntityType.RAVAGER)
-                                || this.level.getBlockState(blockpos$mutableblockpos.below()).is(Blocks.SNOW)
-                                && this.level.getBlockState(blockpos$mutableblockpos).isAir()
+                        spawnplacementtype.isSpawnPositionOk(serverLevel, blockpos$mutableblockpos, EntityType.RAVAGER)
+                                || serverLevel.getBlockState(blockpos$mutableblockpos.below()).is(Blocks.SNOW)
+                                && serverLevel.getBlockState(blockpos$mutableblockpos).isAir()
                 )) {
                     return blockpos$mutableblockpos;
                 }
@@ -670,11 +666,11 @@ public class PiglinRaid {
         return null;
     }
 
-    private boolean addWaveMob(int p_37753_, AbstractPiglin p_37754_) {
-        return this.addWaveMob(p_37753_, p_37754_, true);
+    private boolean addWaveMob(ServerLevel serverLevel, int p_37753_, AbstractPiglin p_37754_) {
+        return this.addWaveMob(serverLevel, p_37753_, p_37754_, true);
     }
 
-    public boolean addWaveMob(int p_37719_, AbstractPiglin p_37720_, boolean p_37721_) {
+    public boolean addWaveMob(ServerLevel serverLevel, int p_37719_, AbstractPiglin p_37720_, boolean p_37721_) {
         this.groupRaiderMap.computeIfAbsent(p_37719_, p_37746_ -> Sets.newHashSet());
         Set<AbstractPiglin> set = this.groupRaiderMap.get(p_37719_);
         AbstractPiglin raider = null;
@@ -697,7 +693,7 @@ public class PiglinRaid {
         }
 
         this.updateBossbar();
-        this.setDirty();
+        this.setDirty(serverLevel);
         return true;
     }
 
@@ -717,10 +713,6 @@ public class PiglinRaid {
 
     private void setCenter(BlockPos p_37761_) {
         this.center = p_37761_;
-    }
-
-    public int getId() {
-        return this.id;
     }
 
     private int getDefaultNumSpawns(RaiderType p_37731_, int p_37732_, boolean p_37733_) {
@@ -746,30 +738,6 @@ public class PiglinRaid {
         return this.active;
     }
 
-    public CompoundTag save(CompoundTag p_37748_) {
-        p_37748_.putInt("Id", this.id);
-        p_37748_.putBoolean("Started", this.started);
-        p_37748_.putBoolean("Active", this.active);
-        p_37748_.putLong("TicksActive", this.ticksActive);
-        p_37748_.putInt("BadOmenLevel", this.raidOmenLevel);
-        p_37748_.putInt("GroupsSpawned", this.groupsSpawned);
-        p_37748_.putInt("PreRaidTicks", this.raidCooldownTicks);
-        p_37748_.putInt("PostRaidTicks", this.postRaidTicks);
-        p_37748_.putFloat("TotalHealth", this.totalHealth);
-        p_37748_.putInt("NumGroups", this.numGroups);
-        p_37748_.putString("Status", this.status.getName());
-        p_37748_.putInt("CX", this.center.getX());
-        p_37748_.putInt("CY", this.center.getY());
-        p_37748_.putInt("CZ", this.center.getZ());
-        ListTag listtag = new ListTag();
-
-        for (UUID uuid : this.heroesOfTheVillage) {
-            listtag.add(NbtUtils.createUUID(uuid));
-        }
-
-        p_37748_.put("HeroesOfTheVillage", listtag);
-        return p_37748_;
-    }
 
     public int getNumGroups(Difficulty p_37725_) {
         switch (p_37725_) {
@@ -801,26 +769,21 @@ public class PiglinRaid {
         this.heroesOfTheVillage.add(p_37727_.getUUID());
     }
 
-    static enum RaidStatus {
-        ONGOING,
-        VICTORY,
-        LOSS,
-        STOPPED;
+    static enum RaidStatus implements StringRepresentable {
+        ONGOING("ongoing"),
+        VICTORY("victory"),
+        LOSS("loss"),
+        STOPPED("stopped");
 
-        private static final RaidStatus[] VALUES = values();
+        public static final Codec<RaidStatus> CODEC = StringRepresentable.fromEnum(RaidStatus::values);
+        private final String name;
 
-        static RaidStatus getByName(String p_37804_) {
-            for (RaidStatus raid$raidstatus : VALUES) {
-                if (p_37804_.equalsIgnoreCase(raid$raidstatus.name())) {
-                    return raid$raidstatus;
-                }
-            }
-
-            return ONGOING;
+        private RaidStatus(String p_401044_) {
+            this.name = p_401044_;
         }
 
-        public String getName() {
-            return this.name().toLowerCase(Locale.ROOT);
+        public String getSerializedName() {
+            return this.name;
         }
     }
 

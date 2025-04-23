@@ -1,6 +1,7 @@
 package baguchan.nether_invader.client.render;
 
 import baguchan.nether_invader.client.model.TestModel;
+import baguchan.nether_invader.client.render.state.ScaffoldingRenderState;
 import baguchan.nether_invader.entity.Chainable;
 import baguchan.nether_invader.entity.Scaffolding;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -17,25 +18,56 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.phys.Vec3;
 
-public class ScaffoldRenderer extends LivingEntityRenderer<Scaffolding, TestModel> {
+public class ScaffoldRenderer extends LivingEntityRenderer<Scaffolding, ScaffoldingRenderState, TestModel> {
     public static final ResourceLocation TEXTURE = ResourceLocation.withDefaultNamespace("textures/entity/boat/bamboo.png");
     public static final ResourceLocation CHAIN_TEXTURE = ResourceLocation.withDefaultNamespace("textures/item/chain.png");
 
     public ScaffoldRenderer(EntityRendererProvider.Context p_174304_) {
-        super(p_174304_, new TestModel(p_174304_.bakeLayer(ModelLayers.createBoatModelName(Boat.Type.BAMBOO))), 0.5F);
+        super(p_174304_, new TestModel(p_174304_.bakeLayer(ModelLayers.BAMBOO_RAFT)), 0.5F);
     }
 
-    protected boolean shouldShowName(Scaffolding p_115506_) {
+    @Override
+    protected boolean shouldShowName(Scaffolding p_363517_, double p_365448_) {
         return false;
     }
 
     @Override
-    protected void setupRotations(Scaffolding p_115317_, PoseStack p_115318_, float p_115319_, float p_115320_, float p_115321_, float p_320045_) {
-        super.setupRotations(p_115317_, p_115318_, p_115319_, p_115320_, p_115321_, p_320045_);
+    public ScaffoldingRenderState createRenderState() {
+        return new ScaffoldingRenderState();
+    }
+
+    @Override
+    public void extractRenderState(Scaffolding p_362733_, ScaffoldingRenderState p_360515_, float p_361157_) {
+        super.extractRenderState(p_362733_, p_360515_, p_361157_);
+        Entity entity = p_362733_ instanceof Chainable leashable ? leashable.getChainHolder() : null;
+        if (entity != null) {
+            float f = p_362733_.getPreciseBodyRotation(p_361157_) * (float) (Math.PI / 180.0);
+            Vec3 vec3 = p_362733_.getLeashOffset(p_361157_).yRot(-f);
+            BlockPos blockpos1 = BlockPos.containing(p_362733_.getPosition(p_361157_));
+            BlockPos blockpos = BlockPos.containing(entity.getPosition(p_361157_));
+            if (p_360515_.chainData == null) {
+                p_360515_.chainData = new ScaffoldingRenderState.ChainState();
+            }
+
+            ScaffoldingRenderState.ChainState entityrenderstate$leashstate = p_360515_.chainData;
+            entityrenderstate$leashstate.offset = vec3;
+            entityrenderstate$leashstate.start = p_362733_.getPosition(p_361157_);
+            entityrenderstate$leashstate.end = entity.getRopeHoldPosition(p_361157_);
+            entityrenderstate$leashstate.startBlockLight = this.getBlockLightLevel(p_362733_, blockpos1);
+            entityrenderstate$leashstate.endBlockLight = getBlockLightLevelTest(entity, blockpos);
+            entityrenderstate$leashstate.startSkyLight = p_362733_.level().getBrightness(LightLayer.SKY, blockpos1);
+            entityrenderstate$leashstate.endSkyLight = p_362733_.level().getBrightness(LightLayer.SKY, blockpos);
+        } else {
+            p_360515_.chainData = null;
+        }
+    }
+
+    @Override
+    protected void setupRotations(ScaffoldingRenderState p_364714_, PoseStack p_115318_, float p_115319_, float p_115320_) {
+        super.setupRotations(p_364714_, p_115318_, p_115319_, p_115320_);
         p_115318_.translate(0.0F, -1F, 0.0F);
     }
 
@@ -47,7 +79,7 @@ public class ScaffoldRenderer extends LivingEntityRenderer<Scaffolding, TestMode
             if (p_114491_ instanceof Chainable leashable) {
                 Entity entity = leashable.getChainHolder();
                 if (entity != null) {
-                    return p_114492_.isVisible(entity.getBoundingBoxForCulling());
+                    return p_114492_.isVisible(entity.getBoundingBox());
                 }
             }
 
@@ -56,37 +88,35 @@ public class ScaffoldRenderer extends LivingEntityRenderer<Scaffolding, TestMode
     }
 
     @Override
-    public void render(Scaffolding p_115308_, float p_115309_, float p_115310_, PoseStack p_115311_, MultiBufferSource p_115312_, int p_115313_) {
-        if (p_115308_ instanceof Chainable chainable) {
-            Entity entity = chainable.getChainHolder();
+    public void render(ScaffoldingRenderState p_115308_, PoseStack p_115311_, MultiBufferSource p_115312_, int p_115313_) {
+        ScaffoldingRenderState.ChainState entity = p_115308_.chainData;
             if (entity != null) {
-                this.renderChain(p_115308_, p_115310_, p_115311_, p_115312_, entity);
+                this.renderChain(p_115308_, p_115311_, p_115312_, entity);
             }
-        }
-        super.render(p_115308_, p_115309_, p_115310_, p_115311_, p_115312_, p_115313_);
+        super.render(p_115308_, p_115311_, p_115312_, p_115313_);
     }
 
     @Override
-    public ResourceLocation getTextureLocation(Scaffolding p_114482_) {
+    public ResourceLocation getTextureLocation(ScaffoldingRenderState p_114482_) {
         return TEXTURE;
     }
 
-    public void renderChain(Scaffolding chained, float particalTick, PoseStack poseStack, MultiBufferSource bufferIn, Entity owner) {
-        for (Vec3 vec34 : chained.QUAD_LEASH_ATTACHMENT_POINTS) {
+    public void renderChain(ScaffoldingRenderState chained, PoseStack poseStack, MultiBufferSource bufferIn, ScaffoldingRenderState.ChainState owner) {
+        for (Vec3 vec34 : Chainable.QUAD_LEASH_ATTACHMENT_POINTS) {
             if (owner != null) {
                 float f = 0.0F;
                 float f1 = 0.0F;
                 float f2 = f1 * 0.5F % 1.0F;
                 poseStack.pushPose();
 
-                float yrot = -Mth.rotLerp(particalTick, owner.yRotO, owner.getYRot());
+                float yrot = -chained.yRot;
 
                 Vec3 offset2 = new Vec3(vec34.x, 0, vec34.z).yRot(yrot * ((float) Math.PI / 180F));
 
                 Vec3 offset = new Vec3(vec34.x * 2.455, -vec34.y, vec34.z * 2.455);
                 poseStack.translate(offset2.x, vec34.y, offset2.z);
-                Vec3 vec3 = owner.getPosition(particalTick).add(offset.yRot(yrot * ((float) Math.PI / 180F)));
-                Vec3 vec31 = chained.getPosition(particalTick);
+                Vec3 vec3 = owner.end.add(offset.yRot(yrot * ((float) Math.PI / 180F)));
+                Vec3 vec31 = owner.start;
                 Vec3 vec32 = vec3.subtract(vec31);
                 float f4 = (float) (vec32.length());
                 vec32 = vec32.normalize();

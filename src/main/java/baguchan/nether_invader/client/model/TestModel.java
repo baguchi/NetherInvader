@@ -1,16 +1,16 @@
 package baguchan.nether_invader.client.model;
 
-import baguchan.nether_invader.entity.Scaffolding;
 import com.google.common.collect.ImmutableList;
-import net.minecraft.client.model.ListModel;
+import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
+import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 
-public class TestModel extends ListModel<Scaffolding> {
+public class TestModel extends EntityModel<LivingEntityRenderState> {
     private static final String LEFT_PADDLE = "left_paddle";
     private static final String RIGHT_PADDLE = "right_paddle";
     private static final String BOTTOM = "bottom";
@@ -19,6 +19,7 @@ public class TestModel extends ListModel<Scaffolding> {
     private final ImmutableList<ModelPart> parts;
 
     public TestModel(ModelPart p_251383_) {
+        super(p_251383_);
         this.leftPaddle = p_251383_.getChild("left_paddle");
         this.rightPaddle = p_251383_.getChild("right_paddle");
         this.parts = this.createPartsBuilder(p_251383_).build();
@@ -63,7 +64,9 @@ public class TestModel extends ListModel<Scaffolding> {
         return LayerDefinition.create(meshdefinition, 128, 64);
     }
 
-    public void setupAnim(Scaffolding p_102269_, float p_102270_, float p_102271_, float p_102272_, float p_102273_, float p_102274_) {
+    @Override
+    public void setupAnim(LivingEntityRenderState p_364104_) {
+        super.setupAnim(p_364104_);
         this.leftPaddle.skipDraw = true;
         this.rightPaddle.skipDraw = true;
     }

@@ -6,15 +6,17 @@ import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.AdvancementType;
 import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.advancements.critereon.KilledTrigger;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
+import net.minecraft.data.advancements.AdvancementProvider;
+import net.minecraft.data.advancements.AdvancementSubProvider;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.neoforged.neoforge.common.data.AdvancementProvider;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -22,14 +24,16 @@ import java.util.function.Consumer;
 
 public class ModAdvancements extends AdvancementProvider {
     public ModAdvancements(PackOutput output,
-                           CompletableFuture<HolderLookup.Provider> lookupProvider,
-                           ExistingFileHelper existingFileHelper) {
-        super(output, lookupProvider, existingFileHelper, List.of(new AdvancementGen()));
+                           CompletableFuture<HolderLookup.Provider> lookupProvider) {
+        super(output, lookupProvider, List.of(new AdvancementGen()));
     }
 
-    private static final class AdvancementGen implements AdvancementProvider.AdvancementGenerator {
+    private static final class AdvancementGen implements AdvancementSubProvider {
+
         @Override
-        public void generate(HolderLookup.Provider provider, Consumer<AdvancementHolder> consumer, ExistingFileHelper existingFileHelper) {
+        public void generate(HolderLookup.Provider provider, Consumer<AdvancementHolder> consumer) {
+            HolderGetter<EntityType<?>> holdergetter = provider.lookupOrThrow(Registries.ENTITY_TYPE);
+
             AdvancementHolder root = Advancement.Builder.advancement()
                     .display(
                             new ItemStack(Items.PIGLIN_BRUTE_SPAWN_EGG),
@@ -42,10 +46,9 @@ public class ModAdvancements extends AdvancementProvider {
                             true, //chat
                             false //hidden or not
                     )
-                    .addCriterion("temp", KilledTrigger.TriggerInstance.playerKilledEntity(EntityPredicate.Builder.entity().of(EntityType.PIGLIN_BRUTE)))
+                    .addCriterion("temp", KilledTrigger.TriggerInstance.playerKilledEntity(EntityPredicate.Builder.entity().of(holdergetter, EntityType.PIGLIN_BRUTE)))
                     .save(consumer,
-                            ResourceLocation.fromNamespaceAndPath("nether_invader", "root"),
-                            existingFileHelper);
+                            ResourceLocation.fromNamespaceAndPath("nether_invader", "root"));
 
             AdvancementHolder piglinSlayer = Advancement.Builder.advancement()
                     .display(
@@ -58,8 +61,7 @@ public class ModAdvancements extends AdvancementProvider {
                     .parent(root)
                     .addCriterion("temp", PiglinSlayerTrigger.get())
                     .save(consumer,
-                            ResourceLocation.fromNamespaceAndPath("nether_invader", "piglin_slayer"),
-                            existingFileHelper);
+                            ResourceLocation.fromNamespaceAndPath("nether_invader", "piglin_slayer"));
         }
     }
 }

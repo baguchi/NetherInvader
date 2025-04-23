@@ -1,11 +1,11 @@
 package baguchan.nether_invader.entity.ai;
 
-import bagu_chan.bagus_lib.util.BrainUtils;
 import baguchan.nether_invader.entity.AgressivePiglin;
 import baguchan.nether_invader.entity.behavior.PiglinRaiding;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Pair;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.ItemTags;
@@ -17,6 +17,7 @@ import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.behavior.*;
 import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.entity.ai.sensing.Sensor;
 import net.minecraft.world.entity.ai.util.LandRandomPos;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.hoglin.Hoglin;
@@ -24,7 +25,6 @@ import net.minecraft.world.entity.monster.piglin.AbstractPiglin;
 import net.minecraft.world.entity.monster.piglin.Piglin;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.schedule.Activity;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.phys.Vec3;
@@ -91,7 +91,7 @@ public class RevampedPiglinAi {
                 Activity.FIGHT,
                 10,
                 ImmutableList.<net.minecraft.world.entity.ai.behavior.BehaviorControl<? super AgressivePiglin>>of(
-                        StopAttackingIfTargetInvalid.create(p_34981_ -> !isNearestValidAttackTarget(p_34904_, p_34981_)),
+                        StopAttackingIfTargetInvalid.<AgressivePiglin>create((p_375910_, p_375911_) -> !isNearestValidAttackTarget(p_375910_, p_34904_, p_375911_)),
                         BehaviorBuilder.triggerIf(RevampedPiglinAi::hasCrossbow, BackUpIfTooClose.create(5, 0.75F)),
                         SetWalkTargetFromAttackTargetIfTargetOutOfReach.create(1.0F),
                         MeleeAttack.create(20),
@@ -109,8 +109,8 @@ public class RevampedPiglinAi {
                 ImmutableList.<net.minecraft.world.entity.ai.behavior.BehaviorControl<? super AgressivePiglin>>of(
                         avoidRepellent(),
                         SetEntityLookTarget.create(RevampedPiglinAi::isPlayerHoldingLovedItem, 14.0F),
-                        StartAttacking.create(AbstractPiglin::isAdult, RevampedPiglinAi::findNearestValidAttackTarget),
-                        BehaviorBuilder.triggerIf(p_34804_ -> !p_34804_.isDancing(), GoToTargetLocation.create(MemoryModuleType.CELEBRATE_LOCATION, 2, 1.0F)),
+                        StartAttacking.<AgressivePiglin>create((p_412930_, p_412931_) -> p_412931_.isAdult(), RevampedPiglinAi::findNearestValidAttackTarget),
+                        //BehaviorBuilder.triggerIf(p_34804_ -> !p_34804_.isDancing(), GoToTargetLocation.create(MemoryModuleType.CELEBRATE_LOCATION, 2, 1.0F)),
                         BehaviorBuilder.triggerIf(AgressivePiglin::isDancing, GoToTargetLocation.create(MemoryModuleType.CELEBRATE_LOCATION, 4, 0.6F)),
                         new RunOne<AgressivePiglin>(
                                 ImmutableList.of(
@@ -229,8 +229,8 @@ public class RevampedPiglinAi {
         return p_34836_ instanceof Mob mob && (!mob.isBaby() || !mob.isAlive() || wasHurtRecently(p_34835_) || wasHurtRecently(mob) || mob instanceof Piglin && mob.getVehicle() == null);
     }
 
-    private static boolean isNearestValidAttackTarget(AgressivePiglin p_34901_, LivingEntity p_34902_) {
-        return findNearestValidAttackTarget(p_34901_).filter(p_34887_ -> p_34887_ == p_34902_).isPresent();
+    private static boolean isNearestValidAttackTarget(ServerLevel serverLevel, AgressivePiglin p_34901_, LivingEntity p_34902_) {
+        return findNearestValidAttackTarget(serverLevel, p_34901_).filter(p_34887_ -> p_34887_ == p_34902_).isPresent();
     }
 
     private static boolean isNearZombified(AgressivePiglin p_34999_) {
@@ -243,13 +243,13 @@ public class RevampedPiglinAi {
         }
     }
 
-    private static Optional<? extends LivingEntity> findNearestValidAttackTarget(AgressivePiglin p_35001_) {
+    private static Optional<? extends LivingEntity> findNearestValidAttackTarget(ServerLevel serverLevel, AgressivePiglin p_35001_) {
         Brain<AgressivePiglin> brain = p_35001_.getBrain();
         if (isNearZombified(p_35001_)) {
             return Optional.empty();
         } else {
             Optional<LivingEntity> optional = BehaviorUtils.getLivingEntityFromUUIDMemory(p_35001_, MemoryModuleType.ANGRY_AT);
-            if (optional.isPresent() && BrainUtils.isEntityAttackableIgnoringLineOfSight(p_35001_, optional.get(), PLAYER_ANGER_RANGE)) {
+            if (optional.isPresent() && Sensor.isEntityAttackableIgnoringLineOfSight(serverLevel, p_35001_, optional.get())) {
                 return optional;
             } else {
                 Optional<Player> optional1 = brain.getMemory(MemoryModuleType.NEAREST_VISIBLE_ATTACKABLE_PLAYER);
@@ -267,18 +267,18 @@ public class RevampedPiglinAi {
         return Optional.empty();
     }
 
-    public static void angerNearbyPiglins(Player p_34874_, boolean p_34875_) {
+    public static void angerNearbyPiglins(ServerLevel serverLevel, Player p_34874_, boolean p_34875_) {
         List<AgressivePiglin> list = p_34874_.level().getEntitiesOfClass(AgressivePiglin.class, p_34874_.getBoundingBox().inflate(16.0));
         list.stream().filter(RevampedPiglinAi::isIdle).filter(p_34881_ -> !p_34875_ || BehaviorUtils.canSee(p_34881_, p_34874_)).forEach(p_352819_ -> {
-            if (p_352819_.level().getGameRules().getBoolean(GameRules.RULE_UNIVERSAL_ANGER)) {
-                setAngerTargetToNearestTargetablePlayerIfFound(p_352819_, p_34874_);
+            if (serverLevel.getGameRules().getBoolean(GameRules.RULE_UNIVERSAL_ANGER)) {
+                setAngerTargetToNearestTargetablePlayerIfFound(serverLevel, p_352819_, p_34874_);
             } else {
-                setAngerTarget(p_352819_, p_34874_);
+                setAngerTarget(serverLevel, p_352819_, p_34874_);
             }
         });
     }
 
-    public static void wasHurtBy(AgressivePiglin p_34838_, LivingEntity p_34839_) {
+    public static void wasHurtBy(ServerLevel serverLevel, AgressivePiglin p_34838_, LivingEntity p_34839_) {
         if (!(p_34839_ instanceof AgressivePiglin)) {
 
             Brain<AgressivePiglin> brain = p_34838_.getBrain();
@@ -292,25 +292,25 @@ public class RevampedPiglinAi {
             });
             if (p_34838_.isBaby()) {
                 brain.setMemoryWithExpiry(MemoryModuleType.AVOID_TARGET, p_34839_, 100L);
-                if (BrainUtils.isEntityAttackableIgnoringLineOfSight(p_34838_, p_34839_, 16)) {
-                    broadcastAngerTarget(p_34838_, p_34839_);
+                if (Sensor.isEntityAttackableIgnoringLineOfSight(serverLevel, p_34838_, p_34839_)) {
+                    broadcastAngerTarget(serverLevel, p_34838_, p_34839_);
                 }
             } else {
-                maybeRetaliate(p_34838_, p_34839_);
+                maybeRetaliate(serverLevel, p_34838_, p_34839_);
             }
         }
     }
 
-    protected static void maybeRetaliate(AbstractPiglin p_34827_, LivingEntity p_34828_) {
+    protected static void maybeRetaliate(ServerLevel serverLevel, AbstractPiglin p_34827_, LivingEntity p_34828_) {
         if (!p_34827_.getBrain().isActive(Activity.AVOID)) {
-            if (BrainUtils.isEntityAttackableIgnoringLineOfSight(p_34827_, p_34828_, 16)) {
+            if (Sensor.isEntityAttackableIgnoringLineOfSight(serverLevel, p_34827_, p_34828_)) {
                 if (!BehaviorUtils.isOtherTargetMuchFurtherAwayThanCurrentAttackTarget(p_34827_, p_34828_, 4.0)) {
-                    if (p_34828_.getType() == EntityType.PLAYER && p_34827_.level().getGameRules().getBoolean(GameRules.RULE_UNIVERSAL_ANGER)) {
-                        setAngerTargetToNearestTargetablePlayerIfFound(p_34827_, p_34828_);
-                        broadcastUniversalAnger(p_34827_);
+                    if (p_34828_.getType() == EntityType.PLAYER && serverLevel.getGameRules().getBoolean(GameRules.RULE_UNIVERSAL_ANGER)) {
+                        setAngerTargetToNearestTargetablePlayerIfFound(serverLevel, p_34827_, p_34828_);
+                        broadcastUniversalAnger(serverLevel, p_34827_);
                     } else {
-                        setAngerTarget(p_34827_, p_34828_);
-                        broadcastAngerTarget(p_34827_, p_34828_);
+                        setAngerTarget(serverLevel, p_34827_, p_34828_);
+                        broadcastAngerTarget(serverLevel, p_34827_, p_34828_);
                     }
                 }
             }
@@ -350,59 +350,48 @@ public class RevampedPiglinAi {
         return p_34961_.getBrain().getMemory(MemoryModuleType.NEARBY_ADULT_PIGLINS).orElse(ImmutableList.of());
     }
 
-    public static boolean isWearingGold(LivingEntity p_34809_) {
-        for (ItemStack itemstack : p_34809_.getArmorAndBodyArmorSlots()) {
-            Item item = itemstack.getItem();
-            if (itemstack.makesPiglinsNeutral(p_34809_)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     private static void stopWalking(AgressivePiglin p_35007_) {
         p_35007_.getBrain().eraseMemory(MemoryModuleType.WALK_TARGET);
         p_35007_.getNavigation().stop();
     }
 
-    protected static void broadcastAngerTarget(AbstractPiglin p_34896_, LivingEntity p_34897_) {
+    protected static void broadcastAngerTarget(ServerLevel serverLevel, AbstractPiglin p_34896_, LivingEntity p_34897_) {
         getAdultPiglins(p_34896_).forEach(p_348314_ -> {
             if (p_34897_.getType() != EntityType.HOGLIN) {
-                setAngerTargetIfCloserThanCurrent(p_348314_, p_34897_);
+                setAngerTargetIfCloserThanCurrent(serverLevel, p_348314_, p_34897_);
             }
         });
     }
 
-    protected static void broadcastUniversalAnger(AbstractPiglin p_34825_) {
-        getAdultPiglins(p_34825_).forEach(p_34991_ -> getNearestVisibleTargetablePlayer(p_34991_).ifPresent(p_149964_ -> setAngerTarget(p_34991_, p_149964_)));
+    protected static void broadcastUniversalAnger(ServerLevel serverLevel, AbstractPiglin p_34825_) {
+        getAdultPiglins(p_34825_).forEach(p_34991_ -> getNearestVisibleTargetablePlayer(p_34991_).ifPresent(p_149964_ -> setAngerTarget(serverLevel, p_34991_, p_149964_)));
     }
 
-    protected static void setAngerTarget(AbstractPiglin p_34925_, LivingEntity p_34926_) {
-        if (BrainUtils.isEntityAttackableIgnoringLineOfSight(p_34925_, p_34926_, PLAYER_ANGER_RANGE)) {
+    protected static void setAngerTarget(ServerLevel serverLevel, AbstractPiglin p_34925_, LivingEntity p_34926_) {
+        if (Sensor.isEntityAttackableIgnoringLineOfSight(serverLevel, p_34925_, p_34926_)) {
             p_34925_.getBrain().eraseMemory(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);
             p_34925_.getBrain().setMemoryWithExpiry(MemoryModuleType.ANGRY_AT, p_34926_.getUUID(), 600L);
 
-            if (p_34926_.getType() == EntityType.PLAYER && p_34925_.level().getGameRules().getBoolean(GameRules.RULE_UNIVERSAL_ANGER)) {
+            if (p_34926_.getType() == EntityType.PLAYER && serverLevel.getGameRules().getBoolean(GameRules.RULE_UNIVERSAL_ANGER)) {
                 p_34925_.getBrain().setMemoryWithExpiry(MemoryModuleType.UNIVERSAL_ANGER, true, 600L);
             }
         }
     }
 
-    private static void setAngerTargetToNearestTargetablePlayerIfFound(AbstractPiglin p_34945_, LivingEntity p_34946_) {
+    private static void setAngerTargetToNearestTargetablePlayerIfFound(ServerLevel serverLevel, AbstractPiglin p_34945_, LivingEntity p_34946_) {
         Optional<Player> optional = getNearestVisibleTargetablePlayer(p_34945_);
         if (optional.isPresent()) {
-            setAngerTarget(p_34945_, optional.get());
+            setAngerTarget(serverLevel, p_34945_, optional.get());
         } else {
-            setAngerTarget(p_34945_, p_34946_);
+            setAngerTarget(serverLevel, p_34945_, p_34946_);
         }
     }
 
-    private static void setAngerTargetIfCloserThanCurrent(AbstractPiglin p_34963_, LivingEntity p_34964_) {
+    private static void setAngerTargetIfCloserThanCurrent(ServerLevel serverLevel, AbstractPiglin p_34963_, LivingEntity p_34964_) {
         Optional<LivingEntity> optional = getAngerTarget(p_34963_);
         LivingEntity livingentity = BehaviorUtils.getNearestTarget(p_34963_, optional, p_34964_);
         if (!optional.isPresent() || optional.get() != livingentity) {
-            setAngerTarget(p_34963_, livingentity);
+            setAngerTarget(serverLevel, p_34963_, livingentity);
         }
     }
 

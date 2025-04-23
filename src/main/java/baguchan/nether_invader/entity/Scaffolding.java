@@ -7,8 +7,6 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
-import java.util.List;
-
 public class Scaffolding extends LivingEntity implements Chainable {
 
 
@@ -44,11 +42,6 @@ public class Scaffolding extends LivingEntity implements Chainable {
     @Override
     protected int decreaseAirSupply(int p_28882_) {
         return p_28882_;
-    }
-
-    @Override
-    public Iterable<ItemStack> getArmorSlots() {
-        return List.of();
     }
 
     @Override
@@ -91,6 +84,6 @@ public class Scaffolding extends LivingEntity implements Chainable {
     @Override
     public void readAdditionalSaveData(CompoundTag p_21096_) {
         super.readAdditionalSaveData(p_21096_);
-        this.chainData = this.readChainData(p_21096_);
+        this.readChainData(p_21096_);
     }
 }

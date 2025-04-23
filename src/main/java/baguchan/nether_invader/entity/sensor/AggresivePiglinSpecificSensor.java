@@ -1,16 +1,12 @@
 package baguchan.nether_invader.entity.sensor;
 
-import bagu_chan.bagus_lib.util.BrainUtils;
-import baguchan.nether_invader.entity.ai.RevampedPiglinAi;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.Brain;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.NearestVisibleLivingEntities;
 import net.minecraft.world.entity.ai.sensing.Sensor;
@@ -22,11 +18,9 @@ import net.minecraft.world.entity.monster.piglin.PiglinBrute;
 import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class AggresivePiglinSpecificSensor extends Sensor<LivingEntity> {
     @Override
@@ -92,19 +86,6 @@ public class AggresivePiglinSpecificSensor extends Sensor<LivingEntity> {
         brain.setMemory(MemoryModuleType.NEAREST_VISIBLE_ADULT_PIGLINS, list);
         brain.setMemory(MemoryModuleType.VISIBLE_ADULT_PIGLIN_COUNT, list.size());
         brain.setMemory(MemoryModuleType.VISIBLE_ADULT_HOGLIN_COUNT, i);
-
-        List<Player> list2 = p_26726_.players()
-                .stream()
-                .filter(EntitySelector.NO_SPECTATORS)
-                .filter(p_26744_ -> p_26727_.closerThan(p_26744_, p_26727_.getAttributeValue(Attributes.FOLLOW_RANGE)))
-                .sorted(Comparator.comparingDouble(p_26727_::distanceToSqr))
-                .collect(Collectors.toList());
-        brain.setMemory(MemoryModuleType.NEAREST_PLAYERS, list2);
-        List<Player> list3 = list2.stream().filter(p_26747_ -> BrainUtils.isEntityTargetable(p_26727_, p_26747_, RevampedPiglinAi.PLAYER_ANGER_RANGE)).collect(Collectors.toList());
-        brain.setMemory(MemoryModuleType.NEAREST_VISIBLE_PLAYER, list3.isEmpty() ? null : list3.get(0));
-        Optional<Player> optional6 = list3.stream().filter(p_148304_ -> BrainUtils.isEntityAttackable(p_26727_, p_148304_, RevampedPiglinAi.PLAYER_ANGER_RANGE)).findFirst();
-        brain.setMemory(MemoryModuleType.NEAREST_VISIBLE_ATTACKABLE_PLAYER, optional6);
-
     }
 
 

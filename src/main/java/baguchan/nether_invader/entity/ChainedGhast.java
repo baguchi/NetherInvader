@@ -5,7 +5,6 @@ import baguchan.nether_invader.registry.ModPotions;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtUtils;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
@@ -50,16 +49,16 @@ public class ChainedGhast extends Ghast {
         super.addAdditionalSaveData(p_32744_);
         p_32744_.putBoolean("hasLeash", this.hasLeash);
         if (this.targetPos != null) {
-            p_32744_.put("TargetPos", NbtUtils.writeBlockPos(this.targetPos));
+            p_32744_.store("TargetPos", BlockPos.CODEC, this.targetPos);
         }
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag p_32733_) {
         super.readAdditionalSaveData(p_32733_);
-        this.hasLeash = p_32733_.getBoolean("hasLeash");
+        this.hasLeash = p_32733_.getBooleanOr("hasLeash", false);
         if (p_32733_.contains("TargetPos")) {
-            this.targetPos = NbtUtils.readBlockPos(p_32733_, "TargetPos").orElse(null);
+            this.targetPos = p_32733_.read("TargetPos", BlockPos.CODEC).orElse(null);
         }
     }
 
@@ -70,7 +69,7 @@ public class ChainedGhast extends Ghast {
         this.goalSelector.addGoal(7, new GhastLookGoal(this));
         this.goalSelector.addGoal(7, new GhastShootFireballGoal(this));
         this.targetSelector
-                .addGoal(1, new NearestAttackableTargetGoal<>(this, Player.class, 10, true, false, p_352811_ -> Math.abs(p_352811_.getY() - this.getY()) <= 4.0));
+                .addGoal(1, new NearestAttackableTargetGoal<>(this, Player.class, 10, true, false, (p_352811_, level) -> Math.abs(p_352811_.getY() - this.getY()) <= 4.0));
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -82,23 +81,22 @@ public class ChainedGhast extends Ghast {
         FlyingPathNavigation flyingpathnavigation = new FlyingPathNavigation(this, p_218342_);
         flyingpathnavigation.setCanOpenDoors(false);
         flyingpathnavigation.setCanFloat(true);
-        flyingpathnavigation.setCanPassDoors(true);
         return flyingpathnavigation;
     }
 
     @Override
-    public SpawnGroupData finalizeSpawn(ServerLevelAccessor p_34297_, DifficultyInstance p_34298_, MobSpawnType p_34299_, @Nullable SpawnGroupData p_34300_) {
+    public SpawnGroupData finalizeSpawn(ServerLevelAccessor p_34297_, DifficultyInstance p_34298_, EntitySpawnReason p_34299_, @Nullable SpawnGroupData p_34300_) {
         RandomSource randomsource = p_34297_.getRandom();
         p_34300_ = super.finalizeSpawn(p_34297_, p_34298_, p_34299_, p_34300_);
 
 
-        if ((double) randomsource.nextFloat() < 1F && p_34299_ == MobSpawnType.SPAWN_EGG) {
-            Scaffolding scaffolding = ModEntitys.SCAFFOLDING.get().create(this.level());
-            AgressivePiglin piglin = ModEntitys.AGRESSIVE_PIGLIN.get().create(this.level());
+        if ((double) randomsource.nextFloat() < 1F && p_34299_ == EntitySpawnReason.SPAWN_ITEM_USE) {
+            Scaffolding scaffolding = ModEntitys.SCAFFOLDING.get().create(this.level(), EntitySpawnReason.EVENT);
+            AgressivePiglin piglin = ModEntitys.AGRESSIVE_PIGLIN.get().create(this.level(), EntitySpawnReason.EVENT);
             if (scaffolding != null && piglin != null) {
-                scaffolding.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), 0.0F);
-                piglin.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), 0.0F);
-                piglin.finalizeSpawn(p_34297_, p_34298_, MobSpawnType.JOCKEY, null);
+                scaffolding.snapTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), 0.0F);
+                piglin.snapTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), 0.0F);
+                piglin.finalizeSpawn(p_34297_, p_34298_, EntitySpawnReason.JOCKEY, null);
                 piglin.setBaby(false);
                 piglin.setItemSlot(EquipmentSlot.MAINHAND, Items.CROSSBOW.getDefaultInstance());
 
@@ -115,7 +113,7 @@ public class ChainedGhast extends Ghast {
     }
 
     public static boolean checkChainGhastSpawnRules(
-            EntityType<ChainedGhast> p_218985_, LevelAccessor p_218986_, MobSpawnType p_218987_, BlockPos p_218988_, RandomSource p_218989_
+            EntityType<ChainedGhast> p_218985_, LevelAccessor p_218986_, EntitySpawnReason p_218987_, BlockPos p_218988_, RandomSource p_218989_
     ) {
         return p_218986_.getDifficulty() != Difficulty.PEACEFUL
                 && p_218989_.nextInt(20) == 0
@@ -339,7 +337,7 @@ public class ChainedGhast extends Ghast {
 
             BlockPos blockPos = BlockPos.containing(vec32);
             int k = level.getHeight(Heightmap.Types.MOTION_BLOCKING, blockPos.getX(), blockPos.getZ());
-            if (k < blockPos.getY() && k > level.getMinBuildHeight()) {
+            if (k < blockPos.getY() && k > level.getMinY()) {
                 vec32 = new Vec3(vec32.x(), mob.getY() - Math.abs(mob.getY() - vec32.y()), vec32.z());
             }
 
@@ -438,7 +436,7 @@ public class ChainedGhast extends Ghast {
 
             BlockPos blockPos = BlockPos.containing(vec32);
             int k = level.getHeight(Heightmap.Types.MOTION_BLOCKING, blockPos.getX(), blockPos.getZ());
-            if (k < blockPos.getY() && k > level.getMinBuildHeight()) {
+            if (k < blockPos.getY() && k > level.getMinY()) {
                 vec32 = new Vec3(vec32.x(), mob.getY() - Math.abs(mob.getY() - vec32.y()), vec32.z());
             }
 

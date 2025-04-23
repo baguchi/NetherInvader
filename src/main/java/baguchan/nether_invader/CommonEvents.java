@@ -21,7 +21,7 @@ public class CommonEvents {
     @SubscribeEvent
     public static void onServerTick(LevelTickEvent.Post tick) {
         if (!tick.getLevel().isClientSide && tick.getLevel() instanceof ServerLevel serverWorld) {
-            PiglinRaidData.get(serverWorld).tick();
+            PiglinRaidData.get(serverWorld).tick(serverWorld);
         }
     }
 
