@@ -292,7 +292,7 @@ public class RevampedPiglinAi {
             });
             if (p_34838_.isBaby()) {
                 brain.setMemoryWithExpiry(MemoryModuleType.AVOID_TARGET, p_34839_, 100L);
-                if (BrainUtils.isEntityAttackableIgnoringLineOfSight(p_34838_, p_34839_, PLAYER_ANGER_RANGE)) {
+                if (BrainUtils.isEntityAttackableIgnoringLineOfSight(p_34838_, p_34839_, 16)) {
                     broadcastAngerTarget(p_34838_, p_34839_);
                 }
             } else {
@@ -303,7 +303,7 @@ public class RevampedPiglinAi {
 
     protected static void maybeRetaliate(AbstractPiglin p_34827_, LivingEntity p_34828_) {
         if (!p_34827_.getBrain().isActive(Activity.AVOID)) {
-            if (BrainUtils.isEntityAttackableIgnoringLineOfSight(p_34827_, p_34828_, PLAYER_ANGER_RANGE)) {
+            if (BrainUtils.isEntityAttackableIgnoringLineOfSight(p_34827_, p_34828_, 16)) {
                 if (!BehaviorUtils.isOtherTargetMuchFurtherAwayThanCurrentAttackTarget(p_34827_, p_34828_, 4.0)) {
                     if (p_34828_.getType() == EntityType.PLAYER && p_34827_.level().getGameRules().getBoolean(GameRules.RULE_UNIVERSAL_ANGER)) {
                         setAngerTargetToNearestTargetablePlayerIfFound(p_34827_, p_34828_);

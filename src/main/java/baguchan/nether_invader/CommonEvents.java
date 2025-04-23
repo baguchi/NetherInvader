@@ -4,28 +4,38 @@ import baguchan.nether_invader.api.IPiglinImmunite;
 import baguchan.nether_invader.registry.ModPotions;
 import baguchan.nether_invader.world.savedata.PiglinRaidData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.hoglin.Hoglin;
 import net.minecraft.world.entity.monster.piglin.AbstractPiglin;
+import net.minecraft.world.entity.monster.piglin.PiglinBrute;
+import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
 
-import java.util.HashMap;
-import java.util.Map;
-
 @EventBusSubscriber(modid = NetherInvader.MODID)
 public class CommonEvents {
-    private static final Map<ServerLevel, PiglinRaidData> PATROL_SPAWNER_MAP = new HashMap<>();
-
     @SubscribeEvent
     public static void onServerTick(LevelTickEvent.Post tick) {
         if (!tick.getLevel().isClientSide && tick.getLevel() instanceof ServerLevel serverWorld) {
-            PATROL_SPAWNER_MAP.computeIfAbsent(serverWorld,
-                    k -> new PiglinRaidData(serverWorld));
-            PiglinRaidData spawner = PATROL_SPAWNER_MAP.get(serverWorld);
-            spawner.tick();
+            PiglinRaidData.get(serverWorld).tick();
+        }
+    }
+
+    @SubscribeEvent
+    public static void onKilled(LivingDeathEvent event) {
+        if (event.getEntity() instanceof PiglinBrute piglinBrute) {
+            if (event.getSource().getEntity() instanceof Player player) {
+                if (player.hasEffect(ModPotions.PIGLIN_OMEN)) {
+                    player.addEffect(new MobEffectInstance(ModPotions.PIGLIN_OMEN, 120000, player.getEffect(ModPotions.PIGLIN_OMEN).getAmplifier() + 1));
+
+                } else {
+                    player.addEffect(new MobEffectInstance(ModPotions.PIGLIN_OMEN, 120000));
+                }
+            }
         }
     }
 

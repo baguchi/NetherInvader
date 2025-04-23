@@ -25,7 +25,7 @@ public interface PiglinRaider {
         return !this.netherInvader$hasActiveRaid();
     }
 
-    void setCurrentRaid(@Nullable PiglinRaid p_37852_);
+    void netherInvader$setCurrentRaid(@Nullable PiglinRaid p_37852_);
 
     @Nullable
     PiglinRaid netherInvader$getCurrentRaid();

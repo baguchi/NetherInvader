@@ -2,6 +2,7 @@ package baguchan.nether_invader.registry;
 
 import baguchan.nether_invader.NetherInvader;
 import baguchan.nether_invader.effect.DefMobEffect;
+import baguchan.nether_invader.effect.PiglinRaidEffect;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.effect.MobEffect;
@@ -27,7 +28,7 @@ public class ModPotions {
     );
     public static final DeferredHolder<MobEffect, MobEffect> PIGLIN_OMEN = MOB_EFFECTS.register(
             "piglin_omen",
-            () -> new DefMobEffect(MobEffectCategory.NEUTRAL, 0xBD665C)
+            () -> new PiglinRaidEffect(MobEffectCategory.NEUTRAL, 0xBD665C)
                     .withSoundOnAdded(SoundEvents.APPLY_EFFECT_BAD_OMEN)
     );
 

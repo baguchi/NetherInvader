@@ -1,6 +1,5 @@
 package baguchan.nether_invader.effect;
 
-import baguchan.nether_invader.registry.ModPotions;
 import baguchan.nether_invader.world.raid.PiglinRaid;
 import baguchan.nether_invader.world.savedata.PiglinRaidData;
 import net.minecraft.server.level.ServerLevel;
@@ -28,8 +27,6 @@ public class PiglinRaidEffect extends MobEffect {
                 PiglinRaid raid = PiglinRaidData.get(serverlevel).getRaidAt(serverplayer.blockPosition());
                 if (raid == null || raid.getRaidOmenLevel() < raid.getMaxRaidOmenLevel()) {
                     PiglinRaidData.get(serverlevel).createOrExtendRaid(serverplayer, serverplayer.blockPosition());
-                    serverplayer.removeEffect(ModPotions.PIGLIN_OMEN);
-
                     return false;
                 }
             }

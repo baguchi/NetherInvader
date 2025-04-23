@@ -14,7 +14,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.monster.piglin.AbstractPiglin;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -174,9 +173,5 @@ public abstract class AbstractPiglinMixin extends Monster implements IPiglinImmu
 
     @Override
     public void netherInvader$applyRaidBuffs(ServerLevel level, int p37714, boolean b) {
-        if (this.netherInvader$isPatrolLeader()) {
-            this.setItemSlot(EquipmentSlot.HEAD, new ItemStack(Items.NETHERITE_HELMET));
-            this.setDropChance(EquipmentSlot.HEAD, 0.0F);
-        }
     }
 }

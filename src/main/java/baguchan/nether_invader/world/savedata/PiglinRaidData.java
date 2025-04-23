@@ -16,7 +16,6 @@ import net.minecraft.tags.PoiTypeTags;
 import net.minecraft.world.entity.ai.village.poi.PoiManager;
 import net.minecraft.world.entity.ai.village.poi.PoiRecord;
 import net.minecraft.world.entity.monster.piglin.AbstractPiglin;
-import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraft.world.level.dimension.DimensionType;
@@ -56,7 +55,7 @@ public class PiglinRaidData extends SavedData {
 
         while (iterator.hasNext()) {
             PiglinRaid raid = iterator.next();
-            if (this.level.getGameRules().getBoolean(GameRules.RULE_DISABLE_RAIDS)) {
+            if (!NetherConfigs.COMMON.ENABLE_DIMENSIONS.get().contains(this.level.dimension().location().toString())) {
                 raid.stop();
             }
 
@@ -85,8 +84,6 @@ public class PiglinRaidData extends SavedData {
     @Nullable
     public PiglinRaid createOrExtendRaid(ServerPlayer p_37964_, BlockPos p_338602_) {
         if (p_37964_.isSpectator()) {
-            return null;
-        } else if (this.level.getGameRules().getBoolean(GameRules.RULE_DISABLE_RAIDS)) {
             return null;
         } else {
             ResourceKey<Level> dimension = p_37964_.level().dimension();

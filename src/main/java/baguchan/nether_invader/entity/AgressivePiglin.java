@@ -1,6 +1,7 @@
 package baguchan.nether_invader.entity;
 
 import baguchan.nether_invader.entity.ai.RevampedPiglinAi;
+import baguchan.nether_invader.registry.ModEntitys;
 import baguchan.nether_invader.registry.ModSensors;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Dynamic;
@@ -217,6 +218,20 @@ public class AgressivePiglin extends AbstractPiglin implements CrossbowAttackMob
         } else {
             this.maybeWearArmor(EquipmentSlot.FEET, new ItemStack(Items.GOLDEN_BOOTS), p_219189_);
 
+        }
+
+        if (this instanceof PiglinRaider piglinRaider) {
+            if (piglinRaider.netherInvader$isPatrolLeader()) {
+                this.setItemSlot(EquipmentSlot.HEAD, new ItemStack(Items.NETHERITE_HELMET));
+                this.setDropChance(EquipmentSlot.HEAD, 0.0F);
+                this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.NETHERITE_SWORD));
+                this.setDropChance(EquipmentSlot.MAINHAND, 0.0F);
+            }
+            if (this.getControlledVehicle() != null) {
+                if (this.getType() == ModEntitys.AGRESSIVE_PIGLIN.get()) {
+                    this.setItemSlot(EquipmentSlot.MAINHAND, Items.CROSSBOW.getDefaultInstance());
+                }
+            }
         }
     }
 

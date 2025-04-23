@@ -219,15 +219,15 @@ public class PiglinRaid {
     }
 
     public boolean absorbRaidOmen(ServerPlayer p_338621_) {
-        MobEffectInstance mobeffectinstance = p_338621_.getEffect(MobEffects.RAID_OMEN);
+        MobEffectInstance mobeffectinstance = p_338621_.getEffect(ModPotions.PIGLIN_OMEN);
         if (mobeffectinstance == null) {
             return false;
         } else {
             this.raidOmenLevel = this.raidOmenLevel + mobeffectinstance.getAmplifier() + 1;
             this.raidOmenLevel = Mth.clamp(this.raidOmenLevel, 0, this.getMaxRaidOmenLevel());
             if (!this.hasFirstWaveSpawned()) {
-                p_338621_.awardStat(Stats.RAID_TRIGGER);
-                CriteriaTriggers.RAID_OMEN.trigger(p_338621_);
+                //p_338621_.awardStat(Stats.RAID_TRIGGER);
+                //CriteriaTriggers.RAID_OMEN.trigger(p_338621_);
             }
 
             return true;
@@ -521,9 +521,7 @@ public class PiglinRaid {
                         scaffolding.moveTo(p_37756_.getX(), p_37756_.getY() + 10, p_37756_.getZ(), raider.getYRot(), 0.0F);
                         chainedGhast.moveTo(p_37756_.getX(), p_37756_.getY() + 10, p_37756_.getZ(), raider.getYRot(), 0.0F);
 
-                        if (raider.getType() == ModEntitys.AGRESSIVE_PIGLIN.get()) {
-                            raider.setItemSlot(EquipmentSlot.MAINHAND, Items.CROSSBOW.getDefaultInstance());
-                        }
+
                         chainedGhast.targetPos = this.center;
 
                         this.level.addFreshEntity(scaffolding);
@@ -532,6 +530,7 @@ public class PiglinRaid {
 
                         scaffolding.setChainedTo(chainedGhast, true);
                         this.joinRaid(i, raider, p_37756_, true);
+
                     }
                 } else {
                     this.joinRaid(i, raider, p_37756_, false);
@@ -552,7 +551,7 @@ public class PiglinRaid {
         if (flag) {
             if (p_37715_ instanceof PiglinRaider piglinRaider) {
 
-                piglinRaider.setCurrentRaid(this);
+                piglinRaider.netherInvader$setCurrentRaid(this);
                 piglinRaider.netherInvader$setWave(p_37714_);
                 piglinRaider.netherInvader$setCanJoinRaid(true);
                 piglinRaider.netherInvader$setTicksOutsideRaid(0);
@@ -601,7 +600,7 @@ public class PiglinRaid {
                         this.totalHealth = this.totalHealth - p_37741_.getHealth();
                     }
 
-                    piglinRaider.setCurrentRaid(null);
+                    piglinRaider.netherInvader$setCurrentRaid(null);
                     this.updateBossbar();
                     this.setDirty();
                 }
@@ -610,7 +609,7 @@ public class PiglinRaid {
     }
 
     private void setDirty() {
-        this.level.getRaids().setDirty();
+        PiglinRaidData.get(this.level).setDirty();
     }
 
     public static ItemStack getLeaderBannerInstance(HolderGetter<BannerPattern> p_332748_) {
