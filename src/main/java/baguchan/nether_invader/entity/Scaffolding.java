@@ -26,7 +26,7 @@ public class Scaffolding extends LivingEntity implements Chainable {
     @Override
     public void baseTick() {
         super.baseTick();
-        if (!this.level().isClientSide && this instanceof Chainable) {
+        if (!this.level().isClientSide && this instanceof Chainable && this.tickCount > 2) {
             this.tickChain((Entity & Chainable) this);
         }
     }

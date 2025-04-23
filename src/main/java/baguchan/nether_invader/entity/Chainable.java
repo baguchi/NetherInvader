@@ -22,7 +22,7 @@ public interface Chainable {
     double field_59999 = 0.11;
     public List<Vec3> HELD_ENTITY_ATTACHMENT_POINT = ImmutableList.of(new Vec3(0.0F, 0.5F, 0.5F));
     public List<Vec3> LEASH_HOLDER_ATTACHMENT_POINT = ImmutableList.of(new Vec3(0.0F, 0.5F, 0.0F));
-    public List<Vec3> QUAD_LEASH_ATTACHMENT_POINTS = ImmutableList.of(new Vec3(-1F, 0.5F, 1F), new Vec3(-1F, 0.5F, -1F), new Vec3(1F, 0.5F, -1F), new Vec3(1F, 0.5F, 1F));
+    public List<Vec3> QUAD_LEASH_ATTACHMENT_POINTS = ImmutableList.of(new Vec3(-0.5, 0.5F, 0.5), new Vec3(-0.5, 0.5F, -0.5), new Vec3(0.5, 0.5F, -0.5), new Vec3(0.5, 0.5F, 0.5));
 
 
     @Nullable

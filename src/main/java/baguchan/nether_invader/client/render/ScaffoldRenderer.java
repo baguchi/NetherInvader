@@ -9,6 +9,7 @@ import com.mojang.math.Axis;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -22,7 +23,7 @@ import net.minecraft.world.phys.Vec3;
 
 public class ScaffoldRenderer extends LivingEntityRenderer<Scaffolding, TestModel> {
     public static final ResourceLocation TEXTURE = ResourceLocation.withDefaultNamespace("textures/entity/boat/bamboo.png");
-    public static final ResourceLocation CHAIN_TEXTURE = ResourceLocation.withDefaultNamespace("textures/block/chain.png");
+    public static final ResourceLocation CHAIN_TEXTURE = ResourceLocation.withDefaultNamespace("textures/item/chain.png");
 
     public ScaffoldRenderer(EntityRendererProvider.Context p_174304_) {
         super(p_174304_, new TestModel(p_174304_.bakeLayer(ModelLayers.createBoatModelName(Boat.Type.BAMBOO))), 0.5F);
@@ -36,6 +37,22 @@ public class ScaffoldRenderer extends LivingEntityRenderer<Scaffolding, TestMode
     protected void setupRotations(Scaffolding p_115317_, PoseStack p_115318_, float p_115319_, float p_115320_, float p_115321_, float p_320045_) {
         super.setupRotations(p_115317_, p_115318_, p_115319_, p_115320_, p_115321_, p_320045_);
         p_115318_.translate(0.0F, -1F, 0.0F);
+    }
+
+    @Override
+    public boolean shouldRender(Scaffolding p_114491_, Frustum p_114492_, double p_114493_, double p_114494_, double p_114495_) {
+        if (super.shouldRender(p_114491_, p_114492_, p_114493_, p_114494_, p_114495_)) {
+            return true;
+        } else {
+            if (p_114491_ instanceof Chainable leashable) {
+                Entity entity = leashable.getChainHolder();
+                if (entity != null) {
+                    return p_114492_.isVisible(entity.getBoundingBoxForCulling());
+                }
+            }
+
+            return false;
+        }
     }
 
     @Override
@@ -61,9 +78,15 @@ public class ScaffoldRenderer extends LivingEntityRenderer<Scaffolding, TestMode
                 float f1 = 0.0F;
                 float f2 = f1 * 0.5F % 1.0F;
                 poseStack.pushPose();
-                //poseStack.translate(0.0F, f3, 0.0F);
-                Vec3 vec3 = owner.getPosition(particalTick).add(vec34.scale(3));
-                Vec3 vec31 = chained.getPosition(particalTick).add(vec34);
+
+                float yrot = -Mth.rotLerp(particalTick, owner.yRotO, owner.getYRot());
+
+                Vec3 offset2 = new Vec3(vec34.x, 0, vec34.z).yRot(yrot * ((float) Math.PI / 180F));
+
+                Vec3 offset = new Vec3(vec34.x * 2.455, -vec34.y, vec34.z * 2.455);
+                poseStack.translate(offset2.x, vec34.y, offset2.z);
+                Vec3 vec3 = owner.getPosition(particalTick).add(offset.yRot(yrot * ((float) Math.PI / 180F)));
+                Vec3 vec31 = chained.getPosition(particalTick);
                 Vec3 vec32 = vec3.subtract(vec31);
                 float f4 = (float) (vec32.length());
                 vec32 = vec32.normalize();
@@ -71,6 +94,7 @@ public class ScaffoldRenderer extends LivingEntityRenderer<Scaffolding, TestMode
                 float f6 = (float) Math.atan2(vec32.z, vec32.x);
                 poseStack.mulPose(Axis.YP.rotationDegrees(((float) (Math.PI / 2) - f6) * (180.0F / (float) Math.PI)));
                 poseStack.mulPose(Axis.XP.rotationDegrees(f5 * (180.0F / (float) Math.PI)));
+                //poseStack.mulPose(Axis.ZP.rotationDegrees(owner.getYRot()));
                 int i = 1;
                 float f7 = f1 * 0.05F * -1.5F;
                 float f8 = f * f;
@@ -141,7 +165,7 @@ public class ScaffoldRenderer extends LivingEntityRenderer<Scaffolding, TestMode
     }
 
 
-    protected int getBlockLightLevelTest(Entity p_114496_, BlockPos p_114497_) {
+    protected static int getBlockLightLevelTest(Entity p_114496_, BlockPos p_114497_) {
         return p_114496_.isOnFire() ? 15 : p_114496_.level().getBrightness(LightLayer.BLOCK, p_114497_);
     }
 }

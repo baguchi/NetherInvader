@@ -3,6 +3,7 @@ package baguchan.nether_invader.entity;
 import baguchan.nether_invader.registry.ModEntitys;
 import baguchan.nether_invader.registry.ModPotions;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -12,6 +13,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.control.LookControl;
 import net.minecraft.world.entity.ai.control.MoveControl;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
@@ -24,6 +26,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -36,7 +39,7 @@ public class ChainedGhast extends Ghast {
     public ChainedGhast(EntityType<? extends ChainedGhast> p_33002_, Level p_33003_) {
         super(p_33002_, p_33003_);
         this.moveControl = new GhastMoveControl(this);
-
+        this.lookControl = new ChainedGhastLookControl();
     }
 
     @Override
@@ -266,41 +269,152 @@ public class ChainedGhast extends Ghast {
         }
     }
 
-    static class RandomFloatAroundGoal extends Goal {
-        private final ChainedGhast ghast;
+    public static class RandomFloatAroundGoal extends Goal {
+        private static final int MAX_ATTEMPTS = 64;
+        private final Mob ghast;
+        private final int distanceToBlocks;
 
-        public RandomFloatAroundGoal(ChainedGhast p_32783_) {
-            this.ghast = p_32783_;
-            this.setFlags(EnumSet.of(Goal.Flag.MOVE));
+        public RandomFloatAroundGoal(Mob mob) {
+            this(mob, 0);
         }
 
-        @Override
+        public RandomFloatAroundGoal(Mob mob, int i) {
+            this.ghast = mob;
+            this.distanceToBlocks = i;
+            this.setFlags(EnumSet.of(Flag.MOVE));
+        }
+
         public boolean canUse() {
-            MoveControl movecontrol = this.ghast.getMoveControl();
-            if (!movecontrol.hasWanted()) {
+            MoveControl moveControl = this.ghast.getMoveControl();
+            if (!moveControl.hasWanted()) {
                 return true;
             } else {
-                double d0 = movecontrol.getWantedX() - this.ghast.getX();
-                double d1 = movecontrol.getWantedY() - this.ghast.getY();
-                double d2 = movecontrol.getWantedZ() - this.ghast.getZ();
-                double d3 = d0 * d0 + d1 * d1 + d2 * d2;
-                return d3 < 1.0 || d3 > 3600.0;
+                double d = moveControl.getWantedX() - this.ghast.getX();
+                double e = moveControl.getWantedY() - this.ghast.getY();
+                double f = moveControl.getWantedZ() - this.ghast.getZ();
+                double g = d * d + e * e + f * f;
+                return g < (double) 1.0F || g > (double) 3600.0F;
             }
         }
 
-        @Override
         public boolean canContinueToUse() {
             return false;
         }
 
-        @Override
         public void start() {
-            RandomSource randomsource = this.ghast.getRandom();
-            double d0 = this.ghast.getX() + (double) ((randomsource.nextFloat() * 2.0F - 1.0F) * 16.0F);
-            double d1 = this.ghast.getY() + (double) ((randomsource.nextFloat() * 2.0F - 1.0F) * 16.0F);
-            double d2 = this.ghast.getZ() + (double) ((randomsource.nextFloat() * 2.0F - 1.0F) * 16.0F);
-
-            this.ghast.moveControl.setWantedPosition(d0, d1, d2, 1.0);
+            Vec3 vec3 = getSuitableFlyToPosition(this.ghast, this.distanceToBlocks);
+            this.ghast.getMoveControl().setWantedPosition(vec3.x(), vec3.y(), vec3.z(), (double) 1.0F);
         }
+
+        public static Vec3 getSuitableFlyToPosition(Mob mob, int i) {
+            Level level = mob.level();
+            RandomSource randomSource = mob.getRandom();
+            Vec3 vec3 = mob.position();
+            Vec3 vec32 = null;
+
+            for (int j = 0; j < 64; ++j) {
+                vec32 = chooseRandomPositionWithRestriction(mob, vec3, randomSource);
+                if (vec32 != null && isGoodTarget(level, vec32, i)) {
+                    return vec32;
+                }
+            }
+
+            if (vec32 == null) {
+                vec32 = chooseRandomPosition(vec3, randomSource);
+            }
+
+            BlockPos blockPos = BlockPos.containing(vec32);
+            int k = level.getHeight(Heightmap.Types.MOTION_BLOCKING, blockPos.getX(), blockPos.getZ());
+            if (k < blockPos.getY() && k > level.getMinBuildHeight()) {
+                vec32 = new Vec3(vec32.x(), mob.getY() - Math.abs(mob.getY() - vec32.y()), vec32.z());
+            }
+
+            return vec32;
+        }
+
+        private static boolean isGoodTarget(Level level, Vec3 vec3, int i) {
+            if (i <= 0) {
+                return true;
+            } else {
+                BlockPos blockPos = BlockPos.containing(vec3);
+                if (!level.getBlockState(blockPos).isAir()) {
+                    return false;
+                } else {
+                    for (Direction direction : Direction.values()) {
+                        for (int j = 1; j < i; ++j) {
+                            BlockPos blockPos2 = blockPos.relative(direction, j);
+                            if (!level.getBlockState(blockPos2).isAir()) {
+                                return true;
+                            }
+                        }
+                    }
+
+                    return false;
+                }
+            }
+        }
+
+        private static Vec3 chooseRandomPosition(Vec3 vec3, RandomSource randomSource) {
+            double d = vec3.x() + (double) ((randomSource.nextFloat() * 2.0F - 1.0F) * 16.0F);
+            double e = vec3.y() + (double) ((randomSource.nextFloat() * 2.0F - 1.0F) * 16.0F);
+            double f = vec3.z() + (double) ((randomSource.nextFloat() * 2.0F - 1.0F) * 16.0F);
+            return new Vec3(d, e, f);
+        }
+
+        @org.jetbrains.annotations.Nullable
+        private static Vec3 chooseRandomPositionWithRestriction(Mob mob, Vec3 vec3, RandomSource randomSource) {
+            Vec3 vec32 = chooseRandomPosition(vec3, randomSource);
+            return mob.hasRestriction() && !mob.isWithinRestriction(BlockPos.containing(vec32)) ? null : vec32;
+        }
+    }
+
+    class ChainedGhastLookControl extends LookControl {
+        ChainedGhastLookControl() {
+            super(ChainedGhast.this);
+        }
+
+        public void tick() {
+            if (this.lookAtCooldown > 0) {
+                --this.lookAtCooldown;
+                double d = this.wantedX - ChainedGhast.this.getX();
+                double e = this.wantedZ - ChainedGhast.this.getZ();
+                ChainedGhast.this.setYRot(-((float) Mth.atan2(d, e)) * (180F / (float) Math.PI));
+                ChainedGhast.this.yBodyRot = ChainedGhast.this.getYRot();
+                ChainedGhast.this.yHeadRot = ChainedGhast.this.yBodyRot;
+            } else {
+                ChainedGhast.faceMovementDirection(this.mob);
+            }
+        }
+
+        public static float wrapDegrees90(float f) {
+            float g = f % 90.0F;
+            if (g >= 45.0F) {
+                g -= 90.0F;
+            }
+
+            if (g < -45.0F) {
+                g += 90.0F;
+            }
+
+            return g;
+        }
+    }
+
+    public static void faceMovementDirection(Mob mob) {
+        if (mob.getTarget() == null) {
+            Vec3 vec3 = mob.getDeltaMovement();
+            mob.setYRot(-((float) Mth.atan2(vec3.x, vec3.z)) * (180F / (float) Math.PI));
+            mob.yBodyRot = mob.getYRot();
+        } else {
+            LivingEntity livingEntity = mob.getTarget();
+            double d = (double) 64.0F;
+            if (livingEntity.distanceToSqr(mob) < (double) 4096.0F) {
+                double e = livingEntity.getX() - mob.getX();
+                double f = livingEntity.getZ() - mob.getZ();
+                mob.setYRot(-((float) Mth.atan2(e, f)) * (180F / (float) Math.PI));
+                mob.yBodyRot = mob.getYRot();
+            }
+        }
+
     }
 }
