@@ -1,6 +1,6 @@
 {
   "effect.nether_invader.awkward": "Strong Awkward",
-  "effect.nether_invader.piglin_omen": "Piglin Omen",
+  "effect.nether_invader.horde_omen": "Horde Omen",
   "block.nether_invader.piglin_banner": "Piglin Banner",
   "item.minecraft.potion.effect.strong_awkward": "Potion of Strong Awkward",
   "item.minecraft.splash_potion.effect.strong_awkward": "Splash Potion of Strong Awkward",
@@ -19,5 +19,9 @@
   "event.nether_invader.piglin_raid.defeat.full": "Piglin Raid - Defeat",
   "event.nether_invader.piglin_raid.raiders_remaining": "Piglin Raiders Remaining: %s",
   "event.nether_invader.piglin_raid.victory": "Victory",
-  "event.nether_invader.piglin_raid.victory.full": "Piglin Raid - Victory"
+  "event.nether_invader.piglin_raid.victory.full": "Piglin Raid - Victory",
+  "advancements.nether_invader.root.title": "Calamity Of Piglin",
+  "advancements.nether_invader.root.description": "Killed Piglin Brute",
+  "advancements.nether_invader.piglin_slayer.title": "PiglinSlayer",
+  "advancements.nether_invader.piglin_slayer.desc": "Win the Piglin Raid"
 }

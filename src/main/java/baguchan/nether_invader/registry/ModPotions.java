@@ -26,8 +26,8 @@ public class ModPotions {
             "awkward",
             () -> new DefMobEffect(MobEffectCategory.NEUTRAL, 0xBD665C)
     );
-    public static final DeferredHolder<MobEffect, MobEffect> PIGLIN_OMEN = MOB_EFFECTS.register(
-            "piglin_omen",
+    public static final DeferredHolder<MobEffect, MobEffect> HORDE_OMEN = MOB_EFFECTS.register(
+            "horde_omen",
             () -> new PiglinRaidEffect(MobEffectCategory.NEUTRAL, 0xBD665C)
                     .withSoundOnAdded(SoundEvents.APPLY_EFFECT_BAD_OMEN)
     );

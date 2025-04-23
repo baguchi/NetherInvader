@@ -32,6 +32,7 @@ public class NetherInvader
         ModMemoryModuleType.MEMORY_MODULE_TYPES.register(modEventBus);
         ModSensors.SENSOR_TYPE.register(modEventBus);
         ModEntitys.ENTITIES_REGISTRY.register(modEventBus);
+        ModCriterionTriggers.CRITERIONS_REGISTER.register(modEventBus);
 
         modContainer.registerConfig(ModConfig.Type.COMMON, NetherConfigs.COMMON_SPEC);
     }

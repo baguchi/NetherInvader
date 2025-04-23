@@ -29,11 +29,11 @@ public class CommonEvents {
     public static void onKilled(LivingDeathEvent event) {
         if (event.getEntity() instanceof PiglinBrute piglinBrute) {
             if (event.getSource().getEntity() instanceof Player player) {
-                if (player.hasEffect(ModPotions.PIGLIN_OMEN)) {
-                    player.addEffect(new MobEffectInstance(ModPotions.PIGLIN_OMEN, 120000, player.getEffect(ModPotions.PIGLIN_OMEN).getAmplifier() + 1));
+                if (player.hasEffect(ModPotions.HORDE_OMEN)) {
+                    player.addEffect(new MobEffectInstance(ModPotions.HORDE_OMEN, 120000, player.getEffect(ModPotions.HORDE_OMEN).getAmplifier() + 1));
 
                 } else {
-                    player.addEffect(new MobEffectInstance(ModPotions.PIGLIN_OMEN, 120000));
+                    player.addEffect(new MobEffectInstance(ModPotions.HORDE_OMEN, 120000));
                 }
             }
         }

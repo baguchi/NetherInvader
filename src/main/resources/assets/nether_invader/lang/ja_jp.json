@@ -1,6 +1,6 @@
 {
   "effect.nether_invader.awkward": "Strong Awkward",
-  "effect.nether_invader.piglin_omen": "ピグリンの予感",
+  "effect.nether_invader.horde_omen": "大群の予感",
   "block.nether_invader.piglin_banner": "ピグリンの旗",
   "item.minecraft.potion.effect.strong_awkward": "強めの奇妙なポーション",
   "item.minecraft.splash_potion.effect.strong_awkward": "強めの奇妙なスプラッシュポーション",
@@ -19,5 +19,9 @@
   "event.nether_invader.piglin_raid.defeat.full": "ピグリンレイド - 敗北",
   "event.nether_invader.piglin_raid.raiders_remaining": "残りのピグリン: %s",
   "event.nether_invader.piglin_raid.victory": "勝利",
-  "event.nether_invader.piglin_raid.victory.full": "ピグリンレイド - 勝利"
+  "event.nether_invader.piglin_raid.victory.full": "ピグリンレイド - 勝利",
+  "advancements.nether_invader.root.title": "厄災のピグリン",
+  "advancements.nether_invader.root.description": "ピグリンブルートを倒す",
+  "advancements.nether_invader.piglin_slayer.title": "ピグリンスレイヤー",
+  "advancements.nether_invader.piglin_slayer.desc": "ピグリンレイドに勝つ"
 }

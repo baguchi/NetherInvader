@@ -24,5 +24,6 @@ public class DataGenerators {
 
         DatapackBuiltinEntriesProvider datapackProvider = new RegistryDataGenerator(packOutput, lookupProvider);
         generator.addProvider(event.includeServer(), new CustomTagGenerator.BiomeTagGenerator(packOutput, datapackProvider.getRegistryProvider(), existingFileHelper));
+        generator.addProvider(true, new ModAdvancements(packOutput, lookupProvider, existingFileHelper));
     }
 }

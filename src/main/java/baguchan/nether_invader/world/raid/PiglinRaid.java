@@ -3,13 +3,13 @@ package baguchan.nether_invader.world.raid;
 import baguchan.nether_invader.entity.ChainedGhast;
 import baguchan.nether_invader.entity.PiglinRaider;
 import baguchan.nether_invader.entity.Scaffolding;
+import baguchan.nether_invader.registry.ModCriterionTriggers;
 import baguchan.nether_invader.registry.ModEntitys;
 import baguchan.nether_invader.registry.ModPotions;
 import baguchan.nether_invader.world.savedata.PiglinRaidData;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import net.minecraft.ChatFormatting;
-import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.SectionPos;
@@ -26,7 +26,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.stats.Stats;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.Unit;
@@ -219,15 +218,13 @@ public class PiglinRaid {
     }
 
     public boolean absorbRaidOmen(ServerPlayer p_338621_) {
-        MobEffectInstance mobeffectinstance = p_338621_.getEffect(ModPotions.PIGLIN_OMEN);
+        MobEffectInstance mobeffectinstance = p_338621_.getEffect(ModPotions.HORDE_OMEN);
         if (mobeffectinstance == null) {
             return false;
         } else {
             this.raidOmenLevel = this.raidOmenLevel + mobeffectinstance.getAmplifier() + 1;
             this.raidOmenLevel = Mth.clamp(this.raidOmenLevel, 0, this.getMaxRaidOmenLevel());
             if (!this.hasFirstWaveSpawned()) {
-                //p_338621_.awardStat(Stats.RAID_TRIGGER);
-                //CriteriaTriggers.RAID_OMEN.trigger(p_338621_);
             }
 
             return true;
@@ -363,8 +360,7 @@ public class PiglinRaid {
                                             new MobEffectInstance(MobEffects.HERO_OF_THE_VILLAGE, 48000, this.raidOmenLevel - 1, false, false, true)
                                     );
                                     if (livingentity instanceof ServerPlayer serverplayer) {
-                                        serverplayer.awardStat(Stats.RAID_WIN);
-                                        CriteriaTriggers.RAID_WIN.trigger(serverplayer);
+                                        ModCriterionTriggers.PIGLIN_SLAYER_TRIGGER.get().trigger(serverplayer);
                                     }
                                 }
                             }
@@ -513,7 +509,7 @@ public class PiglinRaid {
                     }
                 }
 
-                if (this.random.nextFloat() < 0.1F) {
+                if (this.random.nextFloat() < 0.15F) {
                     Scaffolding scaffolding = ModEntitys.SCAFFOLDING.get().create(level);
                     ChainedGhast chainedGhast = ModEntitys.CHAINED_GHAST.get().create(level);
 
@@ -529,14 +525,12 @@ public class PiglinRaid {
                         raider.startRiding(scaffolding);
 
                         scaffolding.setChainedTo(chainedGhast, true);
-                        this.joinRaid(i, raider, p_37756_, true);
+                        this.joinRaid(i, raider, p_37756_, false);
 
                     }
                 } else {
                     this.joinRaid(i, raider, p_37756_, false);
                 }
-
-                this.joinRaid(i, raider, p_37756_, false);
             }
         }
 
@@ -819,7 +813,7 @@ public class PiglinRaid {
     }
 
     public static enum RaiderType implements net.neoforged.fml.common.asm.enumextension.IExtensibleEnum {
-        AGRESSIVE_PIGLIN(ModEntitys.AGRESSIVE_PIGLIN.get(), new int[]{0, 0, 4, 3, 3, 4, 5, 6});
+        AGRESSIVE_PIGLIN(ModEntitys.AGRESSIVE_PIGLIN.get(), new int[]{0, 0, 4, 5, 5, 6, 6, 6});
         static final RaiderType[] VALUES = values();
         @Deprecated // Neo: null for custom types, use the supplier instead
         final EntityType<? extends AbstractPiglin> entityType;

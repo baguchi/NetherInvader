@@ -1,0 +1,27 @@
+{
+  "parent": "nether_invader:root",
+  "criteria": {
+    "temp": {
+      "trigger": "nether_invader:piglin_slayer"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.nether_invader.piglin_slayer.desc"
+    },
+    "frame": "challenge",
+    "icon": {
+      "count": 1,
+      "id": "minecraft:piglin_head"
+    },
+    "title": {
+      "translate": "advancements.nether_invader.piglin_slayer.title"
+    }
+  },
+  "requirements": [
+    [
+      "temp"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

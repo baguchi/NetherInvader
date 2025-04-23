@@ -8,6 +8,8 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BiomeTags;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -173,5 +175,26 @@ public abstract class AbstractPiglinMixin extends Monster implements IPiglinImmu
 
     @Override
     public void netherInvader$applyRaidBuffs(ServerLevel level, int p37714, boolean b) {
+    }
+
+    @Override
+    public void die(DamageSource p_37847_) {
+        if (this.level() instanceof ServerLevel) {
+            Entity entity = p_37847_.getEntity();
+            PiglinRaid raid = this.netherInvader$getCurrentRaid();
+            if (raid != null) {
+                if (this.netherInvader$isPatrolLeader()) {
+                    raid.removeLeader(this.netherInvader$getWave());
+                }
+
+                if (entity != null && entity.getType() == EntityType.PLAYER) {
+                    raid.addHeroOfTheVillage(entity);
+                }
+
+                raid.removeFromRaid((AbstractPiglin) (Object) this, false);
+            }
+        }
+
+        super.die(p_37847_);
     }
 }

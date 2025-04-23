@@ -1,0 +1,37 @@
+{
+  "criteria": {
+    "temp": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "minecraft:piglin_brute"
+            }
+          }
+        ]
+      },
+      "trigger": "minecraft:player_killed_entity"
+    }
+  },
+  "display": {
+    "background": "minecraft:textures/block/chiseled_polished_blackstone.png",
+    "description": {
+      "translate": "advancements.nether_invader.root.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "minecraft:piglin_brute_spawn_egg"
+    },
+    "title": {
+      "translate": "advancements.nether_invader.root.title"
+    }
+  },
+  "requirements": [
+    [
+      "temp"
+    ]
+  ],
+  "sends_telemetry_event": true
+}
