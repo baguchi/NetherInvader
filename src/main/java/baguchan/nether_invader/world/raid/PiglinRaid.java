@@ -35,6 +35,7 @@ import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.monster.hoglin.Hoglin;
 import net.minecraft.world.entity.monster.piglin.AbstractPiglin;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
@@ -528,6 +529,17 @@ public class PiglinRaid {
                         this.joinRaid(i, raider, p_37756_, false);
 
                     }
+                } else if (this.random.nextFloat() < 0.1F) {
+                    Hoglin agressiveHoglin = EntityType.HOGLIN.create(level);
+
+                    if (agressiveHoglin != null) {
+                        agressiveHoglin.addEffect(new MobEffectInstance(ModPotions.AWKWARD, 120000));
+
+                        agressiveHoglin.moveTo(p_37756_.getX(), p_37756_.getY(), p_37756_.getZ(), raider.getYRot(), 0.0F);
+                        this.level.addFreshEntity(agressiveHoglin);
+                        raider.startRiding(agressiveHoglin);
+                        this.joinRaid(i, raider, p_37756_, false);
+                    }
                 } else {
                     this.joinRaid(i, raider, p_37756_, false);
                 }
@@ -813,7 +825,7 @@ public class PiglinRaid {
     }
 
     public static enum RaiderType implements net.neoforged.fml.common.asm.enumextension.IExtensibleEnum {
-        AGRESSIVE_PIGLIN(ModEntitys.AGRESSIVE_PIGLIN.get(), new int[]{0, 0, 4, 5, 5, 6, 6, 6});
+        AGRESSIVE_PIGLIN(ModEntitys.AGRESSIVE_PIGLIN.get(), new int[]{0, 2, 2, 3, 4, 5, 6, 6});
         static final RaiderType[] VALUES = values();
         @Deprecated // Neo: null for custom types, use the supplier instead
         final EntityType<? extends AbstractPiglin> entityType;

@@ -71,7 +71,7 @@ public class AggresivePiglinSpecificSensor extends Sensor<LivingEntity> {
                 }
             } else {
                 if (livingentity instanceof WitherSkeleton || livingentity instanceof WitherBoss || livingentity instanceof AbstractVillager) {
-                    if (optional.isEmpty()) {
+                    if (optional.isEmpty() || optional.get().distanceTo(p_26727_) > livingentity.distanceTo(p_26727_)) {
                         optional = Optional.of((Mob) livingentity);
                     }
                 }

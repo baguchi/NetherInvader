@@ -196,6 +196,7 @@ public interface Chainable {
             leashedEntity.addDeltaMovement(elasticity.force().multiply(ELASTICITY_MULTIPLIER).add(vec3d.scale(0.11)));
             leashedEntity.setXRot(leashHolder.getXRot());
             leashedEntity.setYRot(leashHolder.getYRot());
+            leashedEntity.resetFallDistance();
             return true;
         }
     }
