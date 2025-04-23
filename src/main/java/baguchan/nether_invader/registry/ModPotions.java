@@ -3,6 +3,7 @@ package baguchan.nether_invader.registry;
 import baguchan.nether_invader.NetherInvader;
 import baguchan.nether_invader.effect.DefMobEffect;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -24,6 +25,12 @@ public class ModPotions {
             "awkward",
             () -> new DefMobEffect(MobEffectCategory.NEUTRAL, 0xBD665C)
     );
+    public static final DeferredHolder<MobEffect, MobEffect> PIGLIN_OMEN = MOB_EFFECTS.register(
+            "piglin_omen",
+            () -> new DefMobEffect(MobEffectCategory.NEUTRAL, 0xBD665C)
+                    .withSoundOnAdded(SoundEvents.APPLY_EFFECT_BAD_OMEN)
+    );
+
     public static final DeferredHolder<Potion, Potion> STRONG_AWKWARD_POTION = POTIONS.register("strong_awkward", () -> new Potion("strong_awkward", new MobEffectInstance(AWKWARD, 9600)));
 
     @SubscribeEvent

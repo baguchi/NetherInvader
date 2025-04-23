@@ -2,6 +2,7 @@ package baguchan.nether_invader.entity.ai;
 
 import bagu_chan.bagus_lib.util.BrainUtils;
 import baguchan.nether_invader.entity.AgressivePiglin;
+import baguchan.nether_invader.entity.behavior.PiglinRaiding;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Pair;
@@ -158,6 +159,7 @@ public class RevampedPiglinAi {
     private static RunOne<AgressivePiglin> createIdleMovementBehaviors() {
         return new RunOne<>(
                 ImmutableList.of(
+                        Pair.of(PiglinRaiding.create(1.0F), 2),
                         Pair.of(RandomStroll.stroll(0.6F), 2),
                         Pair.of(InteractWith.of(EntityType.PIGLIN, 8, MemoryModuleType.INTERACTION_TARGET, 0.6F, 2), 2),
                         Pair.of(SetWalkTargetFromLookTarget.create(0.6F, 3), 2),

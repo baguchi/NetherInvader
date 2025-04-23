@@ -1,0 +1,23 @@
+{
+  "effect.nether_invader.awkward": "Strong Awkward",
+  "effect.nether_invader.piglin_omen": "ピグリンの予感",
+  "block.nether_invader.piglin_banner": "ピグリンの旗",
+  "item.minecraft.potion.effect.strong_awkward": "強めの奇妙なポーション",
+  "item.minecraft.splash_potion.effect.strong_awkward": "強めの奇妙なスプラッシュポーション",
+  "item.minecraft.lingering_potion.effect.strong_awkward": "強めの奇妙な残留ポーション",
+  "item.minecraft.tipped_arrow.effect.strong_awkward": "強めの奇妙な矢",
+  "item.nether_invader.chained_ghast_spawn_egg": "鎖付きガストのスポーンエッグ",
+  "item.nether_invader.agressive_piglin_spawn_egg": "怒りのピグリンのスポーンエッグ",
+  "entity.nether_invader.nether_spreader": "Nether Spreader",
+  "entity.nether_invader.chained_ghast": "鎖付きガスト",
+  "entity.nether_invader.scaffolding": "足場",
+  "entity.nether_invader.agressive_piglin": "怒りのピグリン",
+  "biome.nether_invader.nether_wastes": "Nether Wastes",
+  "biome.nether_invader.crimson_forest": "Crimson Forest",
+  "event.nether_invader.piglin_raid": "ピグリンレイド",
+  "event.nether_invader.piglin_raid.defeat": "敗北",
+  "event.nether_invader.piglin_raid.defeat.full": "ピグリンレイド - 敗北",
+  "event.nether_invader.piglin_raid.raiders_remaining": "残りのピグリン: %s",
+  "event.nether_invader.piglin_raid.victory": "勝利",
+  "event.nether_invader.piglin_raid.victory.full": "ピグリンレイド - 勝利"
+}

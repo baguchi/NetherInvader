@@ -1,5 +1,7 @@
 {
   "effect.nether_invader.awkward": "Strong Awkward",
+  "effect.nether_invader.piglin_omen": "Piglin Omen",
+  "block.nether_invader.piglin_banner": "Piglin Banner",
   "item.minecraft.potion.effect.strong_awkward": "Potion of Strong Awkward",
   "item.minecraft.splash_potion.effect.strong_awkward": "Splash Potion of Strong Awkward",
   "item.minecraft.lingering_potion.effect.strong_awkward": "Lingering Potion of Strong Awkward",
@@ -11,5 +13,11 @@
   "entity.nether_invader.scaffolding": "Scaffolding",
   "entity.nether_invader.agressive_piglin": "Agressive Piglin",
   "biome.nether_invader.nether_wastes": "Nether Wastes",
-  "biome.nether_invader.crimson_forest": "Crimson Forest"
+  "biome.nether_invader.crimson_forest": "Crimson Forest",
+  "event.nether_invader.piglin_raid": "Piglin Raid",
+  "event.nether_invader.piglin_raid.defeat": "Defeat",
+  "event.nether_invader.piglin_raid.defeat.full": "Piglin Raid - Defeat",
+  "event.nether_invader.piglin_raid.raiders_remaining": "Piglin Raiders Remaining: %s",
+  "event.nether_invader.piglin_raid.victory": "Victory",
+  "event.nether_invader.piglin_raid.victory.full": "Piglin Raid - Victory"
 }

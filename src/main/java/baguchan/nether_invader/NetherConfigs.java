@@ -1,8 +1,10 @@
 package baguchan.nether_invader;
 
+import com.google.common.collect.Lists;
 import net.neoforged.neoforge.common.ModConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.List;
 import java.util.function.Predicate;
 
 public class NetherConfigs {
@@ -16,14 +18,12 @@ public class NetherConfigs {
     }
 
     public static class Common {
-        public final ModConfigSpec.BooleanValue enable_nether_invader_feature_default;
-
+        public final ModConfigSpec.ConfigValue<List<? extends String>> ENABLE_DIMENSIONS;
         public Common(ModConfigSpec.Builder builder) {
             Predicate<Object> validator = o -> o instanceof String;
-            enable_nether_invader_feature_default = builder
-                    .comment("Make Enable Nether Reactor feature by default(If you want to set it individually, turn this off, restart, and set it again in Experimental Feature.)")
-                    .define("Enable Nether Reactor feature by default"
-                            , false);
+            ENABLE_DIMENSIONS = builder
+                    .comment("Enable the PiglinRaid in dimension. Use the full name(, eg: minecraft:the_nether.")
+                    .define("EnablePiglinRaidDimensions", Lists.newArrayList("minecraft:overworld"));
         }
     }
 

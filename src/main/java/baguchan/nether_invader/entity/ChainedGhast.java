@@ -5,6 +5,7 @@ import baguchan.nether_invader.registry.ModPotions;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
@@ -35,6 +36,8 @@ import java.util.EnumSet;
 
 public class ChainedGhast extends Ghast {
     private boolean hasLeash;
+    @Nullable
+    public BlockPos targetPos;
 
     public ChainedGhast(EntityType<? extends ChainedGhast> p_33002_, Level p_33003_) {
         super(p_33002_, p_33003_);
@@ -46,17 +49,24 @@ public class ChainedGhast extends Ghast {
     public void addAdditionalSaveData(CompoundTag p_32744_) {
         super.addAdditionalSaveData(p_32744_);
         p_32744_.putBoolean("hasLeash", this.hasLeash);
+        if (this.targetPos != null) {
+            p_32744_.put("TargetPos", NbtUtils.writeBlockPos(this.targetPos));
+        }
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag p_32733_) {
         super.readAdditionalSaveData(p_32733_);
         this.hasLeash = p_32733_.getBoolean("hasLeash");
+        if (p_32733_.contains("TargetPos")) {
+            this.targetPos = NbtUtils.readBlockPos(p_32733_, "TargetPos").orElse(null);
+        }
     }
 
     @Override
     protected void registerGoals() {
-        this.goalSelector.addGoal(5, new RandomFloatAroundGoal(this));
+        this.goalSelector.addGoal(1, new TargetFloatAroundGoal(this, 16));
+        this.goalSelector.addGoal(5, new RandomFloatAroundGoal(this, 16));
         this.goalSelector.addGoal(7, new GhastLookGoal(this));
         this.goalSelector.addGoal(7, new GhastShootFireballGoal(this));
         this.targetSelector
@@ -82,7 +92,7 @@ public class ChainedGhast extends Ghast {
         p_34300_ = super.finalizeSpawn(p_34297_, p_34298_, p_34299_, p_34300_);
 
 
-        if ((double) randomsource.nextFloat() < 1F) {
+        if ((double) randomsource.nextFloat() < 1F && p_34299_ == MobSpawnType.SPAWN_EGG) {
             Scaffolding scaffolding = ModEntitys.SCAFFOLDING.get().create(this.level());
             AgressivePiglin piglin = ModEntitys.AGRESSIVE_PIGLIN.get().create(this.level());
             if (scaffolding != null && piglin != null) {
@@ -130,7 +140,7 @@ public class ChainedGhast extends Ghast {
                     double d0 = vec3.length();
                     vec3 = vec3.normalize();
                     if (this.canReach(vec3, Mth.ceil(d0))) {
-                        this.ghast.setDeltaMovement(this.ghast.getDeltaMovement().add(vec3.scale(0.1)));
+                        this.ghast.setDeltaMovement(this.ghast.getDeltaMovement().add(vec3.scale(0.1 * this.speedModifier)));
                     } else {
                         this.operation = MoveControl.Operation.WAIT;
                     }
@@ -266,6 +276,109 @@ public class ChainedGhast extends Ghast {
 
                 this.ghast.setCharging(this.chargeTime > 10);
             }
+        }
+    }
+
+    public static class TargetFloatAroundGoal extends Goal {
+        private static final int MAX_ATTEMPTS = 64;
+        private final ChainedGhast ghast;
+        private final int distanceToBlocks;
+
+        public TargetFloatAroundGoal(ChainedGhast mob) {
+            this(mob, 0);
+        }
+
+        public TargetFloatAroundGoal(ChainedGhast mob, int i) {
+            this.ghast = mob;
+            this.distanceToBlocks = i;
+            this.setFlags(EnumSet.of(Flag.MOVE));
+        }
+
+        public boolean canUse() {
+            if (this.ghast.targetPos == null) {
+                return false;
+            }
+
+            MoveControl moveControl = this.ghast.getMoveControl();
+            if (!moveControl.hasWanted()) {
+                return true;
+            } else {
+                double d = moveControl.getWantedX() - this.ghast.getX();
+                double e = moveControl.getWantedY() - this.ghast.getY();
+                double f = moveControl.getWantedZ() - this.ghast.getZ();
+                double g = d * d + e * e + f * f;
+                return g < (double) 1.0F || g > (double) 3600.0F;
+            }
+        }
+
+        public boolean canContinueToUse() {
+            return false;
+        }
+
+        public void start() {
+            Vec3 vec3 = getSuitableFlyToPosition(this.ghast, this.distanceToBlocks);
+            this.ghast.getMoveControl().setWantedPosition(vec3.x(), vec3.y(), vec3.z(), (double) 0.25F);
+        }
+
+        public static Vec3 getSuitableFlyToPosition(ChainedGhast mob, int i) {
+            Level level = mob.level();
+            RandomSource randomSource = mob.getRandom();
+            Vec3 vec3 = mob.position();
+            Vec3 vec32 = null;
+
+            for (int j = 0; j < 64; ++j) {
+                vec32 = chooseRandomPositionWithRestriction(mob, vec3, randomSource);
+                if (vec32 != null && isGoodTarget(level, vec32, i)) {
+                    return vec32;
+                }
+            }
+
+            if (vec32 == null) {
+                vec32 = chooseRandomPosition(mob, vec3, randomSource);
+            }
+
+            BlockPos blockPos = BlockPos.containing(vec32);
+            int k = level.getHeight(Heightmap.Types.MOTION_BLOCKING, blockPos.getX(), blockPos.getZ());
+            if (k < blockPos.getY() && k > level.getMinBuildHeight()) {
+                vec32 = new Vec3(vec32.x(), mob.getY() - Math.abs(mob.getY() - vec32.y()), vec32.z());
+            }
+
+            return vec32;
+        }
+
+        private static boolean isGoodTarget(Level level, Vec3 vec3, int i) {
+            if (i <= 0) {
+                return true;
+            } else {
+                BlockPos blockPos = BlockPos.containing(vec3);
+                if (!level.getBlockState(blockPos).isAir()) {
+                    return false;
+                } else {
+                    for (Direction direction : Direction.values()) {
+                        for (int j = 1; j < i; ++j) {
+                            BlockPos blockPos2 = blockPos.relative(direction, j);
+                            if (!level.getBlockState(blockPos2).isAir()) {
+                                return true;
+                            }
+                        }
+                    }
+
+                    return false;
+                }
+            }
+        }
+
+        private static Vec3 chooseRandomPosition(ChainedGhast mob, Vec3 vec3, RandomSource randomSource) {
+            double d = mob.targetPos.getX() + (double) ((randomSource.nextFloat() * 2.0F - 1.0F) * 16.0F);
+            double e = mob.targetPos.getY() + (double) ((randomSource.nextFloat() * 2.0F - 1.0F) * 16.0F);
+            double f = mob.targetPos.getZ() + (double) ((randomSource.nextFloat() * 2.0F - 1.0F) * 16.0F);
+            return new Vec3(d, e, f);
+        }
+
+        @org.jetbrains.annotations.Nullable
+        private static Vec3 chooseRandomPositionWithRestriction(ChainedGhast mob, Vec3 vec3, RandomSource randomSource) {
+            Vec3 vec32 = chooseRandomPosition(mob, vec3, randomSource);
+            return mob.hasRestriction() && !mob.isWithinRestriction(BlockPos.containing(vec32)) ? null : vec32;
         }
     }
 
