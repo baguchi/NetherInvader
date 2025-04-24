@@ -1,7 +1,6 @@
 package baguchan.nether_invader.client.render;
 
 import baguchan.nether_invader.client.model.TestModel;
-import baguchan.nether_invader.entity.Chainable;
 import baguchan.nether_invader.entity.Scaffolding;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -20,10 +19,12 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
 
 public class ScaffoldRenderer extends LivingEntityRenderer<Scaffolding, TestModel> {
-    public static final ResourceLocation TEXTURE = ResourceLocation.withDefaultNamespace("textures/entity/boat/bamboo.png");
-    public static final ResourceLocation CHAIN_TEXTURE = ResourceLocation.withDefaultNamespace("textures/item/chain.png");
+    public static final ResourceLocation TEXTURE = new ResourceLocation("textures/entity/boat/bamboo.png");
+    public static final ResourceLocation CHAIN_TEXTURE = new ResourceLocation("textures/item/chain.png");
 
     public ScaffoldRenderer(EntityRendererProvider.Context p_174304_) {
         super(p_174304_, new TestModel(p_174304_.bakeLayer(ModelLayers.createBoatModelName(Boat.Type.BAMBOO))), 0.5F);
@@ -34,8 +35,8 @@ public class ScaffoldRenderer extends LivingEntityRenderer<Scaffolding, TestMode
     }
 
     @Override
-    protected void setupRotations(Scaffolding p_115317_, PoseStack p_115318_, float p_115319_, float p_115320_, float p_115321_, float p_320045_) {
-        super.setupRotations(p_115317_, p_115318_, p_115319_, p_115320_, p_115321_, p_320045_);
+    protected void setupRotations(Scaffolding p_115317_, PoseStack p_115318_, float p_115319_, float p_115320_, float p_115321_) {
+        super.setupRotations(p_115317_, p_115318_, p_115319_, p_115320_, p_115321_);
         p_115318_.translate(0.0F, -1F, 0.0F);
     }
 
@@ -44,11 +45,10 @@ public class ScaffoldRenderer extends LivingEntityRenderer<Scaffolding, TestMode
         if (super.shouldRender(p_114491_, p_114492_, p_114493_, p_114494_, p_114495_)) {
             return true;
         } else {
-            if (p_114491_ instanceof Chainable leashable) {
-                Entity entity = leashable.getChainHolder();
+
+            Entity entity = p_114491_.getChainHolder();
                 if (entity != null) {
                     return p_114492_.isVisible(entity.getBoundingBoxForCulling());
-                }
             }
 
             return false;
@@ -57,12 +57,12 @@ public class ScaffoldRenderer extends LivingEntityRenderer<Scaffolding, TestMode
 
     @Override
     public void render(Scaffolding p_115308_, float p_115309_, float p_115310_, PoseStack p_115311_, MultiBufferSource p_115312_, int p_115313_) {
-        if (p_115308_ instanceof Chainable chainable) {
-            Entity entity = chainable.getChainHolder();
+
+        Entity entity = p_115308_.getChainHolder();
             if (entity != null) {
                 this.renderChain(p_115308_, p_115310_, p_115311_, p_115312_, entity);
             }
-        }
+
         super.render(p_115308_, p_115309_, p_115310_, p_115311_, p_115312_, p_115313_);
     }
 
@@ -125,43 +125,27 @@ public class ScaffoldRenderer extends LivingEntityRenderer<Scaffolding, TestMode
                 float f30 = f4 * 2.5F + f29;
                 VertexConsumer vertexconsumer = bufferIn.getBuffer(RenderType.entityCutoutNoCull(CHAIN_TEXTURE));
                 PoseStack.Pose posestack$pose = poseStack.last();
-                vertex(vertexconsumer, posestack$pose, f19, f4, f20, j, k, l, 0.4999F, f30);
-                vertex(vertexconsumer, posestack$pose, f19, 0.0F, f20, j, k, l, 0.4999F, f29);
-                vertex(vertexconsumer, posestack$pose, f21, 0.0F, f22, j, k, l, 0.0F, f29);
-                vertex(vertexconsumer, posestack$pose, f21, f4, f22, j, k, l, 0.0F, f30);
-                vertex(vertexconsumer, posestack$pose, f23, f4, f24, j, k, l, 0.4999F, f30);
-                vertex(vertexconsumer, posestack$pose, f23, 0.0F, f24, j, k, l, 0.4999F, f29);
-                vertex(vertexconsumer, posestack$pose, f25, 0.0F, f26, j, k, l, 0.0F, f29);
-                vertex(vertexconsumer, posestack$pose, f25, f4, f26, j, k, l, 0.0F, f30);
+                vertex(vertexconsumer, posestack$pose.pose(), posestack$pose.normal(), f19, f4, f20, j, k, l, 0.4999F, f30);
+                vertex(vertexconsumer, posestack$pose.pose(), posestack$pose.normal(), f19, 0.0F, f20, j, k, l, 0.4999F, f29);
+                vertex(vertexconsumer, posestack$pose.pose(), posestack$pose.normal(), f21, 0.0F, f22, j, k, l, 0.0F, f29);
+                vertex(vertexconsumer, posestack$pose.pose(), posestack$pose.normal(), f21, f4, f22, j, k, l, 0.0F, f30);
+                vertex(vertexconsumer, posestack$pose.pose(), posestack$pose.normal(), f23, f4, f24, j, k, l, 0.4999F, f30);
+                vertex(vertexconsumer, posestack$pose.pose(), posestack$pose.normal(), f23, 0.0F, f24, j, k, l, 0.4999F, f29);
+                vertex(vertexconsumer, posestack$pose.pose(), posestack$pose.normal(), f25, 0.0F, f26, j, k, l, 0.0F, f29);
+                vertex(vertexconsumer, posestack$pose.pose(), posestack$pose.normal(), f25, f4, f26, j, k, l, 0.0F, f30);
                 float f31 = 0.0F;
 
-                vertex(vertexconsumer, posestack$pose, f11, f4, f12, j, k, l, 0.0F, f31 - 0.15F);
-                vertex(vertexconsumer, posestack$pose, f13, f4, f14, j, k, l, 1.15F, f31 - 0.15F);
-                vertex(vertexconsumer, posestack$pose, f17, f4, f18, j, k, l, 1.15F, f31);
-                vertex(vertexconsumer, posestack$pose, f15, f4, f16, j, k, l, -0.15F, f31);
+                vertex(vertexconsumer, posestack$pose.pose(), posestack$pose.normal(), f11, f4, f12, j, k, l, 0.0F, f31 - 0.15F);
+                vertex(vertexconsumer, posestack$pose.pose(), posestack$pose.normal(), f13, f4, f14, j, k, l, 1.15F, f31 - 0.15F);
+                vertex(vertexconsumer, posestack$pose.pose(), posestack$pose.normal(), f17, f4, f18, j, k, l, 1.15F, f31);
+                vertex(vertexconsumer, posestack$pose.pose(), posestack$pose.normal(), f15, f4, f16, j, k, l, -0.15F, f31);
                 poseStack.popPose();
             }
         }
     }
 
-    private static void vertex(
-            VertexConsumer p_253637_,
-            PoseStack.Pose p_323627_,
-            float p_253994_,
-            float p_254492_,
-            float p_254474_,
-            int p_254080_,
-            int p_253655_,
-            int p_254133_,
-            float p_254233_,
-            float p_253939_
-    ) {
-        p_253637_.addVertex(p_323627_, p_253994_, p_254492_, p_254474_)
-                .setColor(p_254080_, p_253655_, p_254133_, 255)
-                .setUv(p_254233_, p_253939_)
-                .setOverlay(OverlayTexture.NO_OVERLAY)
-                .setLight(15728880)
-                .setNormal(p_323627_, 0.0F, 1.0F, 0.0F);
+    private static void vertex(VertexConsumer p_253637_, Matrix4f p_253920_, Matrix3f p_253881_, float p_253994_, float p_254492_, float p_254474_, int p_254080_, int p_253655_, int p_254133_, float p_254233_, float p_253939_) {
+        p_253637_.vertex(p_253920_, p_253994_, p_254492_, p_254474_).color(p_254080_, p_253655_, p_254133_, 255).uv(p_254233_, p_253939_).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(15728880).normal(p_253881_, 0.0F, 1.0F, 0.0F).endVertex();
     }
 
 

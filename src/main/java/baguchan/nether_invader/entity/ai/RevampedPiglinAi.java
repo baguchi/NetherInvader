@@ -24,7 +24,6 @@ import net.minecraft.world.entity.monster.piglin.AbstractPiglin;
 import net.minecraft.world.entity.monster.piglin.Piglin;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.schedule.Activity;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.phys.Vec3;
@@ -184,7 +183,7 @@ public class RevampedPiglinAi {
         );
         Activity activity1 = brain.getActiveNonCoreActivity().orElse(null);
         if (activity != activity1) {
-            getSoundForCurrentActivity(p_34899_).ifPresent(p_34899_::makeSound);
+            getSoundForCurrentActivity(p_34899_).ifPresent(p_34899_::playSound);
         }
 
         p_34899_.setAggressive(brain.hasMemoryValue(MemoryModuleType.ATTACK_TARGET));
@@ -348,17 +347,6 @@ public class RevampedPiglinAi {
 
     private static List<AbstractPiglin> getAdultPiglins(AbstractPiglin p_34961_) {
         return p_34961_.getBrain().getMemory(MemoryModuleType.NEARBY_ADULT_PIGLINS).orElse(ImmutableList.of());
-    }
-
-    public static boolean isWearingGold(LivingEntity p_34809_) {
-        for (ItemStack itemstack : p_34809_.getArmorAndBodyArmorSlots()) {
-            Item item = itemstack.getItem();
-            if (itemstack.makesPiglinsNeutral(p_34809_)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     private static void stopWalking(AgressivePiglin p_35007_) {

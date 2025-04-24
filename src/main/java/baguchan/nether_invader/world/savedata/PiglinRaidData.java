@@ -6,7 +6,6 @@ import baguchan.nether_invader.world.raid.PiglinRaid;
 import com.google.common.collect.Maps;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceKey;
@@ -161,7 +160,9 @@ public class PiglinRaidData extends SavedData {
             PiglinRaidData fromMap = dataMap.get(overworld);
             if (fromMap == null) {
                 DimensionDataStorage storage = overworld.getDataStorage();
-                PiglinRaidData data = storage.computeIfAbsent(PiglinRaidData.factory(serverLevel), IDENTIFIER);
+                PiglinRaidData data = storage.computeIfAbsent((s) -> {
+                    return load(serverLevel, s);
+                }, () -> new PiglinRaidData(serverLevel), IDENTIFIER);
                 if (data != null) {
                     data.setDirty();
                 }
@@ -173,23 +174,15 @@ public class PiglinRaidData extends SavedData {
         return null;
     }
 
-    public static SavedData.Factory<PiglinRaidData> factory(ServerLevel p_300199_) {
-        return new SavedData.Factory<>(() -> {
-            return new PiglinRaidData(p_300199_);
-        }, (p_296865_, provider) -> {
-            return load(p_300199_, p_296865_);
-        });
-    }
-
-    public static PiglinRaidData load(ServerLevel p_300199_, CompoundTag nbt) {
-        PiglinRaidData data = new PiglinRaidData(p_300199_);
+    public static PiglinRaidData load(ServerLevel serverLevel, CompoundTag nbt) {
+        PiglinRaidData data = new PiglinRaidData(serverLevel);
         data.nextAvailableID = nbt.getInt("NextAvailableID");
         data.tick = nbt.getInt("Tick");
         ListTag listtag = nbt.getList("PiglinRaidData", 10);
 
         for (int i = 0; i < listtag.size(); i++) {
             CompoundTag compoundtag = listtag.getCompound(i);
-            PiglinRaid raid = new PiglinRaid(p_300199_, compoundtag);
+            PiglinRaid raid = new PiglinRaid(serverLevel, compoundtag);
             data.raidMap.put(raid.getId(), raid);
         }
 
@@ -198,7 +191,7 @@ public class PiglinRaidData extends SavedData {
 
 
     @Override
-    public CompoundTag save(CompoundTag compound, HolderLookup.Provider p_323640_) {
+    public CompoundTag save(CompoundTag compound) {
         compound.putInt("NextAvailableID", this.nextAvailableID);
         compound.putInt("Tick", this.tick);
         ListTag listtag = new ListTag();

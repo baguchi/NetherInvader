@@ -59,7 +59,7 @@ public class ChainedGhast extends Ghast {
         super.readAdditionalSaveData(p_32733_);
         this.hasLeash = p_32733_.getBoolean("hasLeash");
         if (p_32733_.contains("TargetPos")) {
-            this.targetPos = NbtUtils.readBlockPos(p_32733_, "TargetPos").orElse(null);
+            this.targetPos = NbtUtils.readBlockPos(p_32733_.getCompound("TargetPos"));
         }
     }
 
@@ -86,10 +86,11 @@ public class ChainedGhast extends Ghast {
         return flyingpathnavigation;
     }
 
+
     @Override
-    public SpawnGroupData finalizeSpawn(ServerLevelAccessor p_34297_, DifficultyInstance p_34298_, MobSpawnType p_34299_, @Nullable SpawnGroupData p_34300_) {
+    public SpawnGroupData finalizeSpawn(ServerLevelAccessor p_34297_, DifficultyInstance p_34298_, MobSpawnType p_34299_, @Nullable SpawnGroupData p_34300_, CompoundTag compoundTag) {
         RandomSource randomsource = p_34297_.getRandom();
-        p_34300_ = super.finalizeSpawn(p_34297_, p_34298_, p_34299_, p_34300_);
+        p_34300_ = super.finalizeSpawn(p_34297_, p_34298_, p_34299_, p_34300_, compoundTag);
 
 
         if ((double) randomsource.nextFloat() < 1F && p_34299_ == MobSpawnType.SPAWN_EGG) {
@@ -98,11 +99,11 @@ public class ChainedGhast extends Ghast {
             if (scaffolding != null && piglin != null) {
                 scaffolding.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), 0.0F);
                 piglin.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), 0.0F);
-                piglin.finalizeSpawn(p_34297_, p_34298_, MobSpawnType.JOCKEY, null);
+                piglin.finalizeSpawn(p_34297_, p_34298_, MobSpawnType.JOCKEY, null, null);
                 piglin.setBaby(false);
                 piglin.setItemSlot(EquipmentSlot.MAINHAND, Items.CROSSBOW.getDefaultInstance());
 
-                piglin.addEffect(new MobEffectInstance(ModPotions.AWKWARD, 120000));
+                piglin.addEffect(new MobEffectInstance(ModPotions.AWKWARD.get(), 120000));
 
                 piglin.startRiding(scaffolding);
                 p_34297_.addFreshEntityWithPassengers(scaffolding);
@@ -265,7 +266,7 @@ public class ChainedGhast extends Ghast {
                             level.levelEvent(null, 1016, this.ghast.blockPosition(), 0);
                         }
 
-                        LargeFireball largefireball = new LargeFireball(level, this.ghast, vec31.normalize(), this.ghast.getExplosionPower());
+                        LargeFireball largefireball = new LargeFireball(level, this.ghast, d2, d3, d4, this.ghast.getExplosionPower());
                         largefireball.setPos(this.ghast.getX() + vec3.x * 4.0, this.ghast.getY(0.5) + 0.5, largefireball.getZ() + vec3.z * 4.0);
                         level.addFreshEntity(largefireball);
                         this.chargeTime = -40;
@@ -375,7 +376,7 @@ public class ChainedGhast extends Ghast {
             return new Vec3(d, e, f);
         }
 
-        @org.jetbrains.annotations.Nullable
+
         private static Vec3 chooseRandomPositionWithRestriction(ChainedGhast mob, Vec3 vec3, RandomSource randomSource) {
             Vec3 vec32 = chooseRandomPosition(mob, vec3, randomSource);
             return mob.hasRestriction() && !mob.isWithinRestriction(BlockPos.containing(vec32)) ? null : vec32;
@@ -474,7 +475,6 @@ public class ChainedGhast extends Ghast {
             return new Vec3(d, e, f);
         }
 
-        @org.jetbrains.annotations.Nullable
         private static Vec3 chooseRandomPositionWithRestriction(Mob mob, Vec3 vec3, RandomSource randomSource) {
             Vec3 vec32 = chooseRandomPosition(vec3, randomSource);
             return mob.hasRestriction() && !mob.isWithinRestriction(BlockPos.containing(vec32)) ? null : vec32;

@@ -10,8 +10,8 @@ import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
 
 public class ChainedGhastRenderer extends MobRenderer<ChainedGhast, GhastModel<ChainedGhast>> {
-    private static final ResourceLocation GHAST_LOCATION = ResourceLocation.fromNamespaceAndPath(NetherInvader.MODID, "textures/entity/chained_ghast/chained_ghast.png");
-    private static final ResourceLocation GHAST_SHOOTING_LOCATION = ResourceLocation.fromNamespaceAndPath(NetherInvader.MODID, "textures/entity/chained_ghast/chained_ghast_shooting.png");
+    private static final ResourceLocation GHAST_LOCATION = new ResourceLocation(NetherInvader.MODID, "textures/entity/chained_ghast/chained_ghast.png");
+    private static final ResourceLocation GHAST_SHOOTING_LOCATION = new ResourceLocation(NetherInvader.MODID, "textures/entity/chained_ghast/chained_ghast_shooting.png");
 
     public ChainedGhastRenderer(EntityRendererProvider.Context p_174129_) {
         super(p_174129_, new GhastModel<>(p_174129_.bakeLayer(ModelLayers.GHAST)), 1.5F);
