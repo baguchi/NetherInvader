@@ -4,7 +4,6 @@ import baguchan.nether_invader.api.IPiglinImmunite;
 import baguchan.nether_invader.entity.PiglinRaider;
 import baguchan.nether_invader.world.raid.PiglinRaid;
 import baguchan.nether_invader.world.savedata.PiglinRaidData;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BiomeTags;
@@ -140,7 +139,7 @@ public abstract class AbstractPiglinMixin extends Monster implements IPiglinImmu
     public boolean netherInvader$isCaptain() {
         ItemStack itemstack = this.getItemBySlot(EquipmentSlot.HEAD);
         boolean flag = !itemstack.isEmpty()
-                && ItemStack.matches(itemstack, PiglinRaid.getLeaderBannerInstance(this.registryAccess().lookupOrThrow(Registries.BANNER_PATTERN)));
+                && ItemStack.matches(itemstack, PiglinRaid.getLeaderBannerInstance());
         boolean flag1 = this.netherInvader$isPatrolLeader();
         return flag && flag1;
     }

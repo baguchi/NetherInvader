@@ -11,7 +11,7 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.monster.piglin.AbstractPiglin;
 
 public class AgressivePiglinRenderer extends HumanoidMobRenderer<Mob, PiglinModel<Mob>> {
-    private static final ResourceLocation TEXTURES = ResourceLocation.withDefaultNamespace("textures/entity/piglin/piglin.png");
+    private static final ResourceLocation TEXTURES = new ResourceLocation("textures/entity/piglin/piglin.png");
 
     private static final float PIGLIN_CUSTOM_HEAD_SCALE = 1.0019531F;
 

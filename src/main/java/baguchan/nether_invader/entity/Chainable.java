@@ -1,5 +1,6 @@
 package baguchan.nether_invader.entity;
 
+import baguchan.nether_invader.NetherInvader;
 import baguchan.nether_invader.network.ChainPacket;
 import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Either;
@@ -10,7 +11,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.minecraftforge.network.PacketDistributor;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -30,12 +31,14 @@ public interface Chainable {
         if (p_352410_.contains("chain", 10)) {
             return new Chainable.ChainData(Either.left(p_352410_.getCompound("chain").getUUID("UUID")));
         } else {
-            if (p_352410_.contains("chain", 11)) {
-                Either<UUID, BlockPos> either = NbtUtils.readBlockPos(p_352410_, "chain").<Either<UUID, BlockPos>>map(Either::right).orElse(null);
+            /*if (p_352410_.contains("chain", 11)) {
+                Either<UUID, BlockPos> either = NbtUtils.readBlockPos(p_352410_.getCompound("chain")).<Either<UUID, BlockPos>>map(chain ->{
+                    return Either.right(chain)
+                }).orElse(null);
                 if (either != null) {
                     return new Chainable.ChainData(either);
                 }
-            }
+            }*/
 
             return null;
         }
@@ -131,7 +134,8 @@ public interface Chainable {
             }
 
             if (p_352286_ && p_352163_.level() instanceof ServerLevel serverlevel) {
-                PacketDistributor.sendToAllPlayers(new ChainPacket(p_352163_, null));
+                NetherInvader.CHANNEL.send(PacketDistributor.ALL.noArg(), new ChainPacket(p_352163_, null));
+
             }
         }
     }
@@ -150,7 +154,7 @@ public interface Chainable {
         }
 
         if (p_352239_ && p_352280_.level() instanceof ServerLevel serverlevel) {
-            PacketDistributor.sendToAllPlayers(new ChainPacket(p_352280_, p_352109_));
+            NetherInvader.CHANNEL.send(PacketDistributor.ALL.noArg(), new ChainPacket(p_352280_, p_352109_));
         }
 
         if (p_352280_.isPassenger()) {

@@ -1,26 +1,16 @@
 package baguchan.nether_invader.network;
 
-import baguchan.nether_invader.NetherInvader;
 import baguchan.nether_invader.entity.Chainable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
-import net.neoforged.neoforge.network.handling.IPayloadHandler;
+import net.minecraftforge.fml.LogicalSide;
+import net.minecraftforge.network.NetworkEvent;
 
 import javax.annotation.Nullable;
+import java.util.function.Supplier;
 
-public class ChainPacket implements CustomPacketPayload, IPayloadHandler<ChainPacket> {
-
-    public static final StreamCodec<FriendlyByteBuf, ChainPacket> STREAM_CODEC = CustomPacketPayload.codec(
-            ChainPacket::write, ChainPacket::new
-    );
-    public static final CustomPacketPayload.Type<ChainPacket> TYPE = new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(NetherInvader.MODID, "chain"));
-
-
+public class ChainPacket {
     private final int sourceId;
     private final int destId;
 
@@ -34,28 +24,26 @@ public class ChainPacket implements CustomPacketPayload, IPayloadHandler<ChainPa
         this.destId = destId;
     }
 
-    public ChainPacket(FriendlyByteBuf buf) {
-        this(buf.readInt(), buf.readInt());
+    public void serialize(FriendlyByteBuf buffer) {
+        buffer.writeInt(this.sourceId);
+        buffer.writeInt(this.destId);
     }
 
-    public void write(FriendlyByteBuf buf) {
-        buf.writeInt(this.sourceId);
-        buf.writeInt(this.destId);
+    public static ChainPacket deserialize(FriendlyByteBuf buffer) {
+        int entityId = buffer.readInt();
+        int destId = buffer.readInt();
+        return new ChainPacket(entityId, destId);
     }
 
-    @Override
-    public Type<? extends CustomPacketPayload> type() {
-        return TYPE;
-    }
-
-    public void handle(ChainPacket message, IPayloadContext context) {
-        context.enqueueWork(() -> {
-            if (Minecraft.getInstance().player != null) {
-                Entity entity = Minecraft.getInstance().player.level().getEntity(message.sourceId);
-                if (entity instanceof Chainable chainable) {
+    public static boolean handle(ChainPacket message, Supplier<NetworkEvent.Context> contextSupplier) {
+        NetworkEvent.Context context = contextSupplier.get();
+        if (context.getDirection().getReceptionSide() == LogicalSide.CLIENT) {
+            context.enqueueWork(() -> {
+                Entity entity = (Minecraft.getInstance()).player.level().getEntity(message.sourceId);
+                if (entity instanceof Chainable chainable)
                     chainable.setDelayedLeashHolderId(message.destId);
-                }
-            }
-        });
+            });
+        }
+        return true;
     }
 }

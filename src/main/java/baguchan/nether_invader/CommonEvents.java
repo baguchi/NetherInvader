@@ -10,17 +10,17 @@ import net.minecraft.world.entity.monster.hoglin.Hoglin;
 import net.minecraft.world.entity.monster.piglin.AbstractPiglin;
 import net.minecraft.world.entity.monster.piglin.PiglinBrute;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
-import net.neoforged.neoforge.event.tick.EntityTickEvent;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.living.LivingEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 
-@EventBusSubscriber(modid = NetherInvader.MODID)
+@Mod.EventBusSubscriber(modid = NetherInvader.MODID)
 public class CommonEvents {
     @SubscribeEvent
-    public static void onServerTick(LevelTickEvent.Post tick) {
-        if (!tick.getLevel().isClientSide && tick.getLevel() instanceof ServerLevel serverWorld) {
+    public static void onServerTick(TickEvent.LevelTickEvent event) {
+        if (!event.level.isClientSide && event.level instanceof ServerLevel serverWorld) {
             PiglinRaidData.get(serverWorld).tick();
         }
     }
@@ -29,21 +29,21 @@ public class CommonEvents {
     public static void onKilled(LivingDeathEvent event) {
         if (event.getEntity() instanceof PiglinBrute piglinBrute) {
             if (event.getSource().getEntity() instanceof Player player) {
-                if (player.hasEffect(ModPotions.HORDE_OMEN)) {
-                    player.addEffect(new MobEffectInstance(ModPotions.HORDE_OMEN, 120000, player.getEffect(ModPotions.HORDE_OMEN).getAmplifier() + 1));
+                if (player.hasEffect(ModPotions.HORDE_OMEN.get())) {
+                    player.addEffect(new MobEffectInstance(ModPotions.HORDE_OMEN.get(), 120000, player.getEffect(ModPotions.HORDE_OMEN.get()).getAmplifier() + 1));
 
                 } else {
-                    player.addEffect(new MobEffectInstance(ModPotions.HORDE_OMEN, 120000));
+                    player.addEffect(new MobEffectInstance(ModPotions.HORDE_OMEN.get(), 120000));
                 }
             }
         }
     }
 
     @SubscribeEvent
-    public static void tickEvent(EntityTickEvent.Post event) {
-        if (event.getEntity() instanceof LivingEntity living) {
+    public static void tickEvent(LivingEvent.LivingTickEvent event) {
+        LivingEntity living = event.getEntity();
             if (living instanceof IPiglinImmunite piglinImmunite) {
-                if (piglinImmunite.isNetherInvader$immuniteByPotion() && !living.hasEffect(ModPotions.AWKWARD)) {
+                if (piglinImmunite.isNetherInvader$immuniteByPotion() && !living.hasEffect(ModPotions.AWKWARD.get())) {
                     if (living instanceof AbstractPiglin abstractPiglin && abstractPiglin.isImmuneToZombification()) {
                         piglinImmunite.setNetherInvader$immuniteByPotion(false);
                         abstractPiglin.setImmuneToZombification(false);
@@ -55,7 +55,7 @@ public class CommonEvents {
                     }
                 }
 
-                if (!piglinImmunite.isNetherInvader$immuniteByPotion() && living.hasEffect(ModPotions.AWKWARD)) {
+                if (!piglinImmunite.isNetherInvader$immuniteByPotion() && living.hasEffect(ModPotions.AWKWARD.get())) {
                     if (living instanceof AbstractPiglin abstractPiglin && !abstractPiglin.isImmuneToZombification()) {
                         piglinImmunite.setNetherInvader$immuniteByPotion(true);
                         abstractPiglin.setImmuneToZombification(true);
@@ -67,7 +67,6 @@ public class CommonEvents {
                     }
                 }
             }
-        }
     }
 
 }

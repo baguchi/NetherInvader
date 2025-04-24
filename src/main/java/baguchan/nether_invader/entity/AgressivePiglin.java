@@ -10,7 +10,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -35,6 +34,7 @@ import net.minecraft.world.entity.monster.piglin.AbstractPiglin;
 import net.minecraft.world.entity.monster.piglin.Piglin;
 import net.minecraft.world.entity.monster.piglin.PiglinArmPose;
 import net.minecraft.world.entity.npc.InventoryCarrier;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ProjectileWeaponItem;
@@ -46,22 +46,22 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.UUID;
 
 public class AgressivePiglin extends AbstractPiglin implements CrossbowAttackMob, InventoryCarrier {
     private static final EntityDataAccessor<Boolean> DATA_BABY_ID = SynchedEntityData.defineId(AgressivePiglin.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> DATA_IS_CHARGING_CROSSBOW = SynchedEntityData.defineId(AgressivePiglin.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> DATA_IS_DANCING = SynchedEntityData.defineId(AgressivePiglin.class, EntityDataSerializers.BOOLEAN);
-    private static final ResourceLocation SPEED_MODIFIER_BABY_ID = ResourceLocation.withDefaultNamespace("baby");
-    private static final AttributeModifier SPEED_MODIFIER_BABY = new AttributeModifier(
-            SPEED_MODIFIER_BABY_ID, 0.2F, AttributeModifier.Operation.ADD_MULTIPLIED_BASE
-    );
+    private static final UUID SPEED_MODIFIER_BABY_UUID = UUID.fromString("766bfa64-11f3-11ea-8d71-362b9e155667");
+    private static final AttributeModifier SPEED_MODIFIER_BABY = new AttributeModifier(SPEED_MODIFIER_BABY_UUID, "Baby speed boost", (double) 0.2F, AttributeModifier.Operation.MULTIPLY_BASE);
+
     private static final int MAX_HEALTH = 16;
     private static final float MOVEMENT_SPEED_WHEN_FIGHTING = 0.35F;
     private static final int ATTACK_DAMAGE = 5;
     private static final float CHANCE_OF_WEARING_EACH_ARMOUR_ITEM = 0.1F;
     private static final int MAX_PASSENGERS_ON_ONE_HOGLIN = 3;
     private static final float PROBABILITY_OF_SPAWNING_AS_BABY = 0.2F;
-    private static final EntityDimensions BABY_DIMENSIONS = EntityType.PIGLIN.getDimensions().scale(0.5F).withEyeHeight(0.97F);
+    private static final EntityDimensions BABY_DIMENSIONS = EntityType.PIGLIN.getDimensions().scale(0.5F);
     private static final double PROBABILITY_OF_SPAWNING_WITH_CROSSBOW_INSTEAD_OF_SWORD = 0.5;
     private final SimpleContainer inventory = new SimpleContainer(8);
     private boolean cannotHunt;
@@ -118,7 +118,7 @@ public class AgressivePiglin extends AbstractPiglin implements CrossbowAttackMob
             p_34751_.putBoolean("CannotHunt", true);
         }
 
-        this.writeInventoryToTag(p_34751_, this.registryAccess());
+        this.writeInventoryToTag(p_34751_);
     }
 
     @Override
@@ -126,7 +126,7 @@ public class AgressivePiglin extends AbstractPiglin implements CrossbowAttackMob
         super.readAdditionalSaveData(p_34725_);
         this.setBaby(p_34725_.getBoolean("IsBaby"));
         this.setCannotHunt(p_34725_.getBoolean("CannotHunt"));
-        this.readInventoryFromTag(p_34725_, this.registryAccess());
+        this.readInventoryFromTag(p_34725_);
     }
 
     @VisibleForDebug
@@ -135,10 +135,11 @@ public class AgressivePiglin extends AbstractPiglin implements CrossbowAttackMob
         return this.inventory;
     }
 
+
     @Override
-    protected void dropCustomDeathLoot(ServerLevel p_348503_, DamageSource p_34697_, boolean p_34699_) {
-        super.dropCustomDeathLoot(p_348503_, p_34697_, p_34699_);
-        if (p_34697_.getEntity() instanceof Creeper creeper && creeper.canDropMobsSkull()) {
+    protected void dropCustomDeathLoot(DamageSource p_21385_, int p_21386_, boolean p_21387_) {
+        super.dropCustomDeathLoot(p_21385_, p_21386_, p_21387_);
+        if (p_21385_.getEntity() instanceof Creeper creeper && creeper.canDropMobsSkull()) {
             ItemStack itemstack = new ItemStack(Items.PIGLIN_HEAD);
             creeper.increaseDroppedSkulls();
             this.spawnAtLocation(itemstack);
@@ -156,11 +157,11 @@ public class AgressivePiglin extends AbstractPiglin implements CrossbowAttackMob
     }
 
     @Override
-    protected void defineSynchedData(SynchedEntityData.Builder p_326106_) {
-        super.defineSynchedData(p_326106_);
-        p_326106_.define(DATA_BABY_ID, false);
-        p_326106_.define(DATA_IS_CHARGING_CROSSBOW, false);
-        p_326106_.define(DATA_IS_DANCING, false);
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        this.entityData.define(DATA_BABY_ID, false);
+        this.entityData.define(DATA_IS_CHARGING_CROSSBOW, false);
+        this.entityData.define(DATA_IS_DANCING, false);
     }
 
     @Override
@@ -183,19 +184,19 @@ public class AgressivePiglin extends AbstractPiglin implements CrossbowAttackMob
 
     @Nullable
     @Override
-    public SpawnGroupData finalizeSpawn(ServerLevelAccessor p_34717_, DifficultyInstance p_34718_, MobSpawnType p_34719_, @Nullable SpawnGroupData p_34720_) {
-        RandomSource randomsource = p_34717_.getRandom();
-        if (p_34719_ != MobSpawnType.STRUCTURE) {
+    public SpawnGroupData finalizeSpawn(ServerLevelAccessor p_21434_, DifficultyInstance p_21435_, MobSpawnType p_21436_, @Nullable SpawnGroupData p_21437_, @Nullable CompoundTag p_21438_) {
+        RandomSource randomsource = p_21434_.getRandom();
+        if (p_21436_ != MobSpawnType.STRUCTURE) {
             if (randomsource.nextFloat() < 0.2F) {
                 this.setBaby(true);
             }
             this.setItemSlot(EquipmentSlot.MAINHAND, this.createSpawnWeapon());
         }
 
-        RevampedPiglinAi.initMemories(this, p_34717_.getRandom());
-        this.populateDefaultEquipmentSlots(randomsource, p_34718_);
-        this.populateDefaultEquipmentEnchantments(p_34717_, randomsource, p_34718_);
-        return super.finalizeSpawn(p_34717_, p_34718_, p_34719_, p_34720_);
+        RevampedPiglinAi.initMemories(this, p_21434_.getRandom());
+        this.populateDefaultEquipmentSlots(randomsource, p_21435_);
+        this.populateDefaultEquipmentEnchantments(randomsource, p_21435_);
+        return super.finalizeSpawn(p_21434_, p_21435_, p_21436_, p_21437_, p_21438_);
     }
 
     @Override
@@ -256,10 +257,9 @@ public class AgressivePiglin extends AbstractPiglin implements CrossbowAttackMob
         return (Brain<AgressivePiglin>) super.getBrain();
     }
 
-
     @Override
-    public EntityDimensions getDefaultDimensions(Pose p_316426_) {
-        return this.isBaby() ? BABY_DIMENSIONS : super.getDefaultDimensions(p_316426_);
+    public EntityDimensions getDimensions(Pose p_21047_) {
+        return this.isBaby() ? BABY_DIMENSIONS : super.getDimensions(p_21047_);
     }
 
     @Override
@@ -267,7 +267,7 @@ public class AgressivePiglin extends AbstractPiglin implements CrossbowAttackMob
         this.getEntityData().set(DATA_BABY_ID, p_34729_);
         if (!this.level().isClientSide) {
             AttributeInstance attributeinstance = this.getAttribute(Attributes.MOVEMENT_SPEED);
-            attributeinstance.removeModifier(SPEED_MODIFIER_BABY.id());
+            attributeinstance.removeModifier(SPEED_MODIFIER_BABY);
             if (p_34729_) {
                 attributeinstance.addTransientModifier(SPEED_MODIFIER_BABY);
             }
@@ -298,7 +298,7 @@ public class AgressivePiglin extends AbstractPiglin implements CrossbowAttackMob
     }
 
     @Override
-    protected int getBaseExperienceReward() {
+    public int getExperienceReward() {
         return this.xpReward;
     }
 
@@ -319,6 +319,11 @@ public class AgressivePiglin extends AbstractPiglin implements CrossbowAttackMob
     @Override
     public void setChargingCrossbow(boolean p_34753_) {
         this.entityData.set(DATA_IS_CHARGING_CROSSBOW, p_34753_);
+    }
+
+    @Override
+    public void shootCrossbowProjectile(LivingEntity p_34707_, ItemStack p_34708_, Projectile p_34709_, float p_34710_) {
+        this.shootCrossbowProjectile(this, p_34707_, p_34709_, p_34710_, 1.6F);
     }
 
     @Override
@@ -408,6 +413,6 @@ public class AgressivePiglin extends AbstractPiglin implements CrossbowAttackMob
 
     @Override
     protected void playConvertedSound() {
-        this.makeSound(SoundEvents.PIGLIN_CONVERTED_TO_ZOMBIFIED);
+        this.playSound(SoundEvents.PIGLIN_CONVERTED_TO_ZOMBIFIED);
     }
 }

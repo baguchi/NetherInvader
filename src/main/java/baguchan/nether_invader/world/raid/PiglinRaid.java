@@ -3,7 +3,6 @@ package baguchan.nether_invader.world.raid;
 import baguchan.nether_invader.entity.ChainedGhast;
 import baguchan.nether_invader.entity.PiglinRaider;
 import baguchan.nether_invader.entity.Scaffolding;
-import baguchan.nether_invader.registry.ModCriterionTriggers;
 import baguchan.nether_invader.registry.ModEntitys;
 import baguchan.nether_invader.registry.ModPotions;
 import baguchan.nether_invader.world.savedata.PiglinRaidData;
@@ -11,10 +10,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderGetter;
 import net.minecraft.core.SectionPos;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
@@ -28,7 +24,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
-import net.minecraft.util.Unit;
 import net.minecraft.world.BossEvent;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
@@ -37,14 +32,15 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.monster.hoglin.Hoglin;
 import net.minecraft.world.entity.monster.piglin.AbstractPiglin;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BannerPattern;
-import net.minecraft.world.level.block.entity.BannerPatternLayers;
 import net.minecraft.world.level.block.entity.BannerPatterns;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
 
@@ -219,7 +215,7 @@ public class PiglinRaid {
     }
 
     public boolean absorbRaidOmen(ServerPlayer p_338621_) {
-        MobEffectInstance mobeffectinstance = p_338621_.getEffect(ModPotions.HORDE_OMEN);
+        MobEffectInstance mobeffectinstance = p_338621_.getEffect(ModPotions.HORDE_OMEN.get());
         if (mobeffectinstance == null) {
             return false;
         } else {
@@ -360,9 +356,9 @@ public class PiglinRaid {
                                     livingentity.addEffect(
                                             new MobEffectInstance(MobEffects.HERO_OF_THE_VILLAGE, 48000, this.raidOmenLevel - 1, false, false, true)
                                     );
-                                    if (livingentity instanceof ServerPlayer serverplayer) {
+                                    /*if (livingentity instanceof ServerPlayer serverplayer) {
                                         ModCriterionTriggers.PIGLIN_SLAYER_TRIGGER.get().trigger(serverplayer);
-                                    }
+                                    }*/
                                 }
                             }
                         }
@@ -500,7 +496,7 @@ public class PiglinRaid {
                 if (raider == null) {
                     break;
                 }
-                raider.addEffect(new MobEffectInstance(ModPotions.AWKWARD, 120000));
+                raider.addEffect(new MobEffectInstance(ModPotions.AWKWARD.get(), 120000));
 
                 if (raider instanceof PiglinRaider piglinRaider) {
                     if (!flag) {
@@ -533,7 +529,7 @@ public class PiglinRaid {
                     Hoglin agressiveHoglin = EntityType.HOGLIN.create(level);
 
                     if (agressiveHoglin != null) {
-                        agressiveHoglin.addEffect(new MobEffectInstance(ModPotions.AWKWARD, 120000));
+                        agressiveHoglin.addEffect(new MobEffectInstance(ModPotions.AWKWARD.get(), 120000));
 
                         agressiveHoglin.moveTo(p_37756_.getX(), p_37756_.getY(), p_37756_.getZ(), raider.getYRot(), 0.0F);
                         this.level.addFreshEntity(agressiveHoglin);
@@ -563,7 +559,7 @@ public class PiglinRaid {
                 piglinRaider.netherInvader$setTicksOutsideRaid(0);
                 if (!p_37717_ && p_37716_ != null) {
                     p_37715_.setPos((double) p_37716_.getX() + 0.5, (double) p_37716_.getY() + 1.0, (double) p_37716_.getZ() + 0.5);
-                    p_37715_.finalizeSpawn(this.level, this.level.getCurrentDifficultyAt(p_37716_), MobSpawnType.EVENT, null);
+                    p_37715_.finalizeSpawn(this.level, this.level.getCurrentDifficultyAt(p_37716_), MobSpawnType.EVENT, null, null);
                     piglinRaider.netherInvader$applyRaidBuffs(this.level, p_37714_, false);
                     p_37715_.setOnGround(true);
                     this.level.addFreshEntityWithPassengers(p_37715_);
@@ -618,15 +614,15 @@ public class PiglinRaid {
         PiglinRaidData.get(this.level).setDirty();
     }
 
-    public static ItemStack getLeaderBannerInstance(HolderGetter<BannerPattern> p_332748_) {
+    public static ItemStack getLeaderBannerInstance() {
         ItemStack itemstack = new ItemStack(Items.RED_BANNER);
-        BannerPatternLayers bannerpatternlayers = new BannerPatternLayers.Builder()
-                .addIfRegistered(p_332748_, BannerPatterns.PIGLIN, DyeColor.ORANGE)
-                .addIfRegistered(p_332748_, BannerPatterns.GRADIENT, DyeColor.ORANGE)
-                .build();
-        itemstack.set(DataComponents.BANNER_PATTERNS, bannerpatternlayers);
-        itemstack.set(DataComponents.HIDE_ADDITIONAL_TOOLTIP, Unit.INSTANCE);
-        itemstack.set(DataComponents.ITEM_NAME, OMINOUS_BANNER_PATTERN_NAME);
+
+        CompoundTag compoundtag = new CompoundTag();
+        ListTag listtag = (new BannerPattern.Builder()).addPattern(BannerPatterns.PIGLIN, DyeColor.ORANGE).addPattern(BannerPatterns.GRADIENT, DyeColor.ORANGE).toListTag();
+        compoundtag.put("Patterns", listtag);
+        BlockItem.setBlockEntityData(itemstack, BlockEntityType.BANNER, compoundtag);
+        itemstack.hideTooltipPart(ItemStack.TooltipPart.ADDITIONAL);
+        itemstack.setHoverName(Component.translatable("block.minecraft.ominous_banner").withStyle(ChatFormatting.GOLD));
         return itemstack;
     }
 
@@ -639,7 +635,7 @@ public class PiglinRaid {
     private BlockPos findRandomSpawnPos(int p_37708_, int p_37709_) {
         int i = p_37708_ == 0 ? 2 : 2 - p_37708_;
         BlockPos.MutableBlockPos blockpos$mutableblockpos = new BlockPos.MutableBlockPos();
-        SpawnPlacementType spawnplacementtype = SpawnPlacements.getPlacementType(EntityType.RAVAGER);
+        SpawnPlacements.Type spawnplacementtype = SpawnPlacements.getPlacementType(EntityType.RAVAGER);
 
         for (int i1 = 0; i1 < p_37709_; i1++) {
             float f = this.level.random.nextFloat() * (float) (Math.PI * 2);
@@ -658,7 +654,7 @@ public class PiglinRaid {
                         )
                         && this.level.isPositionEntityTicking(blockpos$mutableblockpos)
                         && (
-                        spawnplacementtype.isSpawnPositionOk(this.level, blockpos$mutableblockpos, EntityType.RAVAGER)
+                        spawnplacementtype.canSpawnAt(this.level, blockpos$mutableblockpos, EntityType.RAVAGER)
                                 || this.level.getBlockState(blockpos$mutableblockpos.below()).is(Blocks.SNOW)
                                 && this.level.getBlockState(blockpos$mutableblockpos).isAir()
                 )) {
@@ -703,7 +699,7 @@ public class PiglinRaid {
 
     public void setLeader(int p_37711_, AbstractPiglin p_37712_) {
         this.groupToLeaderMap.put(p_37711_, p_37712_);
-        p_37712_.setItemSlot(EquipmentSlot.HEAD, getLeaderBannerInstance(p_37712_.registryAccess().lookupOrThrow(Registries.BANNER_PATTERN)));
+        p_37712_.setItemSlot(EquipmentSlot.HEAD, getLeaderBannerInstance());
         p_37712_.setDropChance(EquipmentSlot.HEAD, 2.0F);
     }
 
@@ -824,7 +820,7 @@ public class PiglinRaid {
         }
     }
 
-    public static enum RaiderType implements net.neoforged.fml.common.asm.enumextension.IExtensibleEnum {
+    public static enum RaiderType {
         AGRESSIVE_PIGLIN(ModEntitys.AGRESSIVE_PIGLIN.get(), new int[]{0, 2, 2, 3, 4, 5, 6, 6});
         static final RaiderType[] VALUES = values();
         @Deprecated // Neo: null for custom types, use the supplier instead
@@ -832,7 +828,6 @@ public class PiglinRaid {
         final int[] spawnsPerWaveBeforeBonus;
         final java.util.function.Supplier<EntityType<? extends AbstractPiglin>> entityTypeSupplier;
 
-        @net.neoforged.fml.common.asm.enumextension.ReservedConstructor
         private RaiderType(EntityType<? extends AbstractPiglin> p_37821_, int[] p_37822_) {
             this.entityType = p_37821_;
             this.spawnsPerWaveBeforeBonus = p_37822_;
@@ -843,10 +838,6 @@ public class PiglinRaid {
             this.entityType = null;
             this.spawnsPerWaveBeforeBonus = spawnsPerWave;
             this.entityTypeSupplier = entityTypeSupplier;
-        }
-
-        public static net.neoforged.fml.common.asm.enumextension.ExtensionInfo getExtensionInfo() {
-            return net.neoforged.fml.common.asm.enumextension.ExtensionInfo.nonExtended(RaiderType.class);
         }
     }
 }

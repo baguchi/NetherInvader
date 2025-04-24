@@ -1,13 +1,15 @@
 package baguchan.nether_invader.registry;
 
 import baguchan.nether_invader.NetherInvader;
-import net.neoforged.neoforge.common.DeferredSpawnEggItem;
-import net.neoforged.neoforge.registries.DeferredItem;
-import net.neoforged.neoforge.registries.DeferredRegister;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.SpawnEggItem;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.RegistryObject;
 
 public class ModItems {
-    public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(NetherInvader.MODID);
-    public static final DeferredItem<DeferredSpawnEggItem> CHAINED_GHAST_SPAWN_EGG = ITEMS.registerItem("chained_ghast_spawn_egg", (properties) -> new DeferredSpawnEggItem(ModEntitys.CHAINED_GHAST, 16382457, 12369084, (properties)));
-    public static final DeferredItem<DeferredSpawnEggItem> AGRESSIVE_PIGLIN_SPAWN_EGG = ITEMS.registerItem("agressive_piglin_spawn_egg", (properties) -> new DeferredSpawnEggItem(ModEntitys.AGRESSIVE_PIGLIN, 10051392, 16380836, (properties)));
+    public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(Registries.ITEM, NetherInvader.MODID);
+    public static final RegistryObject<SpawnEggItem> CHAINED_GHAST_SPAWN_EGG = ITEMS.register("chained_ghast_spawn_egg", () -> new SpawnEggItem(ModEntitys.CHAINED_GHAST.get(), 16382457, 12369084, (new Item.Properties())));
+    public static final RegistryObject<SpawnEggItem> AGRESSIVE_PIGLIN_SPAWN_EGG = ITEMS.register("agressive_piglin_spawn_egg", () -> new SpawnEggItem(ModEntitys.AGRESSIVE_PIGLIN.get(), 10051392, 16380836, (new Item.Properties())));
 
 }

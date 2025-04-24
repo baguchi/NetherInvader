@@ -11,6 +11,6 @@ public class ModBlockTags {
     public static final TagKey<Block> REPLACEABLE_FOR_REACTOR = create("replaceable_for_reactor");
 
     private static TagKey<Block> create(String p_203847_) {
-        return TagKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath(NetherInvader.MODID, p_203847_));
+        return TagKey.create(Registries.BLOCK, new ResourceLocation(NetherInvader.MODID, p_203847_));
     }
 }
