@@ -485,6 +485,7 @@ public class PiglinRaid {
 
     private void spawnGroup(BlockPos p_37756_) {
         boolean flag = false;
+        int flagRider = 0;
         int i = this.groupsSpawned + 1;
         this.totalHealth = 0.0F;
         DifficultyInstance difficultyinstance = this.level.getCurrentDifficultyAt(p_37756_);
@@ -510,13 +511,13 @@ public class PiglinRaid {
                     }
                 }
 
-                if (this.random.nextFloat() < 0.15F) {
+                if (i >= 4 && this.random.nextFloat() < 0.05F * (i) && flagRider < 3) {
                     Scaffolding scaffolding = ModEntitys.SCAFFOLDING.get().create(level);
                     ChainedGhast chainedGhast = ModEntitys.CHAINED_GHAST.get().create(level);
 
                     if (scaffolding != null && chainedGhast != null) {
-                        scaffolding.moveTo(p_37756_.getX(), p_37756_.getY() + 10, p_37756_.getZ(), raider.getYRot(), 0.0F);
-                        chainedGhast.moveTo(p_37756_.getX(), p_37756_.getY() + 10, p_37756_.getZ(), raider.getYRot(), 0.0F);
+                        scaffolding.moveTo(p_37756_.getX(), p_37756_.getY() + 20, p_37756_.getZ(), raider.getYRot(), 0.0F);
+                        chainedGhast.moveTo(p_37756_.getX(), p_37756_.getY() + 20, p_37756_.getZ(), raider.getYRot(), 0.0F);
 
 
                         chainedGhast.targetPos = this.center;
@@ -527,9 +528,9 @@ public class PiglinRaid {
 
                         scaffolding.setChainedTo(chainedGhast, true);
                         this.joinRaid(i, raider, p_37756_, false);
-
+                        flagRider += 1;
                     }
-                } else if (this.random.nextFloat() < 0.1F) {
+                } else if (i >= 6 && this.random.nextFloat() < 0.1F * (i) && flagRider < 3) {
                     Hoglin agressiveHoglin = EntityType.HOGLIN.create(level);
 
                     if (agressiveHoglin != null) {
@@ -539,6 +540,7 @@ public class PiglinRaid {
                         this.level.addFreshEntity(agressiveHoglin);
                         raider.startRiding(agressiveHoglin);
                         this.joinRaid(i, raider, p_37756_, false);
+                        flagRider += 1;
                     }
                 } else {
                     this.joinRaid(i, raider, p_37756_, false);
@@ -734,7 +736,7 @@ public class PiglinRaid {
         int i = 0;
         switch (p_219829_) {
             case AGRESSIVE_PIGLIN:
-                if (flag1) {
+                if (flag1 && p_219833_) {
                     i += 2;
                 }
         }
@@ -825,7 +827,7 @@ public class PiglinRaid {
     }
 
     public static enum RaiderType implements net.neoforged.fml.common.asm.enumextension.IExtensibleEnum {
-        AGRESSIVE_PIGLIN(ModEntitys.AGRESSIVE_PIGLIN.get(), new int[]{0, 2, 2, 3, 4, 5, 6, 6});
+        AGRESSIVE_PIGLIN(ModEntitys.AGRESSIVE_PIGLIN.get(), new int[]{0, 4, 5, 5, 6, 6, 7, 8});
         static final RaiderType[] VALUES = values();
         @Deprecated // Neo: null for custom types, use the supplier instead
         final EntityType<? extends AbstractPiglin> entityType;

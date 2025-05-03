@@ -3,9 +3,11 @@ package baguchan.nether_invader.entity;
 import baguchan.nether_invader.entity.ai.RevampedPiglinAi;
 import baguchan.nether_invader.registry.ModEntitys;
 import baguchan.nether_invader.registry.ModSensors;
+import baguchan.nether_invader.world.raid.PiglinRaid;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Dynamic;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -222,8 +224,9 @@ public class AgressivePiglin extends AbstractPiglin implements CrossbowAttackMob
 
         if (this instanceof PiglinRaider piglinRaider) {
             if (piglinRaider.netherInvader$isPatrolLeader()) {
-                this.setItemSlot(EquipmentSlot.HEAD, new ItemStack(Items.NETHERITE_HELMET));
-                this.setDropChance(EquipmentSlot.HEAD, 0.0F);
+                this.setItemSlotAndDropWhenKilled(EquipmentSlot.HEAD, PiglinRaid.getLeaderBannerInstance(this.registryAccess().lookupOrThrow(Registries.BANNER_PATTERN)));
+                this.setItemSlot(EquipmentSlot.CHEST, new ItemStack(Items.NETHERITE_CHESTPLATE));
+                this.setDropChance(EquipmentSlot.CHEST, 0.0F);
                 this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.NETHERITE_SWORD));
                 this.setDropChance(EquipmentSlot.MAINHAND, 0.0F);
             }
