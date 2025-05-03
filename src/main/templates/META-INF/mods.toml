@@ -36,10 +36,6 @@ displayName="${mod_name}" #mandatory
 
 # A file name (in the root of the mod JAR) containing a logo for display
 #logoFile="examplemod.png" #optional
-
-# A text field displayed in the mod UI
-credits = "${credits}" #optional
-
 # A text field displayed in the mod UI
 authors="${mod_authors}" #optional
 
