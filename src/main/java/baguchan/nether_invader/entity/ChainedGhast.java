@@ -254,7 +254,7 @@ public class ChainedGhast extends Ghast {
 
                     if (this.chargeTime == 20) {
                         double d1 = 4.0;
-                        Vec3 vec3 = this.ghast.getViewVector(1.0F);
+                        Vec3 vec3 = this.ghast.getLookAngle();
                         double d2 = livingentity.getX() - (this.ghast.getX() + vec3.x * 4.0);
                         double d3 = livingentity.getY(0.5) - (0.5 + this.ghast.getY(0.5));
                         double d4 = livingentity.getZ() - (this.ghast.getZ() + vec3.z * 4.0);
@@ -315,7 +315,7 @@ public class ChainedGhast extends Ghast {
 
         public void start() {
             Vec3 vec3 = getSuitableFlyToPosition(this.ghast, this.distanceToBlocks);
-            this.ghast.getMoveControl().setWantedPosition(vec3.x(), vec3.y(), vec3.z(), (double) 0.25F);
+            this.ghast.getMoveControl().setWantedPosition(vec3.x(), vec3.y(), vec3.z(), (double) 0.5F);
         }
 
         public static Vec3 getSuitableFlyToPosition(ChainedGhast mob, int i) {
