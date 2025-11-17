@@ -1,7 +1,8 @@
 package baguchan.nether_invader.entity.ai;
 
+import bagu_chan.bagus_lib.entity.brain.behaviors.AttackWithAnimation;
 import bagu_chan.bagus_lib.util.BrainUtils;
-import baguchan.nether_invader.entity.AgressivePiglin;
+import baguchan.nether_invader.entity.BastionGeneral;
 import baguchan.nether_invader.entity.behavior.PiglinRaiding;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -18,6 +19,8 @@ import net.minecraft.world.entity.ai.behavior.*;
 import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.util.LandRandomPos;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.monster.hoglin.Hoglin;
 import net.minecraft.world.entity.monster.piglin.AbstractPiglin;
 import net.minecraft.world.entity.monster.piglin.Piglin;
 import net.minecraft.world.entity.player.Player;
@@ -30,7 +33,7 @@ import net.minecraft.world.phys.Vec3;
 import java.util.List;
 import java.util.Optional;
 
-public class RevampedPiglinAi {
+public class BastionPiglinAi {
     public static final int PLAYER_ANGER_RANGE = 35;
     protected static final UniformInt TIME_BETWEEN_HUNTS = TimeUtil.rangeOfSeconds(30, 120);
 
@@ -40,7 +43,7 @@ public class RevampedPiglinAi {
     private static final UniformInt AVOID_ZOMBIFIED_DURATION = TimeUtil.rangeOfSeconds(5, 7);
     private static final UniformInt BABY_AVOID_NEMESIS_DURATION = TimeUtil.rangeOfSeconds(5, 7);
 
-    public static Brain<?> makeBrain(AgressivePiglin p_34841_, Brain<AgressivePiglin> p_34842_) {
+    public static Brain<?> makeBrain(BastionGeneral p_34841_, Brain<BastionGeneral> p_34842_) {
         initCoreActivity(p_34842_);
         initIdleActivity(p_34842_);
         initFightActivity(p_34841_, p_34842_);
@@ -52,10 +55,10 @@ public class RevampedPiglinAi {
         return p_34842_;
     }
 
-    public static void initMemories(AgressivePiglin p_219206_, RandomSource p_219207_) {
+    public static void initMemories(BastionGeneral p_219206_, RandomSource p_219207_) {
     }
 
-    private static void initCoreActivity(Brain<AgressivePiglin> p_34821_) {
+    private static void initCoreActivity(Brain<BastionGeneral> p_34821_) {
         p_34821_.addActivity(
                 Activity.CORE,
                 0,
@@ -64,19 +67,19 @@ public class RevampedPiglinAi {
                         new MoveToTargetSink(),
                         InteractWithDoor.create(),
                         babyAvoidNemesis(),
-                        StartCelebratingIfTargetDead.create(300, RevampedPiglinAi::wantsToDance),
+                        StartCelebratingIfTargetDead.create(300, BastionPiglinAi::wantsToDance),
                         StopBeingAngryIfTargetDead.create()
                 )
         );
     }
 
-    private static void initIdleActivity(Brain<AgressivePiglin> p_34892_) {
+    private static void initIdleActivity(Brain<BastionGeneral> p_34892_) {
         p_34892_.addActivity(
                 Activity.IDLE,
                 10,
                 ImmutableList.of(
-                        SetEntityLookTarget.create(RevampedPiglinAi::isPlayerHoldingLovedItem, 14.0F),
-                        StartAttacking.<AgressivePiglin>create(RevampedPiglinAi::findNearestValidAttackTarget),
+                        SetEntityLookTarget.create(BastionPiglinAi::isPlayerHoldingLovedItem, 14.0F),
+                        StartAttacking.<BastionGeneral>create(BastionPiglinAi::findNearestValidAttackTarget),
                         createIdleLookBehaviors(),
                         createIdleMovementBehaviors(),
                         SetLookAndInteract.create(EntityType.PLAYER, 4)
@@ -84,33 +87,30 @@ public class RevampedPiglinAi {
         );
     }
 
-    private static void initFightActivity(AgressivePiglin p_34904_, Brain<AgressivePiglin> p_34905_) {
+    private static void initFightActivity(BastionGeneral p_34904_, Brain<BastionGeneral> p_34905_) {
         p_34905_.addActivityAndRemoveMemoryWhenStopped(
                 Activity.FIGHT,
                 10,
-                ImmutableList.<net.minecraft.world.entity.ai.behavior.BehaviorControl<? super AgressivePiglin>>of(
+                ImmutableList.<BehaviorControl<? super BastionGeneral>>of(
                         StopAttackingIfTargetInvalid.create(p_34981_ -> !isNearestValidAttackTarget(p_34904_, p_34981_)),
-                        BehaviorBuilder.triggerIf(RevampedPiglinAi::hasCrossbow, BackUpIfTooClose.create(5, 0.75F)),
+                        BehaviorBuilder.triggerIf(BastionPiglinAi::hasCrossbow, BackUpIfTooClose.create(5, 0.75F)),
                         SetWalkTargetFromAttackTargetIfTargetOutOfReach.create(1.0F),
-                        MeleeAttack.create(20),
-                        new CrossbowAttack<>(),
-                        EraseMemoryIf.create(RevampedPiglinAi::isNearZombified, MemoryModuleType.ATTACK_TARGET)
+                        new AttackWithAnimation<>(17, 30, 30, 0.8F),
+                        EraseMemoryIf.create(BastionPiglinAi::isNearZombified, MemoryModuleType.ATTACK_TARGET)
                 ),
                 MemoryModuleType.ATTACK_TARGET
         );
     }
 
-    private static void initCelebrateActivity(Brain<AgressivePiglin> p_34921_) {
+    private static void initCelebrateActivity(Brain<BastionGeneral> p_34921_) {
         p_34921_.addActivityAndRemoveMemoryWhenStopped(
                 Activity.CELEBRATE,
                 10,
-                ImmutableList.<net.minecraft.world.entity.ai.behavior.BehaviorControl<? super AgressivePiglin>>of(
+                ImmutableList.<BehaviorControl<? super BastionGeneral>>of(
                         avoidRepellent(),
-                        SetEntityLookTarget.create(RevampedPiglinAi::isPlayerHoldingLovedItem, 14.0F),
-                        StartAttacking.create(AbstractPiglin::isAdult, RevampedPiglinAi::findNearestValidAttackTarget),
-                        BehaviorBuilder.triggerIf(p_34804_ -> !p_34804_.isDancing(), GoToTargetLocation.create(MemoryModuleType.CELEBRATE_LOCATION, 2, 1.0F)),
-                        BehaviorBuilder.triggerIf(AgressivePiglin::isDancing, GoToTargetLocation.create(MemoryModuleType.CELEBRATE_LOCATION, 4, 0.6F)),
-                        new RunOne<AgressivePiglin>(
+                        SetEntityLookTarget.create(BastionPiglinAi::isPlayerHoldingLovedItem, 14.0F),
+                        StartAttacking.create(AbstractPiglin::isAdult, BastionPiglinAi::findNearestValidAttackTarget),
+                        new RunOne<BastionGeneral>(
                                 ImmutableList.of(
                                         Pair.of(SetEntityLookTarget.create(EntityType.PIGLIN, 8.0F), 1),
                                         Pair.of(RandomStroll.stroll(0.6F, 2, 1), 1),
@@ -122,7 +122,7 @@ public class RevampedPiglinAi {
         );
     }
 
-    private static void initRetreatActivity(Brain<AgressivePiglin> p_34959_) {
+    private static void initRetreatActivity(Brain<BastionGeneral> p_34959_) {
         p_34959_.addActivityAndRemoveMemoryWhenStopped(
                 Activity.AVOID,
                 10,
@@ -130,7 +130,7 @@ public class RevampedPiglinAi {
                         SetWalkTargetAwayFrom.entity(MemoryModuleType.AVOID_TARGET, 1.0F, 12, true),
                         createIdleLookBehaviors(),
                         createIdleMovementBehaviors(),
-                        EraseMemoryIf.create(RevampedPiglinAi::wantsToStopFleeing, MemoryModuleType.AVOID_TARGET)
+                        EraseMemoryIf.create(BastionPiglinAi::wantsToStopFleeing, MemoryModuleType.AVOID_TARGET)
                 ),
                 MemoryModuleType.AVOID_TARGET
         );
@@ -154,7 +154,7 @@ public class RevampedPiglinAi {
         );
     }
 
-    private static RunOne<AgressivePiglin> createIdleMovementBehaviors() {
+    private static RunOne<BastionGeneral> createIdleMovementBehaviors() {
         return new RunOne<>(
                 ImmutableList.of(
                         Pair.of(PiglinRaiding.create(1.0F), 2),
@@ -170,12 +170,12 @@ public class RevampedPiglinAi {
         return SetWalkTargetAwayFrom.pos(MemoryModuleType.NEAREST_REPELLENT, 1.0F, 8, false);
     }
 
-    private static BehaviorControl<AgressivePiglin> babyAvoidNemesis() {
-        return CopyMemoryWithExpiry.create(AgressivePiglin::isBaby, MemoryModuleType.NEAREST_VISIBLE_NEMESIS, MemoryModuleType.AVOID_TARGET, BABY_AVOID_NEMESIS_DURATION);
+    private static BehaviorControl<BastionGeneral> babyAvoidNemesis() {
+        return CopyMemoryWithExpiry.create(BastionGeneral::isBaby, MemoryModuleType.NEAREST_VISIBLE_NEMESIS, MemoryModuleType.AVOID_TARGET, BABY_AVOID_NEMESIS_DURATION);
     }
 
-    public static void updateActivity(AgressivePiglin p_34899_) {
-        Brain<AgressivePiglin> brain = p_34899_.getBrain();
+    public static void updateActivity(BastionGeneral p_34899_) {
+        Brain<BastionGeneral> brain = p_34899_.getBrain();
         Activity activity = brain.getActiveNonCoreActivity().orElse(null);
         brain.setActiveActivityToFirstValid(
                 ImmutableList.of(Activity.FIGHT, Activity.AVOID, Activity.CELEBRATE, Activity.IDLE)
@@ -186,11 +186,27 @@ public class RevampedPiglinAi {
         }
 
         p_34899_.setAggressive(brain.hasMemoryValue(MemoryModuleType.ATTACK_TARGET));
-        if (!brain.hasMemoryValue(MemoryModuleType.CELEBRATE_LOCATION)) {
-            brain.eraseMemory(MemoryModuleType.DANCING);
+    }
+
+    private static boolean isBabyRidingBaby(BastionGeneral p_34993_) {
+        if (!p_34993_.isBaby()) {
+            return false;
+        } else {
+            Entity entity = p_34993_.getVehicle();
+            return entity instanceof Piglin && ((Piglin) entity).isBaby() || entity instanceof Hoglin && ((Hoglin) entity).isBaby();
+        }
+    }
+
+    private static ItemStack removeOneItemFromItemEntity(ItemEntity p_34823_) {
+        ItemStack itemstack = p_34823_.getItem();
+        ItemStack itemstack1 = itemstack.split(1);
+        if (itemstack.isEmpty()) {
+            p_34823_.discard();
+        } else {
+            p_34823_.setItem(itemstack);
         }
 
-        p_34899_.setDancing(brain.hasMemoryValue(MemoryModuleType.DANCING));
+        return itemstack1;
     }
 
 
@@ -202,16 +218,16 @@ public class RevampedPiglinAi {
         return p_149966_.is(ItemTags.PIGLIN_LOVED);
     }
 
-    private static boolean wantsToStopRiding(AgressivePiglin p_34835_, Entity p_34836_) {
+    private static boolean wantsToStopRiding(BastionGeneral p_34835_, Entity p_34836_) {
         return p_34836_ instanceof Mob mob && (!mob.isBaby() || !mob.isAlive() || wasHurtRecently(p_34835_) || wasHurtRecently(mob) || mob instanceof Piglin && mob.getVehicle() == null);
     }
 
-    private static boolean isNearestValidAttackTarget(AgressivePiglin p_34901_, LivingEntity p_34902_) {
+    private static boolean isNearestValidAttackTarget(BastionGeneral p_34901_, LivingEntity p_34902_) {
         return findNearestValidAttackTarget(p_34901_).filter(p_34887_ -> p_34887_ == p_34902_).isPresent();
     }
 
-    private static boolean isNearZombified(AgressivePiglin p_34999_) {
-        Brain<AgressivePiglin> brain = p_34999_.getBrain();
+    private static boolean isNearZombified(BastionGeneral p_34999_) {
+        Brain<BastionGeneral> brain = p_34999_.getBrain();
         if (brain.hasMemoryValue(MemoryModuleType.NEAREST_VISIBLE_ZOMBIFIED)) {
             LivingEntity livingentity = brain.getMemory(MemoryModuleType.NEAREST_VISIBLE_ZOMBIFIED).get();
             return p_34999_.closerThan(livingentity, 6.0);
@@ -220,8 +236,8 @@ public class RevampedPiglinAi {
         }
     }
 
-    private static Optional<? extends LivingEntity> findNearestValidAttackTarget(AgressivePiglin p_35001_) {
-        Brain<AgressivePiglin> brain = p_35001_.getBrain();
+    private static Optional<? extends LivingEntity> findNearestValidAttackTarget(BastionGeneral p_35001_) {
+        Brain<BastionGeneral> brain = p_35001_.getBrain();
         if (isNearZombified(p_35001_)) {
             return Optional.empty();
         } else {
@@ -244,10 +260,10 @@ public class RevampedPiglinAi {
         return Optional.empty();
     }
 
-    public static void wasHurtBy(AgressivePiglin p_34838_, LivingEntity p_34839_) {
+    public static void wasHurtBy(BastionGeneral p_34838_, LivingEntity p_34839_) {
         if (!(p_34839_ instanceof AbstractPiglin)) {
 
-            Brain<AgressivePiglin> brain = p_34838_.getBrain();
+            Brain<BastionGeneral> brain = p_34838_.getBrain();
             brain.eraseMemory(MemoryModuleType.CELEBRATE_LOCATION);
             brain.eraseMemory(MemoryModuleType.DANCING);
 
@@ -283,32 +299,19 @@ public class RevampedPiglinAi {
         }
     }
 
-    public static Optional<SoundEvent> getSoundForCurrentActivity(AgressivePiglin p_34948_) {
+    public static Optional<SoundEvent> getSoundForCurrentActivity(BastionGeneral p_34948_) {
         return p_34948_.getBrain().getActiveNonCoreActivity().map(p_34908_ -> getSoundForActivity(p_34948_, p_34908_));
     }
 
-    private static SoundEvent getSoundForActivity(AgressivePiglin p_34855_, Activity p_34856_) {
+    private static SoundEvent getSoundForActivity(BastionGeneral p_34855_, Activity p_34856_) {
         if (p_34856_ == Activity.FIGHT) {
-            return SoundEvents.PIGLIN_ANGRY;
-        } else if (p_34855_.isConverting()) {
-            return SoundEvents.PIGLIN_RETREAT;
-        } else if (p_34856_ == Activity.AVOID && isNearAvoidTarget(p_34855_)) {
-            return SoundEvents.PIGLIN_RETREAT;
-        } else if (p_34856_ == Activity.ADMIRE_ITEM) {
-            return SoundEvents.PIGLIN_ADMIRING_ITEM;
-        } else if (p_34856_ == Activity.CELEBRATE) {
-            return SoundEvents.PIGLIN_CELEBRATE;
+            return SoundEvents.PIGLIN_BRUTE_ANGRY;
         } else {
-            return isNearRepellent(p_34855_) ? SoundEvents.PIGLIN_RETREAT : SoundEvents.PIGLIN_AMBIENT;
+            return SoundEvents.PIGLIN_BRUTE_AMBIENT;
         }
     }
 
-    private static boolean isNearAvoidTarget(AgressivePiglin p_35003_) {
-        Brain<AgressivePiglin> brain = p_35003_.getBrain();
-        return brain.hasMemoryValue(MemoryModuleType.AVOID_TARGET) && brain.getMemory(MemoryModuleType.AVOID_TARGET).get().closerThan(p_35003_, 12.0);
-    }
-
-    protected static List<AbstractPiglin> getVisibleAdultPiglins(AgressivePiglin p_35005_) {
+    protected static List<AbstractPiglin> getVisibleAdultPiglins(BastionGeneral p_35005_) {
         return p_35005_.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_ADULT_PIGLINS).orElse(ImmutableList.of());
     }
 
@@ -327,7 +330,7 @@ public class RevampedPiglinAi {
         return false;
     }
 
-    private static void stopWalking(AgressivePiglin p_35007_) {
+    private static void stopWalking(BastionGeneral p_35007_) {
         p_35007_.getBrain().eraseMemory(MemoryModuleType.WALK_TARGET);
         p_35007_.getNavigation().stop();
     }
@@ -376,7 +379,7 @@ public class RevampedPiglinAi {
         return BehaviorUtils.getLivingEntityFromUUIDMemory(p_34976_, MemoryModuleType.ANGRY_AT);
     }
 
-    public static Optional<LivingEntity> getAvoidTarget(AgressivePiglin p_34987_) {
+    public static Optional<LivingEntity> getAvoidTarget(BastionGeneral p_34987_) {
         return p_34987_.getBrain().hasMemoryValue(MemoryModuleType.AVOID_TARGET)
                 ? p_34987_.getBrain().getMemory(MemoryModuleType.AVOID_TARGET)
                 : Optional.empty();
@@ -388,22 +391,22 @@ public class RevampedPiglinAi {
                 : Optional.empty();
     }
 
-    private static void broadcastRetreat(AgressivePiglin p_34930_, LivingEntity p_34931_) {
+    private static void broadcastRetreat(BastionGeneral p_34930_, LivingEntity p_34931_) {
         getVisibleAdultPiglins(p_34930_)
                 .stream()
                 .filter(p_34985_ -> p_34985_ instanceof Piglin)
-                .forEach(p_34819_ -> retreatFromNearestTarget((AgressivePiglin) p_34819_, p_34931_));
+                .forEach(p_34819_ -> retreatFromNearestTarget((BastionGeneral) p_34819_, p_34931_));
     }
 
-    private static void retreatFromNearestTarget(AgressivePiglin p_34950_, LivingEntity p_34951_) {
-        Brain<AgressivePiglin> brain = p_34950_.getBrain();
+    private static void retreatFromNearestTarget(BastionGeneral p_34950_, LivingEntity p_34951_) {
+        Brain<BastionGeneral> brain = p_34950_.getBrain();
         LivingEntity $$3 = BehaviorUtils.getNearestTarget(p_34950_, brain.getMemory(MemoryModuleType.AVOID_TARGET), p_34951_);
         $$3 = BehaviorUtils.getNearestTarget(p_34950_, brain.getMemory(MemoryModuleType.ATTACK_TARGET), $$3);
         setAvoidTargetAndDontHuntForAWhile(p_34950_, $$3);
     }
 
-    public static boolean wantsToStopFleeing(AgressivePiglin p_35009_) {
-        Brain<AgressivePiglin> brain = p_35009_.getBrain();
+    public static boolean wantsToStopFleeing(BastionGeneral p_35009_) {
+        Brain<BastionGeneral> brain = p_35009_.getBrain();
         if (!brain.hasMemoryValue(MemoryModuleType.AVOID_TARGET)) {
             return true;
         } else {
@@ -417,17 +420,17 @@ public class RevampedPiglinAi {
         }
     }
 
-    private static boolean piglinsEqualOrOutnumberHoglins(AgressivePiglin p_35011_) {
+    private static boolean piglinsEqualOrOutnumberHoglins(BastionGeneral p_35011_) {
         return !hoglinsOutnumberPiglins(p_35011_);
     }
 
-    private static boolean hoglinsOutnumberPiglins(AgressivePiglin p_35013_) {
+    private static boolean hoglinsOutnumberPiglins(BastionGeneral p_35013_) {
         int i = p_35013_.getBrain().getMemory(MemoryModuleType.VISIBLE_ADULT_PIGLIN_COUNT).orElse(0) + 1;
         int j = p_35013_.getBrain().getMemory(MemoryModuleType.VISIBLE_ADULT_HOGLIN_COUNT).orElse(0);
         return j > i;
     }
 
-    private static void setAvoidTargetAndDontHuntForAWhile(AgressivePiglin p_34968_, LivingEntity p_34969_) {
+    private static void setAvoidTargetAndDontHuntForAWhile(BastionGeneral p_34968_, LivingEntity p_34969_) {
         p_34968_.getBrain().eraseMemory(MemoryModuleType.ANGRY_AT);
         p_34968_.getBrain().eraseMemory(MemoryModuleType.ATTACK_TARGET);
         p_34968_.getBrain().eraseMemory(MemoryModuleType.WALK_TARGET);
@@ -435,7 +438,7 @@ public class RevampedPiglinAi {
     }
 
 
-    private static Vec3 getRandomNearbyPos(AgressivePiglin p_35017_) {
+    private static Vec3 getRandomNearbyPos(BastionGeneral p_35017_) {
         Vec3 vec3 = LandRandomPos.getPos(p_35017_, 4, 2);
         return vec3 == null ? p_35017_.position() : vec3;
     }
@@ -453,16 +456,16 @@ public class RevampedPiglinAi {
         return p_149970_.is(ItemTags.PIGLIN_FOOD);
     }
 
-    private static boolean isNearRepellent(AgressivePiglin p_35023_) {
+    private static boolean isNearRepellent(BastionGeneral p_35023_) {
         return p_35023_.getBrain().hasMemoryValue(MemoryModuleType.NEAREST_REPELLENT);
     }
 
 
     public static boolean isPlayerHoldingLovedItem(LivingEntity p_34884_) {
-        return p_34884_.getType() == EntityType.PLAYER && p_34884_.isHolding(RevampedPiglinAi::isLovedItem);
+        return p_34884_.getType() == EntityType.PLAYER && p_34884_.isHolding(BastionPiglinAi::isLovedItem);
     }
 
-    private static boolean isAdmiringDisabled(AgressivePiglin p_35025_) {
+    private static boolean isAdmiringDisabled(BastionGeneral p_35025_) {
         return p_35025_.getBrain().hasMemoryValue(MemoryModuleType.ADMIRING_DISABLED);
     }
 
@@ -470,11 +473,11 @@ public class RevampedPiglinAi {
         return p_34989_.getBrain().hasMemoryValue(MemoryModuleType.HURT_BY);
     }
 
-    private static boolean isHoldingItemInOffHand(AgressivePiglin p_35027_) {
+    private static boolean isHoldingItemInOffHand(BastionGeneral p_35027_) {
         return !p_35027_.getOffhandItem().isEmpty();
     }
 
-    private static boolean isNotHoldingLovedItemInOffHand(AgressivePiglin p_35029_) {
+    private static boolean isNotHoldingLovedItemInOffHand(BastionGeneral p_35029_) {
         return p_35029_.getOffhandItem().isEmpty() || !isLovedItem(p_35029_.getOffhandItem());
     }
 

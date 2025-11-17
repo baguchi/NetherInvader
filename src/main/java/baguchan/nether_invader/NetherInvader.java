@@ -53,6 +53,11 @@ public class NetherInvader
         if (event.getTabKey() == CreativeModeTabs.SPAWN_EGGS) {
             event.accept(ModItems.CHAINED_GHAST_SPAWN_EGG);
             event.accept(ModItems.AGRESSIVE_PIGLIN_SPAWN_EGG);
+            event.accept(ModItems.BASTION_GENERAL_SPAWN_EGG);
+        }
+
+        if (event.getTabKey() == CreativeModeTabs.COMBAT) {
+            event.accept(ModItems.LAVA_INFUSED_SWORD);
         }
     }
 }

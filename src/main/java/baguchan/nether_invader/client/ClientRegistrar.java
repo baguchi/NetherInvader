@@ -1,11 +1,9 @@
 package baguchan.nether_invader.client;
 
 import baguchan.nether_invader.NetherInvader;
+import baguchan.nether_invader.client.model.BastionGeneralModel;
 import baguchan.nether_invader.client.model.NetherSpreaderModel;
-import baguchan.nether_invader.client.render.AgressivePiglinRenderer;
-import baguchan.nether_invader.client.render.ChainedGhastRenderer;
-import baguchan.nether_invader.client.render.NetherSpreaderRenderer;
-import baguchan.nether_invader.client.render.ScaffoldRenderer;
+import baguchan.nether_invader.client.render.*;
 import baguchan.nether_invader.registry.ModEntitys;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -23,11 +21,13 @@ public class ClientRegistrar {
         event.registerEntityRenderer(ModEntitys.CHAINED_GHAST.get(), ChainedGhastRenderer::new);
         event.registerEntityRenderer(ModEntitys.SCAFFOLDING.get(), ScaffoldRenderer::new);
         event.registerEntityRenderer(ModEntitys.AGRESSIVE_PIGLIN.get(), AgressivePiglinRenderer::new);
+        event.registerEntityRenderer(ModEntitys.BASTION_GENERAL.get(), BastionGeneralRenderer::new);
     }
 
     @SubscribeEvent
     public static void registerLayerDefinition(EntityRenderersEvent.RegisterLayerDefinitions event) {
         event.registerLayerDefinition(ModModelLayers.NETHER_SPREADER, NetherSpreaderModel::createBodyLayer);
+        event.registerLayerDefinition(ModModelLayers.BASTION_GENERAL, BastionGeneralModel::createBodyLayer);
 
     }
 }
