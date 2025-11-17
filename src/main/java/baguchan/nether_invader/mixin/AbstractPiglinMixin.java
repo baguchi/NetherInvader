@@ -5,7 +5,6 @@ import baguchan.nether_invader.entity.PiglinRaider;
 import baguchan.nether_invader.world.raid.PiglinRaid;
 import baguchan.nether_invader.world.savedata.PiglinRaidData;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.world.damagesource.DamageSource;
@@ -17,6 +16,8 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.monster.piglin.AbstractPiglin;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -82,13 +83,13 @@ public abstract class AbstractPiglinMixin extends Monster implements IPiglinImmu
     }
 
     @Inject(method = "addAdditionalSaveData", at = @At("TAIL"))
-    public void addAdditionalSaveData(CompoundTag p_34661_, CallbackInfo ci) {
-        p_34661_.putBoolean("immunite_by_potion", netherInvader$immuniteByPotion);
+    public void addAdditionalSaveData(ValueOutput p_421634_, CallbackInfo ci) {
+        p_421634_.putBoolean("immunite_by_potion", netherInvader$immuniteByPotion);
     }
 
     @Inject(method = "readAdditionalSaveData", at = @At("TAIL"))
-    public void readAdditionalSaveData(CompoundTag p_34661_, CallbackInfo ci) {
-        netherInvader$immuniteByPotion = p_34661_.getBooleanOr("immunite_by_potion", false);
+    public void readAdditionalSaveData(ValueInput p_422019_, CallbackInfo ci) {
+        netherInvader$immuniteByPotion = p_422019_.getBooleanOr("immunite_by_potion", false);
     }
 
     @Unique

@@ -791,7 +791,8 @@ public class PiglinRaid {
     }
 
     public static enum RaiderType implements net.neoforged.fml.common.asm.enumextension.IExtensibleEnum {
-        AGRESSIVE_PIGLIN(ModEntitys.AGRESSIVE_PIGLIN.get(), new int[]{0, 4, 5, 5, 6, 6, 7, 8});
+        AGRESSIVE_PIGLIN(ModEntitys.AGRESSIVE_PIGLIN.get(), new int[]{0, 4, 5, 5, 6, 6, 7, 8}),
+        BASTION_GENERAL(ModEntitys.BASTION_GENERAL.get(), new int[]{0, 0, 0, 1, 1, 2, 2, 3});
         static final RaiderType[] VALUES = values();
         @Deprecated // Neo: null for custom types, use the supplier instead
         final EntityType<? extends AbstractPiglin> entityType;

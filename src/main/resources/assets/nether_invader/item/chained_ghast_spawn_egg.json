@@ -1,16 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "bagus_lib:item/template_spawn_egg",
-    "tints": [
-      {
-        "type": "minecraft:constant",
-        "value": 16382457
-      },
-      {
-        "type": "minecraft:constant",
-        "value": 12369084
-      }
-    ]
+    "model": "nether_invader:item/chained_ghast_spawn_egg"
   }
 }

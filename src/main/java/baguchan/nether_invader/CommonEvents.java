@@ -20,7 +20,7 @@ import net.neoforged.neoforge.event.tick.LevelTickEvent;
 public class CommonEvents {
     @SubscribeEvent
     public static void onServerTick(LevelTickEvent.Post tick) {
-        if (!tick.getLevel().isClientSide && tick.getLevel() instanceof ServerLevel serverWorld) {
+        if (!tick.getLevel().isClientSide() && tick.getLevel() instanceof ServerLevel serverWorld) {
             PiglinRaidData.get(serverWorld).tick(serverWorld);
         }
     }

@@ -1,11 +1,14 @@
 package baguchan.nether_invader.entity;
 
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.phys.Vec3;
 
 public class Scaffolding extends LivingEntity implements Chainable {
 
@@ -24,8 +27,8 @@ public class Scaffolding extends LivingEntity implements Chainable {
     @Override
     public void baseTick() {
         super.baseTick();
-        if (!this.level().isClientSide && this instanceof Chainable && this.tickCount > 2) {
-            this.tickChain((Entity & Chainable) this);
+        if (!this.level().isClientSide() && this.level() instanceof ServerLevel serverLevel && this.tickCount > 2) {
+            Chainable.tickChain(serverLevel, this);
         }
     }
 
@@ -61,9 +64,15 @@ public class Scaffolding extends LivingEntity implements Chainable {
     }
 
     @Override
-    public boolean handleChainAtDistance(Entity entity, float distance) {
+    public boolean supportQuadChain() {
         return true;
     }
+
+    @Override
+    public Vec3[] getQuadChainOffsets() {
+        return Leashable.createQuadLeashOffsets(this, 0.0, 0.64, 0.382, 0.88);
+    }
+
 
     @Override
     public ChainData getChainData() {
@@ -76,13 +85,13 @@ public class Scaffolding extends LivingEntity implements Chainable {
     }
 
     @Override
-    public void addAdditionalSaveData(CompoundTag p_21145_) {
+    public void addAdditionalSaveData(ValueOutput p_21145_) {
         super.addAdditionalSaveData(p_21145_);
         this.writeChainData(p_21145_, this.chainData);
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundTag p_21096_) {
+    public void readAdditionalSaveData(ValueInput p_21096_) {
         super.readAdditionalSaveData(p_21096_);
         this.readChainData(p_21096_);
     }

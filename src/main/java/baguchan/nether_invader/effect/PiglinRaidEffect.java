@@ -23,7 +23,7 @@ public class PiglinRaidEffect extends MobEffect {
     @Override
     public boolean applyEffectTick(ServerLevel p_376587_, LivingEntity p_19467_, int p_19468_) {
         if (p_19467_ instanceof ServerPlayer serverplayer && !serverplayer.isSpectator()) {
-            ServerLevel serverlevel = serverplayer.serverLevel();
+            ServerLevel serverlevel = serverplayer.level();
             if (serverlevel.getDifficulty() != Difficulty.PEACEFUL && serverlevel.isVillage(serverplayer.blockPosition())) {
                 PiglinRaid raid = PiglinRaidData.get(serverlevel).getPiglinRaidAt(serverplayer.blockPosition());
                 if (raid == null || raid.getRaidOmenLevel() < raid.getMaxRaidOmenLevel()) {

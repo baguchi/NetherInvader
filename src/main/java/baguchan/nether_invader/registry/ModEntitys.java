@@ -2,6 +2,7 @@ package baguchan.nether_invader.registry;
 
 import baguchan.nether_invader.NetherInvader;
 import baguchan.nether_invader.entity.AgressivePiglin;
+import baguchan.nether_invader.entity.BastionGeneral;
 import baguchan.nether_invader.entity.ChainedGhast;
 import baguchan.nether_invader.entity.Scaffolding;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -20,7 +21,7 @@ import net.neoforged.neoforge.event.entity.RegisterSpawnPlacementsEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-@EventBusSubscriber(modid = NetherInvader.MODID, bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = NetherInvader.MODID)
 public class ModEntitys {
     public static final DeferredRegister<EntityType<?>> ENTITIES_REGISTRY = DeferredRegister.create(BuiltInRegistries.ENTITY_TYPE, NetherInvader.MODID);
 
@@ -40,7 +41,15 @@ public class ModEntitys {
             .eyeHeight(1.79F)
             .passengerAttachments(2.0125F)
             .ridingOffset(-0.7F)
+            .notInPeaceful()
             .clientTrackingRange(8).build(prefix("agressive_piglin")));
+    public static final DeferredHolder<EntityType<?>, EntityType<BastionGeneral>> BASTION_GENERAL = ENTITIES_REGISTRY.register("bastion_general", () -> EntityType.Builder.of(BastionGeneral::new, MobCategory.MONSTER)
+            .sized(0.9F, 2.15F)
+            .eyeHeight(1.85F)
+            .passengerAttachments(2.0125F)
+            .ridingOffset(-0.7F)
+            .notInPeaceful()
+            .clientTrackingRange(8).build(prefix("bastion_general")));
 
 
     @SubscribeEvent
@@ -48,12 +57,14 @@ public class ModEntitys {
         event.put(CHAINED_GHAST.get(), ChainedGhast.createAttributes().build());
         event.put(SCAFFOLDING.get(), Scaffolding.createAttributes().build());
         event.put(AGRESSIVE_PIGLIN.get(), AgressivePiglin.createAttributes().build());
+        event.put(BASTION_GENERAL.get(), BastionGeneral.createAttributes().build());
     }
 
     @SubscribeEvent
     public static void registerEntityPlace(RegisterSpawnPlacementsEvent event) {
         event.register(CHAINED_GHAST.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, ChainedGhast::checkChainGhastSpawnRules, RegisterSpawnPlacementsEvent.Operation.OR);
         event.register(AGRESSIVE_PIGLIN.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, AbstractPiglin::checkMonsterSpawnRules, RegisterSpawnPlacementsEvent.Operation.OR);
+        event.register(BASTION_GENERAL.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, AbstractPiglin::checkMonsterSpawnRules, RegisterSpawnPlacementsEvent.Operation.OR);
     }
 
     private static ResourceKey<EntityType<?>> prefix(String path) {

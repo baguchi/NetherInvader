@@ -2,16 +2,15 @@ package baguchan.nether_invader.client.render.state;
 
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nullable;
+import java.util.List;
 
 public class ScaffoldingRenderState extends LivingEntityRenderState {
-    @Nullable
-    public ChainState chainData;
 
-    @OnlyIn(Dist.CLIENT)
+    @Nullable
+    public List<ChainState> chainStates;
+
     public static class ChainState {
         public Vec3 offset;
         public Vec3 start;

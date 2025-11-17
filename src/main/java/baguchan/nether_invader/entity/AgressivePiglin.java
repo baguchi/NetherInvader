@@ -8,7 +8,6 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Dynamic;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -17,11 +16,9 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.RandomSource;
-import net.minecraft.util.VisibleForDebug;
 import net.minecraft.util.profiling.Profiler;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.DifficultyInstance;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.Brain;
@@ -32,13 +29,11 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.sensing.Sensor;
 import net.minecraft.world.entity.ai.sensing.SensorType;
-import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.monster.CrossbowAttackMob;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.monster.piglin.AbstractPiglin;
 import net.minecraft.world.entity.monster.piglin.Piglin;
 import net.minecraft.world.entity.monster.piglin.PiglinArmPose;
-import net.minecraft.world.entity.npc.InventoryCarrier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ProjectileWeaponItem;
@@ -47,11 +42,13 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class AgressivePiglin extends AbstractPiglin implements CrossbowAttackMob, InventoryCarrier {
+public class AgressivePiglin extends AbstractPiglin implements CrossbowAttackMob {
     private static final EntityDataAccessor<Boolean> DATA_BABY_ID = SynchedEntityData.defineId(AgressivePiglin.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> DATA_IS_CHARGING_CROSSBOW = SynchedEntityData.defineId(AgressivePiglin.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> DATA_IS_DANCING = SynchedEntityData.defineId(AgressivePiglin.class, EntityDataSerializers.BOOLEAN);
@@ -67,7 +64,6 @@ public class AgressivePiglin extends AbstractPiglin implements CrossbowAttackMob
     private static final float PROBABILITY_OF_SPAWNING_AS_BABY = 0.2F;
     private static final EntityDimensions BABY_DIMENSIONS = EntityType.PIGLIN.getDimensions().scale(0.5F).withEyeHeight(0.97F);
     private static final double PROBABILITY_OF_SPAWNING_WITH_CROSSBOW_INSTEAD_OF_SWORD = 0.5;
-    private final SimpleContainer inventory = new SimpleContainer(8);
     private boolean cannotHunt;
     protected static final ImmutableList<SensorType<? extends Sensor<? super AgressivePiglin>>> SENSOR_TYPES = ImmutableList.of(
             baguchi.bagus_lib.register.ModSensors.SMART_NEAREST_LIVING_ENTITY_SENSOR.get(), SensorType.NEAREST_PLAYERS, SensorType.NEAREST_ITEMS, SensorType.HURT_BY, ModSensors.ANGER_PIGLIN_SENSOR.get()
@@ -112,51 +108,23 @@ public class AgressivePiglin extends AbstractPiglin implements CrossbowAttackMob
     }
 
     @Override
-    public void addAdditionalSaveData(CompoundTag p_34751_) {
-        super.addAdditionalSaveData(p_34751_);
+    protected void addAdditionalSaveData(ValueOutput p_421634_) {
+        super.addAdditionalSaveData(p_421634_);
         if (this.isBaby()) {
-            p_34751_.putBoolean("IsBaby", true);
+            p_421634_.putBoolean("IsBaby", true);
         }
 
         if (this.cannotHunt) {
-            p_34751_.putBoolean("CannotHunt", true);
+            p_421634_.putBoolean("CannotHunt", true);
         }
-
-        this.writeInventoryToTag(p_34751_, this.registryAccess());
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundTag p_34725_) {
-        super.readAdditionalSaveData(p_34725_);
-        this.setBaby(p_34725_.getBooleanOr("IsBaby", false));
-        this.setCannotHunt(p_34725_.getBooleanOr("CannotHunt", false));
-        this.readInventoryFromTag(p_34725_, this.registryAccess());
-    }
+    protected void readAdditionalSaveData(ValueInput p_422019_) {
+        super.readAdditionalSaveData(p_422019_);
 
-    @VisibleForDebug
-    @Override
-    public SimpleContainer getInventory() {
-        return this.inventory;
-    }
-
-    @Override
-    protected void dropCustomDeathLoot(ServerLevel p_348503_, DamageSource p_34697_, boolean p_34699_) {
-        super.dropCustomDeathLoot(p_348503_, p_34697_, p_34699_);
-        if (p_34697_.getEntity() instanceof Creeper creeper && creeper.canDropMobsSkull()) {
-            ItemStack itemstack = new ItemStack(Items.PIGLIN_HEAD);
-            creeper.increaseDroppedSkulls();
-            this.spawnAtLocation(p_348503_, itemstack);
-        }
-
-        this.inventory.removeAllItems().forEach(stack -> spawnAtLocation(p_348503_, stack));
-    }
-
-    protected ItemStack addToInventory(ItemStack p_34779_) {
-        return this.inventory.addItem(p_34779_);
-    }
-
-    protected boolean canAddToInventory(ItemStack p_34781_) {
-        return this.inventory.canAddItem(p_34781_);
+        this.setBaby(p_422019_.getBooleanOr("IsBaby", false));
+        this.setCannotHunt(p_422019_.getBooleanOr("CannotHunt", false));
     }
 
     @Override
@@ -189,22 +157,11 @@ public class AgressivePiglin extends AbstractPiglin implements CrossbowAttackMob
     @Override
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor p_34717_, DifficultyInstance p_34718_, EntitySpawnReason p_34719_, @Nullable SpawnGroupData p_34720_) {
         RandomSource randomsource = p_34717_.getRandom();
-        if (p_34719_ != EntitySpawnReason.STRUCTURE) {
-            if (randomsource.nextFloat() < 0.2F) {
-                this.setBaby(true);
-            }
-            this.setItemSlot(EquipmentSlot.MAINHAND, this.createSpawnWeapon());
-        }
 
         RevampedPiglinAi.initMemories(this, p_34717_.getRandom());
         this.populateDefaultEquipmentSlots(randomsource, p_34718_);
         this.populateDefaultEquipmentEnchantments(p_34717_, randomsource, p_34718_);
         return super.finalizeSpawn(p_34717_, p_34718_, p_34719_, p_34720_);
-    }
-
-    @Override
-    protected boolean shouldDespawnInPeaceful() {
-        return false;
     }
 
     @Override
@@ -270,7 +227,7 @@ public class AgressivePiglin extends AbstractPiglin implements CrossbowAttackMob
     @Override
     public void setBaby(boolean p_34729_) {
         this.getEntityData().set(DATA_BABY_ID, p_34729_);
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             AttributeInstance attributeinstance = this.getAttribute(Attributes.MOVEMENT_SPEED);
             attributeinstance.removeModifier(SPEED_MODIFIER_BABY.id());
             if (p_34729_) {
@@ -312,9 +269,6 @@ public class AgressivePiglin extends AbstractPiglin implements CrossbowAttackMob
 
     @Override
     protected void finishConversion(ServerLevel p_34756_) {
-        this.inventory.removeAllItems().forEach(stack -> {
-            spawnAtLocation(p_34756_, stack);
-        });
         super.finishConversion(p_34756_);
     }
 
@@ -360,7 +314,7 @@ public class AgressivePiglin extends AbstractPiglin implements CrossbowAttackMob
     @Override
     public boolean hurtServer(ServerLevel serverLevel, DamageSource p_34694_, float p_34695_) {
         boolean flag = super.hurtServer(serverLevel, p_34694_, p_34695_);
-        if (this.level().isClientSide) {
+        if (this.level().isClientSide()) {
             return false;
         } else {
             if (flag && p_34694_.getEntity() instanceof LivingEntity) {
@@ -383,12 +337,12 @@ public class AgressivePiglin extends AbstractPiglin implements CrossbowAttackMob
 
 
     @Override
-    public boolean startRiding(Entity p_34701_, boolean p_34702_) {
+    public boolean startRiding(Entity p_34701_, boolean p_34702_, boolean b2) {
         if (this.isBaby() && p_34701_.getType() == EntityType.HOGLIN) {
             p_34701_ = this.getTopPassenger(p_34701_, 3);
         }
 
-        return super.startRiding(p_34701_, p_34702_);
+        return super.startRiding(p_34701_, p_34702_, b2);
     }
 
     private Entity getTopPassenger(Entity p_34731_, int p_34732_) {
@@ -398,7 +352,7 @@ public class AgressivePiglin extends AbstractPiglin implements CrossbowAttackMob
 
     @Override
     protected SoundEvent getAmbientSound() {
-        return this.level().isClientSide ? null : RevampedPiglinAi.getSoundForCurrentActivity(this).orElse(null);
+        return this.level().isClientSide() ? null : RevampedPiglinAi.getSoundForCurrentActivity(this).orElse(null);
     }
 
     @Override

@@ -8,11 +8,12 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import net.minecraft.client.model.geom.ModelLayers;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
@@ -20,6 +21,8 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.ArrayList;
 
 public class ScaffoldRenderer extends LivingEntityRenderer<Scaffolding, ScaffoldingRenderState, TestModel> {
     public static final ResourceLocation TEXTURE = ResourceLocation.withDefaultNamespace("textures/entity/boat/bamboo.png");
@@ -43,25 +46,43 @@ public class ScaffoldRenderer extends LivingEntityRenderer<Scaffolding, Scaffold
     public void extractRenderState(Scaffolding p_362733_, ScaffoldingRenderState p_360515_, float p_361157_) {
         super.extractRenderState(p_362733_, p_360515_, p_361157_);
         Entity entity = p_362733_ instanceof Chainable leashable ? leashable.getChainHolder() : null;
-        if (entity != null) {
+        if (entity != null && p_362733_ instanceof Chainable chainable) {
             float f = p_362733_.getPreciseBodyRotation(p_361157_) * (float) (Math.PI / 180.0);
-            Vec3 vec3 = p_362733_.getLeashOffset(p_361157_).yRot(-f);
+            float f1 = entity.getPreciseBodyRotation(p_361157_) * (float) (Math.PI / 180.0);
+            boolean flag = entity.supportQuadLeashAsHolder() && chainable.supportQuadChain();
+            int i1 = flag ? 4 : 1;
+            if (p_360515_.chainStates == null || p_360515_.chainStates.size() != i1) {
+                p_360515_.chainStates = new ArrayList<>(i1);
+
+                for (int j1 = 0; j1 < i1; j1++) {
+                    p_360515_.chainStates.add(new ScaffoldingRenderState.ChainState());
+                }
+            }
             BlockPos blockpos1 = BlockPos.containing(p_362733_.getPosition(p_361157_));
             BlockPos blockpos = BlockPos.containing(entity.getPosition(p_361157_));
-            if (p_360515_.chainData == null) {
-                p_360515_.chainData = new ScaffoldingRenderState.ChainState();
-            }
+            label83:
+            {
+                Vec3[] avec3 = p_362733_.getQuadChainOffsets();
+                Vec3[] avec31 = entity.getQuadLeashHolderOffsets();
+                Vec3 vec3 = entity.getPosition(p_361157_);
+                int k1 = 0;
 
-            ScaffoldingRenderState.ChainState entityrenderstate$leashstate = p_360515_.chainData;
-            entityrenderstate$leashstate.offset = vec3;
-            entityrenderstate$leashstate.start = p_362733_.getPosition(p_361157_);
-            entityrenderstate$leashstate.end = entity.getRopeHoldPosition(p_361157_);
-            entityrenderstate$leashstate.startBlockLight = this.getBlockLightLevel(p_362733_, blockpos1);
-            entityrenderstate$leashstate.endBlockLight = getBlockLightLevelTest(entity, blockpos);
-            entityrenderstate$leashstate.startSkyLight = p_362733_.level().getBrightness(LightLayer.SKY, blockpos1);
-            entityrenderstate$leashstate.endSkyLight = p_362733_.level().getBrightness(LightLayer.SKY, blockpos);
-        } else {
-            p_360515_.chainData = null;
+                while (true) {
+                    if (k1 >= i1) {
+                        break label83;
+                    }
+                    ScaffoldingRenderState.ChainState entityrenderstate$leashstate = p_360515_.chainStates.get(k1);
+                    entityrenderstate$leashstate.offset = avec3[k1].yRot(-f);
+                    entityrenderstate$leashstate.start = p_362733_.getPosition(p_361157_).add(entityrenderstate$leashstate.offset);
+                    entityrenderstate$leashstate.end = vec3.add(avec31[k1].yRot(-f1));
+
+                    entityrenderstate$leashstate.startBlockLight = this.getBlockLightLevel(p_362733_, blockpos1);
+                    entityrenderstate$leashstate.endBlockLight = getBlockLightLevelTest(entity, blockpos);
+                    entityrenderstate$leashstate.startSkyLight = p_362733_.level().getBrightness(LightLayer.SKY, blockpos1);
+                    entityrenderstate$leashstate.endSkyLight = p_362733_.level().getBrightness(LightLayer.SKY, blockpos);
+                    k1++;
+                }
+            }
         }
     }
 
@@ -88,21 +109,22 @@ public class ScaffoldRenderer extends LivingEntityRenderer<Scaffolding, Scaffold
     }
 
     @Override
-    public void render(ScaffoldingRenderState p_115308_, PoseStack p_115311_, MultiBufferSource p_115312_, int p_115313_) {
-        ScaffoldingRenderState.ChainState entity = p_115308_.chainData;
-            if (entity != null) {
-                this.renderChain(p_115308_, p_115311_, p_115312_, entity);
+    public void submit(ScaffoldingRenderState p_433493_, PoseStack p_434615_, SubmitNodeCollector p_433768_, CameraRenderState p_450931_) {
+        if (p_433493_.chainStates != null) {
+            for (ScaffoldingRenderState.ChainState entityrenderstate$chainState : p_433493_.chainStates) {
+                renderChain(p_433493_, p_434615_, p_433768_, entityrenderstate$chainState);
             }
-        super.render(p_115308_, p_115311_, p_115312_, p_115313_);
+        }
+        super.submit(p_433493_, p_434615_, p_433768_, p_450931_);
     }
+
 
     @Override
     public ResourceLocation getTextureLocation(ScaffoldingRenderState p_114482_) {
         return TEXTURE;
     }
 
-    public void renderChain(ScaffoldingRenderState chained, PoseStack poseStack, MultiBufferSource bufferIn, ScaffoldingRenderState.ChainState owner) {
-        for (Vec3 vec34 : Chainable.QUAD_LEASH_ATTACHMENT_POINTS) {
+    public void renderChain(ScaffoldingRenderState chained, PoseStack poseStack, SubmitNodeCollector bufferIn, ScaffoldingRenderState.ChainState owner) {
             if (owner != null) {
                 float f = 0.0F;
                 float f1 = 0.0F;
@@ -111,11 +133,7 @@ public class ScaffoldRenderer extends LivingEntityRenderer<Scaffolding, Scaffold
 
                 float yrot = -chained.yRot;
 
-                Vec3 offset2 = new Vec3(vec34.x, 0, vec34.z).yRot(yrot * ((float) Math.PI / 180F));
-
-                Vec3 offset = new Vec3(vec34.x * 2.455, -vec34.y, vec34.z * 2.455);
-                poseStack.translate(offset2.x, vec34.y, offset2.z);
-                Vec3 vec3 = owner.end.add(offset.yRot(yrot * ((float) Math.PI / 180F)));
+                Vec3 vec3 = owner.end;
                 Vec3 vec31 = owner.start;
                 Vec3 vec32 = vec3.subtract(vec31);
                 float f4 = (float) (vec32.length());
@@ -153,25 +171,26 @@ public class ScaffoldRenderer extends LivingEntityRenderer<Scaffolding, Scaffold
                 float f28 = 0.4999F;
                 float f29 = -1.0F + f2;
                 float f30 = f4 * 2.5F + f29;
-                VertexConsumer vertexconsumer = bufferIn.getBuffer(RenderType.entityCutoutNoCull(CHAIN_TEXTURE));
-                PoseStack.Pose posestack$pose = poseStack.last();
-                vertex(vertexconsumer, posestack$pose, f19, f4, f20, j, k, l, 0.4999F, f30);
-                vertex(vertexconsumer, posestack$pose, f19, 0.0F, f20, j, k, l, 0.4999F, f29);
-                vertex(vertexconsumer, posestack$pose, f21, 0.0F, f22, j, k, l, 0.0F, f29);
-                vertex(vertexconsumer, posestack$pose, f21, f4, f22, j, k, l, 0.0F, f30);
-                vertex(vertexconsumer, posestack$pose, f23, f4, f24, j, k, l, 0.4999F, f30);
-                vertex(vertexconsumer, posestack$pose, f23, 0.0F, f24, j, k, l, 0.4999F, f29);
-                vertex(vertexconsumer, posestack$pose, f25, 0.0F, f26, j, k, l, 0.0F, f29);
-                vertex(vertexconsumer, posestack$pose, f25, f4, f26, j, k, l, 0.0F, f30);
-                float f31 = 0.0F;
+                bufferIn.submitCustomGeometry(poseStack, RenderType.entityCutoutNoCull(CHAIN_TEXTURE), (pose, vertexConsumer) -> {
+                    PoseStack.Pose posestack$pose = pose;
+                    vertex(vertexConsumer, posestack$pose, f19, f4, f20, j, k, l, 0.4999F, f30);
+                    vertex(vertexConsumer, posestack$pose, f19, 0.0F, f20, j, k, l, 0.4999F, f29);
+                    vertex(vertexConsumer, posestack$pose, f21, 0.0F, f22, j, k, l, 0.0F, f29);
+                    vertex(vertexConsumer, posestack$pose, f21, f4, f22, j, k, l, 0.0F, f30);
+                    vertex(vertexConsumer, posestack$pose, f23, f4, f24, j, k, l, 0.4999F, f30);
+                    vertex(vertexConsumer, posestack$pose, f23, 0.0F, f24, j, k, l, 0.4999F, f29);
+                    vertex(vertexConsumer, posestack$pose, f25, 0.0F, f26, j, k, l, 0.0F, f29);
+                    vertex(vertexConsumer, posestack$pose, f25, f4, f26, j, k, l, 0.0F, f30);
+                    float f31 = 0.0F;
 
-                vertex(vertexconsumer, posestack$pose, f11, f4, f12, j, k, l, 0.0F, f31 - 0.15F);
-                vertex(vertexconsumer, posestack$pose, f13, f4, f14, j, k, l, 1.15F, f31 - 0.15F);
-                vertex(vertexconsumer, posestack$pose, f17, f4, f18, j, k, l, 1.15F, f31);
-                vertex(vertexconsumer, posestack$pose, f15, f4, f16, j, k, l, -0.15F, f31);
+                    vertex(vertexConsumer, posestack$pose, f11, f4, f12, j, k, l, 0.0F, f31 - 0.15F);
+                    vertex(vertexConsumer, posestack$pose, f13, f4, f14, j, k, l, 1.15F, f31 - 0.15F);
+                    vertex(vertexConsumer, posestack$pose, f17, f4, f18, j, k, l, 1.15F, f31);
+                    vertex(vertexConsumer, posestack$pose, f15, f4, f16, j, k, l, -0.15F, f31);
+
+                });
                 poseStack.popPose();
             }
-        }
     }
 
     private static void vertex(

@@ -126,7 +126,7 @@ public class PiglinRaidData extends SavedData {
         if (p_37964_.isSpectator()) {
             return null;
         } else {
-            ServerLevel serverlevel = p_37964_.serverLevel();
+            ServerLevel serverlevel = p_37964_.level();
             if (serverlevel.getGameRules().getBoolean(GameRules.RULE_DISABLE_RAIDS)) {
                 return null;
             } else {

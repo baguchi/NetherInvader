@@ -1,0 +1,6 @@
+{
+  "parent": "nether_invader:item/big_handheld",
+  "textures": {
+    "layer0": "nether_invader:item/lava_infused_sword"
+  }
+}

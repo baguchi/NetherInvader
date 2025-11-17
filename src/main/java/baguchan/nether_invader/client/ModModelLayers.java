@@ -6,5 +6,6 @@ import net.minecraft.resources.ResourceLocation;
 
 public class ModModelLayers {
     public static final ModelLayerLocation NETHER_SPREADER = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(NetherInvader.MODID, "nether_spreader"), "main");
+    public static final ModelLayerLocation BASTION_GENERAL = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(NetherInvader.MODID, "bastion_general"), "main");
 
 }

@@ -53,7 +53,7 @@ public class ChainPacket implements CustomPacketPayload, IPayloadHandler<ChainPa
             if (Minecraft.getInstance().player != null) {
                 Entity entity = Minecraft.getInstance().player.level().getEntity(message.sourceId);
                 if (entity instanceof Chainable chainable) {
-                    chainable.setDelayedLeashHolderId(message.destId);
+                    chainable.setDelayedChainHolderId(message.destId);
                 }
             }
         });

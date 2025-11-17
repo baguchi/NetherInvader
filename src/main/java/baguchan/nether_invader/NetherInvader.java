@@ -39,7 +39,7 @@ public class NetherInvader
 
     public void setupPackets(RegisterPayloadHandlersEvent event) {
         PayloadRegistrar registrar = event.registrar(MODID).versioned("1.0.0").optional();
-        registrar.playBidirectional(ChainPacket.TYPE, ChainPacket.STREAM_CODEC, (handler, payload) -> handler.handle(handler, payload));
+        registrar.playToClient(ChainPacket.TYPE, ChainPacket.STREAM_CODEC, (handler, payload) -> handler.handle(handler, payload));
     }
 
     private void commonSetup(final FMLCommonSetupEvent event)

@@ -4,7 +4,6 @@ import baguchan.nether_invader.registry.ModEntitys;
 import baguchan.nether_invader.registry.ModPotions;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
@@ -27,6 +26,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -45,7 +46,7 @@ public class ChainedGhast extends Ghast {
     }
 
     @Override
-    public void addAdditionalSaveData(CompoundTag p_32744_) {
+    public void addAdditionalSaveData(ValueOutput p_32744_) {
         super.addAdditionalSaveData(p_32744_);
         p_32744_.putBoolean("hasLeash", this.hasLeash);
         if (this.targetPos != null) {
@@ -54,12 +55,11 @@ public class ChainedGhast extends Ghast {
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundTag p_32733_) {
+    public void readAdditionalSaveData(ValueInput p_32733_) {
         super.readAdditionalSaveData(p_32733_);
         this.hasLeash = p_32733_.getBooleanOr("hasLeash", false);
-        if (p_32733_.contains("TargetPos")) {
-            this.targetPos = p_32733_.read("TargetPos", BlockPos.CODEC).orElse(null);
-        }
+        this.targetPos = p_32733_.read("TargetPos", BlockPos.CODEC).orElse(null);
+
     }
 
     @Override
@@ -376,7 +376,7 @@ public class ChainedGhast extends Ghast {
         @org.jetbrains.annotations.Nullable
         private static Vec3 chooseRandomPositionWithRestriction(ChainedGhast mob, Vec3 vec3, RandomSource randomSource) {
             Vec3 vec32 = chooseRandomPosition(mob, vec3, randomSource);
-            return mob.hasRestriction() && !mob.isWithinRestriction(BlockPos.containing(vec32)) ? null : vec32;
+            return mob.hasHome() && !mob.isWithinHome(BlockPos.containing(vec32)) ? null : vec32;
         }
     }
 
@@ -475,7 +475,7 @@ public class ChainedGhast extends Ghast {
         @org.jetbrains.annotations.Nullable
         private static Vec3 chooseRandomPositionWithRestriction(Mob mob, Vec3 vec3, RandomSource randomSource) {
             Vec3 vec32 = chooseRandomPosition(vec3, randomSource);
-            return mob.hasRestriction() && !mob.isWithinRestriction(BlockPos.containing(vec32)) ? null : vec32;
+            return mob.hasHome() && !mob.isWithinHome(BlockPos.containing(vec32)) ? null : vec32;
         }
     }
 

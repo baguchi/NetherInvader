@@ -17,7 +17,7 @@ import net.neoforged.neoforge.event.brewing.RegisterBrewingRecipesEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-@EventBusSubscriber(modid = NetherInvader.MODID, bus = EventBusSubscriber.Bus.GAME)
+@EventBusSubscriber(modid = NetherInvader.MODID)
 public class ModPotions {
     public static final DeferredRegister<MobEffect> MOB_EFFECTS = DeferredRegister.create(BuiltInRegistries.MOB_EFFECT, NetherInvader.MODID);
 
