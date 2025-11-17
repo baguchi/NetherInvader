@@ -316,10 +316,6 @@ public class BastionPiglinAi {
         return p_34961_.getBrain().getMemory(MemoryModuleType.NEARBY_ADULT_PIGLINS).orElse(ImmutableList.of());
     }
 
-    private static void stopWalking(BastionGeneral p_35007_) {
-        p_35007_.getBrain().eraseMemory(MemoryModuleType.WALK_TARGET);
-        p_35007_.getNavigation().stop();
-    }
 
     protected static void broadcastAngerTarget(ServerLevel serverLevel, AbstractPiglin p_34896_, LivingEntity p_34897_) {
         getAdultPiglins(p_34896_).forEach(p_348314_ -> {

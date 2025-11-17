@@ -6,8 +6,8 @@ import baguchan.nether_invader.entity.Chainable;
 import baguchan.nether_invader.entity.Scaffolding;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Axis;
 import net.minecraft.client.model.geom.ModelLayers;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.culling.Frustum;
@@ -26,7 +26,7 @@ import java.util.ArrayList;
 
 public class ScaffoldRenderer extends LivingEntityRenderer<Scaffolding, ScaffoldingRenderState, TestModel> {
     public static final ResourceLocation TEXTURE = ResourceLocation.withDefaultNamespace("textures/entity/boat/bamboo.png");
-    public static final ResourceLocation CHAIN_TEXTURE = ResourceLocation.withDefaultNamespace("textures/item/chain.png");
+    public static final ResourceLocation CHAIN_TEXTURE = ResourceLocation.withDefaultNamespace("textures/item/iron_chain.png");
 
     public ScaffoldRenderer(EntityRendererProvider.Context p_174304_) {
         super(p_174304_, new TestModel(p_174304_.bakeLayer(ModelLayers.BAMBOO_RAFT)), 0.5F);
@@ -112,7 +112,9 @@ public class ScaffoldRenderer extends LivingEntityRenderer<Scaffolding, Scaffold
     public void submit(ScaffoldingRenderState p_433493_, PoseStack p_434615_, SubmitNodeCollector p_433768_, CameraRenderState p_450931_) {
         if (p_433493_.chainStates != null) {
             for (ScaffoldingRenderState.ChainState entityrenderstate$chainState : p_433493_.chainStates) {
-                renderChain(p_433493_, p_434615_, p_433768_, entityrenderstate$chainState);
+                p_434615_.pushPose();
+                renderChain(p_434615_, p_433768_, entityrenderstate$chainState);
+                p_434615_.popPose();
             }
         }
         super.submit(p_433493_, p_434615_, p_433768_, p_450931_);
@@ -124,93 +126,69 @@ public class ScaffoldRenderer extends LivingEntityRenderer<Scaffolding, Scaffold
         return TEXTURE;
     }
 
-    public void renderChain(ScaffoldingRenderState chained, PoseStack poseStack, SubmitNodeCollector bufferIn, ScaffoldingRenderState.ChainState owner) {
-            if (owner != null) {
-                float f = 0.0F;
-                float f1 = 0.0F;
-                float f2 = f1 * 0.5F % 1.0F;
-                poseStack.pushPose();
+    private static void renderChain(PoseStack p_435977_, SubmitNodeCollector p_433388_, ScaffoldingRenderState.ChainState p_435610_) {
+        float f = (float) (p_435610_.end.x - p_435610_.start.x);
+        float f1 = (float) (p_435610_.end.y - p_435610_.start.y);
+        float f2 = (float) (p_435610_.end.z - p_435610_.start.z);
+        float f3 = Mth.invSqrt(f * f + f2 * f2) * 0.25F / 2.0F;
+        float f4 = f2 * f3;
+        float f5 = f * f3;
+        p_435977_.pushPose();
+        p_435977_.translate((float) p_435610_.offset.x, (float) p_435610_.offset.y, (float) p_435610_.offset.z);
+        p_433388_.submitCustomGeometry(p_435977_, RenderType.entityCutoutNoCull(CHAIN_TEXTURE), (pose, vertexConsumer) -> {
 
-                float yrot = -chained.yRot;
-
-                Vec3 vec3 = owner.end;
-                Vec3 vec31 = owner.start;
-                Vec3 vec32 = vec3.subtract(vec31);
-                float f4 = (float) (vec32.length());
-                vec32 = vec32.normalize();
-                float f5 = (float) Math.acos(vec32.y);
-                float f6 = (float) Math.atan2(vec32.z, vec32.x);
-                poseStack.mulPose(Axis.YP.rotationDegrees(((float) (Math.PI / 2) - f6) * (180.0F / (float) Math.PI)));
-                poseStack.mulPose(Axis.XP.rotationDegrees(f5 * (180.0F / (float) Math.PI)));
-                //poseStack.mulPose(Axis.ZP.rotationDegrees(owner.getYRot()));
-                int i = 1;
-                float f7 = f1 * 0.05F * -1.5F;
-                float f8 = f * f;
-                int j = 64 + (int) (f8 * 191.0F);
-                int k = 32 + (int) (f8 * 191.0F);
-                int l = 128 - (int) (f8 * 64.0F);
-                float f9 = 0.2F;
-                float f10 = 0.282F;
-                float f11 = Mth.cos(f7 + (float) (Math.PI * 3.0 / 4.0)) * 0.282F;
-                float f12 = Mth.sin(f7 + (float) (Math.PI * 3.0 / 4.0)) * 0.282F;
-                float f13 = Mth.cos(f7 + (float) (Math.PI / 4)) * 0.282F;
-                float f14 = Mth.sin(f7 + (float) (Math.PI / 4)) * 0.282F;
-                float f15 = Mth.cos(f7 + ((float) Math.PI * 5.0F / 4.0F)) * 0.282F;
-                float f16 = Mth.sin(f7 + ((float) Math.PI * 5.0F / 4.0F)) * 0.282F;
-                float f17 = Mth.cos(f7 + ((float) Math.PI * 7.0F / 4.0F)) * 0.282F;
-                float f18 = Mth.sin(f7 + ((float) Math.PI * 7.0F / 4.0F)) * 0.282F;
-                float f19 = Mth.cos(f7 + (float) Math.PI) * 0.2F;
-                float f20 = Mth.sin(f7 + (float) Math.PI) * 0.2F;
-                float f21 = Mth.cos(f7 + 0.0F) * 0.2F;
-                float f22 = Mth.sin(f7 + 0.0F) * 0.2F;
-                float f23 = Mth.cos(f7 + (float) (Math.PI / 2)) * 0.2F;
-                float f24 = Mth.sin(f7 + (float) (Math.PI / 2)) * 0.2F;
-                float f25 = Mth.cos(f7 + (float) (Math.PI * 3.0 / 2.0)) * 0.2F;
-                float f26 = Mth.sin(f7 + (float) (Math.PI * 3.0 / 2.0)) * 0.2F;
-                float f27 = 0.0F;
-                float f28 = 0.4999F;
-                float f29 = -1.0F + f2;
-                float f30 = f4 * 2.5F + f29;
-                bufferIn.submitCustomGeometry(poseStack, RenderType.entityCutoutNoCull(CHAIN_TEXTURE), (pose, vertexConsumer) -> {
-                    PoseStack.Pose posestack$pose = pose;
-                    vertex(vertexConsumer, posestack$pose, f19, f4, f20, j, k, l, 0.4999F, f30);
-                    vertex(vertexConsumer, posestack$pose, f19, 0.0F, f20, j, k, l, 0.4999F, f29);
-                    vertex(vertexConsumer, posestack$pose, f21, 0.0F, f22, j, k, l, 0.0F, f29);
-                    vertex(vertexConsumer, posestack$pose, f21, f4, f22, j, k, l, 0.0F, f30);
-                    vertex(vertexConsumer, posestack$pose, f23, f4, f24, j, k, l, 0.4999F, f30);
-                    vertex(vertexConsumer, posestack$pose, f23, 0.0F, f24, j, k, l, 0.4999F, f29);
-                    vertex(vertexConsumer, posestack$pose, f25, 0.0F, f26, j, k, l, 0.0F, f29);
-                    vertex(vertexConsumer, posestack$pose, f25, f4, f26, j, k, l, 0.0F, f30);
-                    float f31 = 0.0F;
-
-                    vertex(vertexConsumer, posestack$pose, f11, f4, f12, j, k, l, 0.0F, f31 - 0.15F);
-                    vertex(vertexConsumer, posestack$pose, f13, f4, f14, j, k, l, 1.15F, f31 - 0.15F);
-                    vertex(vertexConsumer, posestack$pose, f17, f4, f18, j, k, l, 1.15F, f31);
-                    vertex(vertexConsumer, posestack$pose, f15, f4, f16, j, k, l, -0.15F, f31);
-
-                });
-                poseStack.popPose();
+            for (int i = 0; i <= 24; i++) {
+                addVertexPair(vertexConsumer, pose, f, f1, f2, 0.5F, f4, f5, i, false, p_435610_);
             }
+
+            for (int j = 24; j >= 0; j--) {
+                addVertexPair(vertexConsumer, pose, f, f1, f2, 0.0F, f4, f5, j, true, p_435610_);
+            }
+        });
+        p_435977_.popPose();
     }
 
-    private static void vertex(
-            VertexConsumer p_253637_,
-            PoseStack.Pose p_323627_,
-            float p_253994_,
-            float p_254492_,
-            float p_254474_,
-            int p_254080_,
-            int p_253655_,
-            int p_254133_,
-            float p_254233_,
-            float p_253939_
+    private static void addVertexPair(
+            VertexConsumer p_434388_,
+            PoseStack.Pose p_433395_,
+            float p_433965_,
+            float p_433396_,
+            float p_433151_,
+            float p_433167_,
+            float p_433199_,
+            float p_434961_,
+            int p_436038_,
+            boolean p_434670_,
+            ScaffoldingRenderState.ChainState p_435559_
     ) {
-        p_253637_.addVertex(p_323627_, p_253994_, p_254492_, p_254474_)
-                .setColor(p_254080_, p_253655_, p_254133_, 255)
-                .setUv(p_254233_, p_253939_)
+        float f = p_436038_ / 24.0F;
+        int i = (int) Mth.lerp(f, (float) p_435559_.startBlockLight, (float) p_435559_.endBlockLight);
+        int j = (int) Mth.lerp(f, (float) p_435559_.startSkyLight, (float) p_435559_.endSkyLight);
+        int k = LightTexture.pack(i, j);
+        float f2 = 1F;
+        float f3 = 1F;
+        float f4 = 1F;
+        float f5 = p_433965_ * f;
+        float f6;
+        /*if (p_435559_.slack) {
+            f6 = p_433396_ > 0.0F ? p_433396_ * f * f : p_433396_ - p_433396_ * (1.0F - f) * (1.0F - f);
+        } else {*/
+        f6 = p_433396_ * f;
+        //}
+
+        float f7 = p_433151_ * f;
+        p_434388_.addVertex(p_433395_, f5 - p_433167_, f6 - p_434961_, f7 - p_433199_).setColor(f2, f3, f4, 1.0F).setUv(0, 0).setLight(k)
                 .setOverlay(OverlayTexture.NO_OVERLAY)
-                .setLight(15728880)
-                .setNormal(p_323627_, 0.0F, 1.0F, 0.0F);
+                .setNormal(p_433395_, 0.0F, 1.0F, 0.0F);
+        p_434388_.addVertex(p_433395_, f5 + p_433167_, f6 - p_434961_, f7 + p_433199_).setColor(f2, f3, f4, 1.0F).setUv(1, 0).setLight(k)
+                .setOverlay(OverlayTexture.NO_OVERLAY)
+                .setNormal(p_433395_, 0.0F, 1.0F, 0.0F);
+        p_434388_.addVertex(p_433395_, f5 + p_433167_, f6 + p_434961_, f7 - p_433199_).setColor(f2, f3, f4, 1.0F).setUv(1, 1).setLight(k)
+                .setOverlay(OverlayTexture.NO_OVERLAY)
+                .setNormal(p_433395_, 0.0F, 1.0F, 0.0F);
+        p_434388_.addVertex(p_433395_, f5 - p_433167_, f6 + p_434961_, f7 + p_433199_).setColor(f2, f3, f4, 1.0F).setUv(0, 1).setLight(k)
+                .setOverlay(OverlayTexture.NO_OVERLAY)
+                .setNormal(p_433395_, 0.0F, 1.0F, 0.0F);
     }
 
 

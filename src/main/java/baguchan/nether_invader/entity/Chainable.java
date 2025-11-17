@@ -44,7 +44,7 @@ public interface Chainable {
     void setChainData(@Nullable Chainable.ChainData var1);
 
     default boolean isChained() {
-        return this.getChainData() != null && this.getChainData().leashHolder != null;
+        return this.getChainData() != null && this.getChainData().chainHolder != null;
     }
 
     default boolean mayBeChained() {
@@ -55,7 +55,7 @@ public interface Chainable {
         if (this == p_418026_) {
             return false;
         } else {
-            return !(this.leashDistanceTo(p_418026_) > this.leashSnapDistance()) && this.canBeChained();
+            return !(this.leashDistanceTo(p_418026_) > this.chainSnapDistance()) && this.canBeChained();
         }
     }
 
@@ -103,7 +103,7 @@ public interface Chainable {
                 }
 
                 if (p_352354_.tickCount > 100) {
-                    p_352354_.spawnAtLocation(serverlevel, Items.LEAD);
+                    p_352354_.spawnAtLocation(serverlevel, Items.IRON_CHAIN);
                     p_352354_.setChainData(null);
                 }
             }
@@ -124,13 +124,13 @@ public interface Chainable {
 
     private static <E extends Entity & Chainable> void dropChain(E p_352163_, boolean p_352286_, boolean p_352272_) {
         Chainable.ChainData leashable$leashdata = p_352163_.getChainData();
-        if (leashable$leashdata != null && leashable$leashdata.leashHolder != null) {
+        if (leashable$leashdata != null && leashable$leashdata.chainHolder != null) {
             p_352163_.setChainData(null);
             p_352163_.onChainRemoved();
             Level var5 = p_352163_.level();
             if (var5 instanceof ServerLevel serverlevel) {
                 if (p_352272_) {
-                    p_352163_.spawnAtLocation(serverlevel, Items.LEAD);
+                    p_352163_.spawnAtLocation(serverlevel, Items.IRON_CHAIN);
                 }
 
                 if (p_352286_) {
@@ -147,8 +147,8 @@ public interface Chainable {
             restoreChainFromSave(p_352082_, leashable$leashdata);
         }
 
-        if (leashable$leashdata != null && leashable$leashdata.leashHolder != null) {
-            if (!p_352082_.canInteractWithLevel() || !leashable$leashdata.leashHolder.canInteractWithLevel()) {
+        if (leashable$leashdata != null && leashable$leashdata.chainHolder != null) {
+            if (!p_352082_.canInteractWithLevel() || !leashable$leashdata.chainHolder.canInteractWithLevel()) {
                 if (p_376374_.getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
                     p_352082_.dropChain();
                 } else {
@@ -160,9 +160,9 @@ public interface Chainable {
             if (entity != null && entity.level() == p_352082_.level()) {
                 double d0 = p_352082_.leashDistanceTo(entity);
                 p_352082_.whenChainedTo(entity);
-                if (d0 > p_352082_.leashSnapDistance()) {
+                if (d0 > p_352082_.chainSnapDistance()) {
                     p_376374_.playSound(null, entity.getX(), entity.getY(), entity.getZ(), SoundEvents.LEAD_BREAK, SoundSource.NEUTRAL, 1.0F, 1.0F);
-                    p_352082_.leashTooFarBehaviour();
+                    p_352082_.chainTooFarBehaviour();
                 } else if (d0 > p_352082_.leashElasticDistance() - (double) entity.getBbWidth() - (double) p_352082_.getBbWidth() && p_352082_.checkElasticInteractions(entity, leashable$leashdata)) {
                     p_352082_.onElasticChainPull();
                 } else {
@@ -181,7 +181,7 @@ public interface Chainable {
         entity.checkFallDistanceAccumulation();
     }
 
-    default double leashSnapDistance() {
+    default double chainSnapDistance() {
         return 12.0F;
     }
 
@@ -201,7 +201,7 @@ public interface Chainable {
     default void whenChainedTo(Entity p_418473_) {
     }
 
-    default void leashTooFarBehaviour() {
+    default void chainTooFarBehaviour() {
         this.dropChain();
     }
 
@@ -312,18 +312,16 @@ public interface Chainable {
             leashable$leashdata = new Chainable.ChainData(p_352109_);
             p_352280_.setChainData(leashable$leashdata);
         } else {
-            Entity entity = leashable$leashdata.leashHolder;
+            Entity entity = leashable$leashdata.chainHolder;
             leashable$leashdata.setChainHolder(p_352109_);
             if (entity != null && entity != p_352109_) {
             }
         }
 
-        if (p_352239_) {
             Level var5 = p_352280_.level();
             if (var5 instanceof ServerLevel serverlevel) {
-                PacketDistributor.sendToAllPlayers(new ChainPacket(p_352280_, null));
+                PacketDistributor.sendToAllPlayers(new ChainPacket(p_352280_, p_352109_));
             }
-        }
 
         if (p_352280_.isPassenger()) {
             p_352280_.stopRiding();
@@ -349,7 +347,7 @@ public interface Chainable {
                 }
             }
 
-            return leashable$leashdata.leashHolder;
+            return leashable$leashdata.chainHolder;
         }
     }
 
@@ -384,7 +382,7 @@ public interface Chainable {
         public static final Codec<Chainable.ChainData> CODEC;
         int delayedChainHolderId;
         @Nullable
-        public Entity leashHolder;
+        public Entity chainHolder;
         @Nullable
         public Either<UUID, BlockPos> delayedChainInfo;
         public double angularMomentum;
@@ -394,7 +392,7 @@ public interface Chainable {
         }
 
         ChainData(Entity p_352066_) {
-            this.leashHolder = p_352066_;
+            this.chainHolder = p_352066_;
         }
 
         ChainData(int p_352297_) {
@@ -402,14 +400,14 @@ public interface Chainable {
         }
 
         public void setChainHolder(Entity p_352464_) {
-            this.leashHolder = p_352464_;
+            this.chainHolder = p_352464_;
             this.delayedChainInfo = null;
             this.delayedChainHolderId = 0;
         }
 
         static {
             CODEC = Codec.xor(UUIDUtil.CODEC.fieldOf("UUID").codec(), BlockPos.CODEC).xmap(Chainable.ChainData::new, (p_412912_) -> {
-                return p_412912_.leashHolder != null ? Either.left(p_412912_.leashHolder.getUUID()) : (Either) Objects.requireNonNull(p_412912_.delayedChainInfo, "Invalid ChainData had no attachment");
+                return p_412912_.chainHolder != null ? Either.left(p_412912_.chainHolder.getUUID()) : (Either) Objects.requireNonNull(p_412912_.delayedChainInfo, "Invalid ChainData had no attachment");
 
             });
         }

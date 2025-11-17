@@ -112,6 +112,22 @@ public class ChainedGhast extends Ghast {
         return p_34300_;
     }
 
+    @Override
+    public boolean supportQuadLeashAsHolder() {
+        return true;
+    }
+
+    @Override
+    public double leashElasticDistance() {
+        return (double) 10.0F;
+    }
+
+    @Override
+    public double leashSnapDistance() {
+        return (double) 16.0F;
+    }
+
+
     public static boolean checkChainGhastSpawnRules(
             EntityType<ChainedGhast> p_218985_, LevelAccessor p_218986_, EntitySpawnReason p_218987_, BlockPos p_218988_, RandomSource p_218989_
     ) {
