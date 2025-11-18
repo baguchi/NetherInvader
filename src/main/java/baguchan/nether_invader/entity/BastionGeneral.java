@@ -243,7 +243,7 @@ public class BastionGeneral extends AbstractPiglin {
         return SoundEvents.PIGLIN_BRUTE_DEATH;
     }
 
-    //sorry. I want to create diversity, but it was difficult.
+    //sorry. I want to create diversity, but it was difficult for now...
     @Override
     public HumanoidArm getMainArm() {
         return HumanoidArm.RIGHT;
