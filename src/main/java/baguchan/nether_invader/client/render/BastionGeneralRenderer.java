@@ -7,6 +7,7 @@ import baguchan.nether_invader.client.render.state.BastionGeneralRenderState;
 import baguchan.nether_invader.entity.BastionGeneral;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
+import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.client.renderer.entity.state.ArmedEntityRenderState;
 import net.minecraft.resources.ResourceLocation;
 
@@ -17,6 +18,7 @@ public class BastionGeneralRenderer extends MobRenderer<BastionGeneral, BastionG
             EntityRendererProvider.Context p_174344_
     ) {
         super(p_174344_, new BastionGeneralModel<>(p_174344_.bakeLayer(ModModelLayers.BASTION_GENERAL)), 0.5F);
+        this.addLayer(new ItemInHandLayer<>(this));
     }
 
     @Override

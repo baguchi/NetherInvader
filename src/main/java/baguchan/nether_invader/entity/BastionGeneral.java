@@ -243,6 +243,12 @@ public class BastionGeneral extends AbstractPiglin {
         return SoundEvents.PIGLIN_BRUTE_DEATH;
     }
 
+    //sorry. I want to create diversity, but it was difficult.
+    @Override
+    public HumanoidArm getMainArm() {
+        return HumanoidArm.RIGHT;
+    }
+
     @Override
     protected void playStepSound(BlockPos p_34748_, BlockState p_34749_) {
         this.playSound(SoundEvents.PIGLIN_STEP, 0.15F, 1.0F);
