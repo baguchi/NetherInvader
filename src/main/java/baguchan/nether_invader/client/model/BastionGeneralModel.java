@@ -12,10 +12,9 @@ import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
-import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.world.entity.HumanoidArm;
 
-public class BastionGeneralModel<T extends BastionGeneralRenderState> extends EntityModel<T> implements ArmedModel {
+public class BastionGeneralModel<T extends BastionGeneralRenderState> extends EntityModel<T> implements ArmedModel<T> {
     private final ModelPart everything;
     private final ModelPart body;
     private final ModelPart leftArm;
@@ -117,8 +116,10 @@ public class BastionGeneralModel<T extends BastionGeneralRenderState> extends En
     }
 
     @Override
-    public void translateToHand(EntityRenderState entityRenderState, HumanoidArm humanoidArm, PoseStack poseStack) {
-        this.getArm(humanoidArm).translateAndRotate(poseStack);
+    public void translateToHand(T entityRenderState, HumanoidArm humanoidArm, PoseStack poseStack) {
+        this.everything.translateAndRotate(poseStack);
+        this.body.translateAndRotate(poseStack);
 
+        this.getArm(humanoidArm).translateAndRotate(poseStack);
     }
 }
