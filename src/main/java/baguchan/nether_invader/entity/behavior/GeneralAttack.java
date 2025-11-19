@@ -31,7 +31,7 @@ public class GeneralAttack<E extends PathfinderMob> extends AttackWithAnimation<
                         Vec3 vec33 = (new Vec3(vec32.x, vec32.y, vec32.z)).normalize();
                         double d0 = Math.acos(vec33.dot(yVector));
                         if (resolveAttack(d0, 200)) {
-                            attacker.doHurtTarget(serverLevel, entity);
+                            attacker.doHurtTarget(entity);
                         }
                     }
                 }
