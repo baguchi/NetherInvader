@@ -30,7 +30,7 @@ public class GeneralAttack<E extends PathfinderMob> extends AttackWithAnimation<
                         Vec3 vec32 = vec3.subtract(attacker.getEyePosition());
                         Vec3 vec33 = (new Vec3(vec32.x, vec32.y, vec32.z)).normalize();
                         double d0 = Math.acos(vec33.dot(yVector));
-                        if (resolveAttack(d0, 180)) {
+                        if (resolveAttack(d0, 200)) {
                             attacker.doHurtTarget(serverLevel, entity);
                         }
                     }
@@ -50,7 +50,7 @@ public class GeneralAttack<E extends PathfinderMob> extends AttackWithAnimation<
             aabb = attacker.getBoundingBox();
         }
 
-        return aabb.inflate(Math.sqrt(2.04F) - 0.6F, 0.0F, Math.sqrt(2.04F) - 0.6F);
+        return aabb.inflate(Math.sqrt(2.04F), 0.0F, Math.sqrt(2.04F));
     }
 
     public boolean resolveAttack(double yRot, double yRotAttackRange) {
