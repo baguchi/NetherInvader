@@ -1,8 +1,8 @@
 package baguchan.nether_invader.entity.ai;
 
 import baguchan.nether_invader.entity.BastionGeneral;
+import baguchan.nether_invader.entity.behavior.GeneralAttack;
 import baguchan.nether_invader.entity.behavior.PiglinRaiding;
-import baguchi.bagus_lib.entity.brain.behaviors.AttackWithAnimation;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Pair;
@@ -95,7 +95,7 @@ public class BastionPiglinAi {
                         StopAttackingIfTargetInvalid.create((serverLevel, livingEntity) -> !isNearestValidAttackTarget(serverLevel, p_34904_, livingEntity)),
                         BehaviorBuilder.triggerIf(BastionPiglinAi::hasCrossbow, BackUpIfTooClose.create(5, 0.75F)),
                         SetWalkTargetFromAttackTargetIfTargetOutOfReach.create(1.0F),
-                        new AttackWithAnimation<>(17, 30, 30, 0.8F),
+                        new GeneralAttack<>(17, 30, 30, 0.8F),
                         EraseMemoryIf.create(BastionPiglinAi::isNearZombified, MemoryModuleType.ATTACK_TARGET)
                 ),
                 MemoryModuleType.ATTACK_TARGET
@@ -259,23 +259,6 @@ public class BastionPiglinAi {
 
     public static void wasHurtBy(ServerLevel serverLevel, BastionGeneral p_34838_, LivingEntity p_34839_) {
         if (!(p_34839_ instanceof AbstractPiglin)) {
-
-            Brain<BastionGeneral> brain = p_34838_.getBrain();
-            brain.eraseMemory(MemoryModuleType.CELEBRATE_LOCATION);
-            brain.eraseMemory(MemoryModuleType.DANCING);
-
-            getAvoidTarget(p_34838_).ifPresent(p_348319_ -> {
-                if (p_348319_.getType() != p_34839_.getType()) {
-                    brain.eraseMemory(MemoryModuleType.AVOID_TARGET);
-                }
-            });
-            if (p_34838_.isBaby()) {
-                brain.setMemoryWithExpiry(MemoryModuleType.AVOID_TARGET, p_34839_, 100L);
-                if (Sensor.isEntityAttackableIgnoringLineOfSight(serverLevel, p_34838_, p_34839_)) {
-                    broadcastAngerTarget(serverLevel, p_34838_, p_34839_);
-                }
-            }
-        } else {
             maybeRetaliate(serverLevel, p_34838_, p_34839_);
         }
     }

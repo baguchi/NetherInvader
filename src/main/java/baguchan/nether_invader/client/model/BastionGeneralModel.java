@@ -104,7 +104,7 @@ public class BastionGeneralModel<T extends BastionGeneralRenderState> extends En
     public void setupAnim(T entity) {
         super.setupAnim(entity);
         this.attackAnimation.apply(entity.attackAnimationState, entity.ageInTicks);
-        this.walkAnimation.applyWalk(entity.walkAnimationPos, entity.walkAnimationSpeed, 2.0F, 2.5F);
+        this.walkAnimation.applyWalk(entity.walkAnimationPos, entity.walkAnimationSpeed, 1.0F, 2.5F);
         if (!entity.attackAnimationState.isStarted()) {
             this.idleAnimation.applyWalk(entity.ageInTicks, 1.0F, 2.0F, 2.5F);
         }
