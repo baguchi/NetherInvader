@@ -109,9 +109,11 @@ public class BastionGeneral extends AbstractPiglin {
     }
 
     @Override
-    protected void dropCustomDeathLoot(ServerLevel p_348503_, DamageSource p_34697_, boolean p_34699_) {
-        super.dropCustomDeathLoot(p_348503_, p_34697_, p_34699_);
+    protected void updateWalkAnimation(float p_382793_) {
+        float f = Math.min(p_382793_ * 20.0F, 3.0F);
+        this.walkAnimation.update(f, 0.4F, 1.0F);
     }
+
 
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder p_326106_) {
@@ -252,6 +254,15 @@ public class BastionGeneral extends AbstractPiglin {
     @Override
     protected void playStepSound(BlockPos p_34748_, BlockState p_34749_) {
         this.playSound(SoundEvents.PIGLIN_STEP, 0.15F, 1.0F);
+    }
+
+    @Override
+    protected boolean considersEntityAsAlly(Entity p_360600_) {
+        if (super.considersEntityAsAlly(p_360600_)) {
+            return true;
+        } else {
+            return p_360600_ instanceof AbstractPiglin && this.getTeam() == null && p_360600_.getTeam() == null;
+        }
     }
 
     @Override
