@@ -96,7 +96,7 @@ public class BastionGeneralModel<T extends BastionGeneral> extends HierarchicalM
     public void setupAnim(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         this.root().getAllParts().forEach(ModelPart::resetPose);
         this.animate(entity.attackAnimationState, BastionGeneralAnimations.swing, ageInTicks);
-        this.animateWalk(BastionGeneralAnimations.walk, limbSwing, limbSwingAmount, 2.0F, 2.5F);
+        this.animateWalk(BastionGeneralAnimations.walk, limbSwing, limbSwingAmount, 1.0F, 2.5F);
         if (!entity.attackAnimationState.isStarted()) {
             this.animateWalk(BastionGeneralAnimations.idle, ageInTicks, 1.0F, 2.0F, 2.5F);
         }

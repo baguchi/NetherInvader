@@ -96,6 +96,12 @@ public class BastionGeneral extends AbstractPiglin {
     }
 
     @Override
+    protected void updateWalkAnimation(float p_382793_) {
+        float f = Math.min(p_382793_ * 20.0F, 3.0F);
+        this.walkAnimation.update(f, 0.4F);
+    }
+
+    @Override
     public void baseTick() {
         super.baseTick();
         if (this.level().isClientSide()) {
@@ -234,6 +240,15 @@ public class BastionGeneral extends AbstractPiglin {
             }
 
             return flag;
+        }
+    }
+
+    @Override
+    public boolean isAlliedTo(Entity p_320563_) {
+        if (super.isAlliedTo(p_320563_)) {
+            return true;
+        } else {
+            return p_320563_ instanceof AbstractPiglin && this.getTeam() == null && p_320563_.getTeam() == null;
         }
     }
 

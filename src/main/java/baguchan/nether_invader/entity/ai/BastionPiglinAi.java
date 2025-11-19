@@ -1,8 +1,8 @@
 package baguchan.nether_invader.entity.ai;
 
-import bagu_chan.bagus_lib.entity.brain.behaviors.AttackWithAnimation;
 import bagu_chan.bagus_lib.util.BrainUtils;
 import baguchan.nether_invader.entity.BastionGeneral;
+import baguchan.nether_invader.entity.behavior.GeneralAttack;
 import baguchan.nether_invader.entity.behavior.PiglinRaiding;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -95,7 +95,7 @@ public class BastionPiglinAi {
                         StopAttackingIfTargetInvalid.create(p_34981_ -> !isNearestValidAttackTarget(p_34904_, p_34981_)),
                         BehaviorBuilder.triggerIf(BastionPiglinAi::hasCrossbow, BackUpIfTooClose.create(5, 0.75F)),
                         SetWalkTargetFromAttackTargetIfTargetOutOfReach.create(1.0F),
-                        new AttackWithAnimation<>(17, 30, 30, 0.8F),
+                        new GeneralAttack<>(13, 30, 30, 0.8F),
                         EraseMemoryIf.create(BastionPiglinAi::isNearZombified, MemoryModuleType.ATTACK_TARGET)
                 ),
                 MemoryModuleType.ATTACK_TARGET
