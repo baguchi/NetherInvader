@@ -95,7 +95,7 @@ public class BastionPiglinAi {
                         StopAttackingIfTargetInvalid.create((serverLevel, livingEntity) -> !isNearestValidAttackTarget(serverLevel, p_34904_, livingEntity)),
                         BehaviorBuilder.triggerIf(BastionPiglinAi::hasCrossbow, BackUpIfTooClose.create(5, 0.75F)),
                         SetWalkTargetFromAttackTargetIfTargetOutOfReach.create(1.0F),
-                        new GeneralAttack<>(17, 30, 30, 0.8F),
+                        new GeneralAttack<>(13, 30, 30, 0.8F),
                         EraseMemoryIf.create(BastionPiglinAi::isNearZombified, MemoryModuleType.ATTACK_TARGET)
                 ),
                 MemoryModuleType.ATTACK_TARGET
