@@ -1,6 +1,6 @@
 package baguchan.nether_invader.entity;
 
-import baguchan.nether_invader.registry.ModEntitys;
+import baguchan.nether_invader.registry.ModEntities;
 import baguchan.nether_invader.registry.ModPotions;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -20,7 +20,7 @@ import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.monster.Ghast;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.LargeFireball;
+import net.minecraft.world.entity.projectile.hurtingprojectile.LargeFireball;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
@@ -91,8 +91,8 @@ public class ChainedGhast extends Ghast {
 
 
         if ((double) randomsource.nextFloat() < 1F && p_34299_ == EntitySpawnReason.SPAWN_ITEM_USE) {
-            Scaffolding scaffolding = ModEntitys.SCAFFOLDING.get().create(this.level(), EntitySpawnReason.EVENT);
-            AgressivePiglin piglin = ModEntitys.AGRESSIVE_PIGLIN.get().create(this.level(), EntitySpawnReason.EVENT);
+            Scaffolding scaffolding = ModEntities.SCAFFOLDING.get().create(this.level(), EntitySpawnReason.EVENT);
+            AgressivePiglin piglin = ModEntities.AGRESSIVE_PIGLIN.get().create(this.level(), EntitySpawnReason.EVENT);
             if (scaffolding != null && piglin != null) {
                 scaffolding.snapTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), 0.0F);
                 piglin.snapTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), 0.0F);

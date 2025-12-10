@@ -8,15 +8,15 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.LightLayer;
@@ -25,8 +25,8 @@ import net.minecraft.world.phys.Vec3;
 import java.util.ArrayList;
 
 public class ScaffoldRenderer extends LivingEntityRenderer<Scaffolding, ScaffoldingRenderState, TestModel> {
-    public static final ResourceLocation TEXTURE = ResourceLocation.withDefaultNamespace("textures/entity/boat/bamboo.png");
-    public static final ResourceLocation CHAIN_TEXTURE = ResourceLocation.withDefaultNamespace("textures/item/iron_chain.png");
+    public static final Identifier TEXTURE = Identifier.withDefaultNamespace("textures/entity/boat/bamboo.png");
+    public static final Identifier CHAIN_TEXTURE = Identifier.withDefaultNamespace("textures/item/iron_chain.png");
 
     public ScaffoldRenderer(EntityRendererProvider.Context p_174304_) {
         super(p_174304_, new TestModel(p_174304_.bakeLayer(ModelLayers.BAMBOO_RAFT)), 0.5F);
@@ -122,7 +122,7 @@ public class ScaffoldRenderer extends LivingEntityRenderer<Scaffolding, Scaffold
 
 
     @Override
-    public ResourceLocation getTextureLocation(ScaffoldingRenderState p_114482_) {
+    public Identifier getTextureLocation(ScaffoldingRenderState p_114482_) {
         return TEXTURE;
     }
 
@@ -135,7 +135,7 @@ public class ScaffoldRenderer extends LivingEntityRenderer<Scaffolding, Scaffold
         float f5 = f * f3;
         p_435977_.pushPose();
         p_435977_.translate((float) p_435610_.offset.x, (float) p_435610_.offset.y, (float) p_435610_.offset.z);
-        p_433388_.submitCustomGeometry(p_435977_, RenderType.entityCutoutNoCull(CHAIN_TEXTURE), (pose, vertexConsumer) -> {
+        p_433388_.submitCustomGeometry(p_435977_, RenderTypes.entityCutoutNoCull(CHAIN_TEXTURE), (pose, vertexConsumer) -> {
 
             for (int i = 0; i <= 24; i++) {
                 addVertexPair(vertexConsumer, pose, f, f1, f2, 0.5F, f4, f5, i, false, p_435610_);

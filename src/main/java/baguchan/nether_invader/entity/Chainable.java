@@ -12,8 +12,8 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
@@ -149,7 +149,7 @@ public interface Chainable {
 
         if (leashable$leashdata != null && leashable$leashdata.chainHolder != null) {
             if (!p_352082_.canInteractWithLevel() || !leashable$leashdata.chainHolder.canInteractWithLevel()) {
-                if (p_376374_.getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
+                if (p_376374_.getGameRules().get(GameRules.ENTITY_DROPS)) {
                     p_352082_.dropChain();
                 } else {
                     p_352082_.removeChain();

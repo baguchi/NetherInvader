@@ -20,10 +20,10 @@ import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.village.poi.PoiManager;
 import net.minecraft.world.entity.ai.village.poi.PoiRecord;
-import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
 import net.minecraft.world.level.storage.DimensionDataStorage;
@@ -100,7 +100,7 @@ public class PiglinRaidData extends SavedData {
 
         while (iterator.hasNext()) {
             PiglinRaid raid = (PiglinRaid) iterator.next();
-            if (p_401204_.getGameRules().getBoolean(GameRules.RULE_DISABLE_RAIDS)) {
+            if (p_401204_.getGameRules().get(GameRules.RAIDS)) {
                 raid.stop();
             }
 
@@ -127,11 +127,11 @@ public class PiglinRaidData extends SavedData {
             return null;
         } else {
             ServerLevel serverlevel = p_37964_.level();
-            if (serverlevel.getGameRules().getBoolean(GameRules.RULE_DISABLE_RAIDS)) {
+            if (serverlevel.getGameRules().get(GameRules.RAIDS)) {
                 return null;
             } else {
                 ResourceKey<Level> dimensiontype = serverlevel.dimension();
-                if (!NetherConfigs.COMMON.ENABLE_DIMENSIONS.get().contains(dimensiontype.location().toString())) {
+                if (!NetherConfigs.COMMON.ENABLE_DIMENSIONS.get().contains(dimensiontype.identifier().toString())) {
                     return null;
                 } else {
                     List<PoiRecord> list = serverlevel.getPoiManager().getInRange((p_219845_) -> p_219845_.is(PoiTypeTags.VILLAGE), p_338602_, 64, PoiManager.Occupancy.IS_OCCUPIED).toList();

@@ -1,17 +1,18 @@
 package baguchan.nether_invader.entity;
 
 import baguchan.nether_invader.entity.ai.RevampedPiglinAi;
-import baguchan.nether_invader.registry.ModEntitys;
+import baguchan.nether_invader.registry.ModEntities;
 import baguchan.nether_invader.registry.ModSensors;
 import baguchan.nether_invader.world.raid.PiglinRaid;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Dynamic;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -36,7 +37,6 @@ import net.minecraft.world.entity.monster.piglin.Piglin;
 import net.minecraft.world.entity.monster.piglin.PiglinArmPose;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.ProjectileWeaponItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.ServerLevelAccessor;
@@ -52,7 +52,7 @@ public class AgressivePiglin extends AbstractPiglin implements CrossbowAttackMob
     private static final EntityDataAccessor<Boolean> DATA_BABY_ID = SynchedEntityData.defineId(AgressivePiglin.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> DATA_IS_CHARGING_CROSSBOW = SynchedEntityData.defineId(AgressivePiglin.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> DATA_IS_DANCING = SynchedEntityData.defineId(AgressivePiglin.class, EntityDataSerializers.BOOLEAN);
-    private static final ResourceLocation SPEED_MODIFIER_BABY_ID = ResourceLocation.withDefaultNamespace("baby");
+    private static final Identifier SPEED_MODIFIER_BABY_ID = Identifier.withDefaultNamespace("baby");
     private static final AttributeModifier SPEED_MODIFIER_BABY = new AttributeModifier(
             SPEED_MODIFIER_BABY_ID, 0.2F, AttributeModifier.Operation.ADD_MULTIPLIED_BASE
     );
@@ -99,7 +99,12 @@ public class AgressivePiglin extends AbstractPiglin implements CrossbowAttackMob
             MemoryModuleType.VISIBLE_ADULT_PIGLIN_COUNT,
             MemoryModuleType.VISIBLE_ADULT_HOGLIN_COUNT,
             MemoryModuleType.ATE_RECENTLY,
-            MemoryModuleType.NEAREST_REPELLENT
+            MemoryModuleType.NEAREST_REPELLENT,
+            MemoryModuleType.SPEAR_FLEEING_TIME,
+            MemoryModuleType.SPEAR_FLEEING_POSITION,
+            MemoryModuleType.SPEAR_CHARGE_POSITION,
+            MemoryModuleType.SPEAR_ENGAGE_TIME,
+            MemoryModuleType.SPEAR_STATUS
     );
 
     public AgressivePiglin(EntityType<? extends AbstractPiglin> p_34683_, Level p_34684_) {
@@ -190,7 +195,7 @@ public class AgressivePiglin extends AbstractPiglin implements CrossbowAttackMob
                 this.setDropChance(EquipmentSlot.MAINHAND, 0.0F);
             }
             if (this.getControlledVehicle() != null) {
-                if (this.getType() == ModEntitys.AGRESSIVE_PIGLIN.get()) {
+                if (this.getType() == ModEntities.AGRESSIVE_PIGLIN.get()) {
                     this.setItemSlot(EquipmentSlot.MAINHAND, Items.CROSSBOW.getDefaultInstance());
                 }
             }
@@ -331,8 +336,8 @@ public class AgressivePiglin extends AbstractPiglin implements CrossbowAttackMob
     }
 
     @Override
-    public boolean canFireProjectileWeapon(ProjectileWeaponItem p_34715_) {
-        return p_34715_ == Items.CROSSBOW;
+    public boolean canUseNonMeleeWeapon(ItemStack p_482058_) {
+        return p_482058_.is(net.neoforged.neoforge.common.Tags.Items.PIGLIN_USABLE_CROSSBOWS) || p_482058_.has(DataComponents.KINETIC_WEAPON);
     }
 
 

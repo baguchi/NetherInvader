@@ -3,6 +3,7 @@ package baguchan.nether_invader.entity.ai;
 import baguchan.nether_invader.entity.BastionGeneral;
 import baguchan.nether_invader.entity.behavior.GeneralAttack;
 import baguchan.nether_invader.entity.behavior.PiglinRaiding;
+import baguchan.nether_invader.registry.ModEntities;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Pair;
@@ -13,21 +14,21 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.TimeUtil;
 import net.minecraft.util.valueproviders.UniformInt;
-import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.behavior.*;
 import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.sensing.Sensor;
 import net.minecraft.world.entity.ai.util.LandRandomPos;
-import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.monster.hoglin.Hoglin;
 import net.minecraft.world.entity.monster.piglin.AbstractPiglin;
 import net.minecraft.world.entity.monster.piglin.Piglin;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
@@ -66,8 +67,6 @@ public class BastionPiglinAi {
                         new LookAtTargetSink(45, 90),
                         new MoveToTargetSink(),
                         InteractWithDoor.create(),
-                        babyAvoidNemesis(),
-                        StartCelebratingIfTargetDead.create(300, BastionPiglinAi::wantsToDance),
                         StopBeingAngryIfTargetDead.create()
                 )
         );
@@ -107,12 +106,11 @@ public class BastionPiglinAi {
                 Activity.CELEBRATE,
                 10,
                 ImmutableList.<BehaviorControl<? super BastionGeneral>>of(
-                        avoidRepellent(),
-                        SetEntityLookTarget.create(BastionPiglinAi::isPlayerHoldingLovedItem, 14.0F),
                         StartAttacking.create((serverLevel, agressivePiglin) -> true, BastionPiglinAi::findNearestValidAttackTarget),
                         new RunOne<BastionGeneral>(
                                 ImmutableList.of(
                                         Pair.of(SetEntityLookTarget.create(EntityType.PIGLIN, 8.0F), 1),
+                                        Pair.of(SetEntityLookTarget.create(ModEntities.AGRESSIVE_PIGLIN.get(), 8.0F), 1),
                                         Pair.of(RandomStroll.stroll(0.6F, 2, 1), 1),
                                         Pair.of(new DoNothing(10, 20), 1)
                                 )
@@ -165,15 +163,6 @@ public class BastionPiglinAi {
                 )
         );
     }
-
-    private static BehaviorControl<PathfinderMob> avoidRepellent() {
-        return SetWalkTargetAwayFrom.pos(MemoryModuleType.NEAREST_REPELLENT, 1.0F, 8, false);
-    }
-
-    private static BehaviorControl<BastionGeneral> babyAvoidNemesis() {
-        return CopyMemoryWithExpiry.create(BastionGeneral::isBaby, MemoryModuleType.NEAREST_VISIBLE_NEMESIS, MemoryModuleType.AVOID_TARGET, BABY_AVOID_NEMESIS_DURATION);
-    }
-
     public static void updateActivity(BastionGeneral p_34899_) {
         Brain<BastionGeneral> brain = p_34899_.getBrain();
         Activity activity = brain.getActiveNonCoreActivity().orElse(null);
@@ -188,39 +177,10 @@ public class BastionPiglinAi {
         p_34899_.setAggressive(brain.hasMemoryValue(MemoryModuleType.ATTACK_TARGET));
     }
 
-    private static boolean isBabyRidingBaby(BastionGeneral p_34993_) {
-        if (!p_34993_.isBaby()) {
-            return false;
-        } else {
-            Entity entity = p_34993_.getVehicle();
-            return entity instanceof Piglin && ((Piglin) entity).isBaby() || entity instanceof Hoglin && ((Hoglin) entity).isBaby();
-        }
-    }
-
-    private static ItemStack removeOneItemFromItemEntity(ItemEntity p_34823_) {
-        ItemStack itemstack = p_34823_.getItem();
-        ItemStack itemstack1 = itemstack.split(1);
-        if (itemstack.isEmpty()) {
-            p_34823_.discard();
-        } else {
-            p_34823_.setItem(itemstack);
-        }
-
-        return itemstack1;
-    }
-
-
-    private static boolean wantsToDance(LivingEntity p_34811_, LivingEntity p_34812_) {
-        return RandomSource.create(p_34811_.level().getGameTime()).nextFloat() < 0.1F;
-    }
-
     protected static boolean isLovedItem(ItemStack p_149966_) {
         return p_149966_.is(ItemTags.PIGLIN_LOVED);
     }
 
-    private static boolean wantsToStopRiding(BastionGeneral p_34835_, Entity p_34836_) {
-        return p_34836_ instanceof Mob mob && (!mob.isBaby() || !mob.isAlive() || wasHurtRecently(p_34835_) || wasHurtRecently(mob) || mob instanceof Piglin && mob.getVehicle() == null);
-    }
 
     private static boolean isNearestValidAttackTarget(ServerLevel serverLevel, BastionGeneral p_34901_, LivingEntity p_34902_) {
         return findNearestValidAttackTarget(serverLevel, p_34901_).filter(p_34887_ -> p_34887_ == p_34902_).isPresent();
@@ -267,7 +227,7 @@ public class BastionPiglinAi {
         if (!p_34827_.getBrain().isActive(Activity.AVOID)) {
             if (Sensor.isEntityAttackableIgnoringLineOfSight(serverLevel, p_34827_, p_34828_)) {
                 if (!BehaviorUtils.isOtherTargetMuchFurtherAwayThanCurrentAttackTarget(p_34827_, p_34828_, 4.0)) {
-                    if (p_34828_.getType() == EntityType.PLAYER && serverLevel.getGameRules().getBoolean(GameRules.RULE_UNIVERSAL_ANGER)) {
+                    if (p_34828_.getType() == EntityType.PLAYER && serverLevel.getGameRules().get(GameRules.UNIVERSAL_ANGER)) {
                         setAngerTargetToNearestTargetablePlayerIfFound(serverLevel, p_34827_, p_34828_);
                         broadcastUniversalAnger(serverLevel, p_34827_);
                     } else {
@@ -317,7 +277,7 @@ public class BastionPiglinAi {
             p_34925_.getBrain().eraseMemory(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);
             p_34925_.getBrain().setMemoryWithExpiry(MemoryModuleType.ANGRY_AT, p_34926_.getUUID(), 600L);
 
-            if (p_34926_.getType() == EntityType.PLAYER && serverLevel.getGameRules().getBoolean(GameRules.RULE_UNIVERSAL_ANGER)) {
+            if (p_34926_.getType() == EntityType.PLAYER && serverLevel.getGameRules().get(GameRules.UNIVERSAL_ANGER)) {
                 p_34925_.getBrain().setMemoryWithExpiry(MemoryModuleType.UNIVERSAL_ANGER, true, 600L);
             }
         }

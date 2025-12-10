@@ -15,7 +15,7 @@ public class BehaviorUtilMixin {
 
     @Inject(method = "isWithinAttackRange", at = @At("HEAD"), cancellable = true)
     private static void isWithinAttackRange(Mob p_22633_, LivingEntity p_22634_, int p_22635_, CallbackInfoReturnable<Boolean> cir) {
-        if (p_22633_.getMainHandItem().getItem() instanceof ProjectileWeaponItem projectileweaponitem && p_22633_.canFireProjectileWeapon(projectileweaponitem)
+        if (p_22633_.getMainHandItem().getItem() instanceof ProjectileWeaponItem projectileweaponitem && p_22633_.canUseNonMeleeWeapon(p_22633_.getMainHandItem())
         ) {
             if (p_22633_.getVehicle() instanceof Scaffolding) {
                 int i = 32 - p_22635_;

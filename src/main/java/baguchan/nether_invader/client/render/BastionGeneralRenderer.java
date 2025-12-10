@@ -9,10 +9,10 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.client.renderer.entity.state.ArmedEntityRenderState;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public class BastionGeneralRenderer extends MobRenderer<BastionGeneral, BastionGeneralRenderState, BastionGeneralModel<BastionGeneralRenderState>> {
-    private static final ResourceLocation TEXTURES = ResourceLocation.fromNamespaceAndPath(NetherInvader.MODID, "textures/entity/bastion_general.png");
+    private static final Identifier TEXTURES = Identifier.fromNamespaceAndPath(NetherInvader.MODID, "textures/entity/bastion_general.png");
 
     public BastionGeneralRenderer(
             EntityRendererProvider.Context p_174344_
@@ -29,13 +29,14 @@ public class BastionGeneralRenderer extends MobRenderer<BastionGeneral, BastionG
     @Override
     public void extractRenderState(BastionGeneral p_362733_, BastionGeneralRenderState p_360515_, float p_361157_) {
         super.extractRenderState(p_362733_, p_360515_, p_361157_);
-        ArmedEntityRenderState.extractArmedEntityRenderState(p_362733_, p_360515_, this.itemModelResolver);
+        ArmedEntityRenderState.extractArmedEntityRenderState(p_362733_, p_360515_, this.itemModelResolver, p_361157_);
         p_360515_.attackAnimationState = p_362733_.attackAnimationState;
         p_360515_.converting = p_362733_.isConverting();
+        p_360515_.isRiding = p_362733_.isPassenger();
     }
 
     @Override
-    public ResourceLocation getTextureLocation(BastionGeneralRenderState p_115708_) {
+    public Identifier getTextureLocation(BastionGeneralRenderState p_115708_) {
         return TEXTURES;
     }
 

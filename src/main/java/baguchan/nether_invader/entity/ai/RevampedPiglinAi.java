@@ -26,7 +26,7 @@ import net.minecraft.world.entity.monster.piglin.Piglin;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
@@ -94,6 +94,7 @@ public class RevampedPiglinAi {
                         StopAttackingIfTargetInvalid.<AgressivePiglin>create((p_375910_, p_375911_) -> !isNearestValidAttackTarget(p_375910_, p_34904_, p_375911_)),
                         BehaviorBuilder.triggerIf(RevampedPiglinAi::hasCrossbow, BackUpIfTooClose.create(5, 0.75F)),
                         SetWalkTargetFromAttackTargetIfTargetOutOfReach.create(1.0F),
+                        new SpearApproach((double) 1.0F, 10.0F), new SpearAttack((double) 1.0F, (double) 1.0F, 10.0F, 2.0F), new SpearRetreat((double) 1.0F),
                         MeleeAttack.create(20),
                         new CrossbowAttack<>(),
                         EraseMemoryIf.create(RevampedPiglinAi::isNearZombified, MemoryModuleType.ATTACK_TARGET)
@@ -218,7 +219,7 @@ public class RevampedPiglinAi {
 
 
     private static boolean wantsToDance(LivingEntity p_34811_, LivingEntity p_34812_) {
-        return RandomSource.create(p_34811_.level().getGameTime()).nextFloat() < 0.1F;
+        return RandomSource.create(p_34811_.level().getGameTime()).nextBoolean();
     }
 
     protected static boolean isLovedItem(ItemStack p_149966_) {
@@ -270,7 +271,7 @@ public class RevampedPiglinAi {
     public static void angerNearbyPiglins(ServerLevel serverLevel, Player p_34874_, boolean p_34875_) {
         List<AgressivePiglin> list = p_34874_.level().getEntitiesOfClass(AgressivePiglin.class, p_34874_.getBoundingBox().inflate(16.0));
         list.stream().filter(RevampedPiglinAi::isIdle).filter(p_34881_ -> !p_34875_ || BehaviorUtils.canSee(p_34881_, p_34874_)).forEach(p_352819_ -> {
-            if (serverLevel.getGameRules().getBoolean(GameRules.RULE_UNIVERSAL_ANGER)) {
+            if (serverLevel.getGameRules().get(GameRules.UNIVERSAL_ANGER)) {
                 setAngerTargetToNearestTargetablePlayerIfFound(serverLevel, p_352819_, p_34874_);
             } else {
                 setAngerTarget(serverLevel, p_352819_, p_34874_);
@@ -305,7 +306,7 @@ public class RevampedPiglinAi {
         if (!p_34827_.getBrain().isActive(Activity.AVOID)) {
             if (Sensor.isEntityAttackableIgnoringLineOfSight(serverLevel, p_34827_, p_34828_)) {
                 if (!BehaviorUtils.isOtherTargetMuchFurtherAwayThanCurrentAttackTarget(p_34827_, p_34828_, 4.0)) {
-                    if (p_34828_.getType() == EntityType.PLAYER && serverLevel.getGameRules().getBoolean(GameRules.RULE_UNIVERSAL_ANGER)) {
+                    if (p_34828_.getType() == EntityType.PLAYER && serverLevel.getGameRules().get(GameRules.UNIVERSAL_ANGER)) {
                         setAngerTargetToNearestTargetablePlayerIfFound(serverLevel, p_34827_, p_34828_);
                         broadcastUniversalAnger(serverLevel, p_34827_);
                     } else {
@@ -372,7 +373,7 @@ public class RevampedPiglinAi {
             p_34925_.getBrain().eraseMemory(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);
             p_34925_.getBrain().setMemoryWithExpiry(MemoryModuleType.ANGRY_AT, p_34926_.getUUID(), 600L);
 
-            if (p_34926_.getType() == EntityType.PLAYER && serverLevel.getGameRules().getBoolean(GameRules.RULE_UNIVERSAL_ANGER)) {
+            if (p_34926_.getType() == EntityType.PLAYER && serverLevel.getGameRules().get(GameRules.UNIVERSAL_ANGER)) {
                 p_34925_.getBrain().setMemoryWithExpiry(MemoryModuleType.UNIVERSAL_ANGER, true, 600L);
             }
         }

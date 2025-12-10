@@ -6,7 +6,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.handling.IPayloadHandler;
@@ -18,7 +18,7 @@ public class ChainPacket implements CustomPacketPayload, IPayloadHandler<ChainPa
     public static final StreamCodec<FriendlyByteBuf, ChainPacket> STREAM_CODEC = CustomPacketPayload.codec(
             ChainPacket::write, ChainPacket::new
     );
-    public static final CustomPacketPayload.Type<ChainPacket> TYPE = new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(NetherInvader.MODID, "chain"));
+    public static final CustomPacketPayload.Type<ChainPacket> TYPE = new CustomPacketPayload.Type<>(Identifier.fromNamespaceAndPath(NetherInvader.MODID, "chain"));
 
 
     private final int sourceId;

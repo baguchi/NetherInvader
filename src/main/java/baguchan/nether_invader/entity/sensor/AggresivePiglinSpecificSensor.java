@@ -11,11 +11,11 @@ import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.NearestVisibleLivingEntities;
 import net.minecraft.world.entity.ai.sensing.Sensor;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
-import net.minecraft.world.entity.monster.WitherSkeleton;
 import net.minecraft.world.entity.monster.piglin.AbstractPiglin;
 import net.minecraft.world.entity.monster.piglin.Piglin;
 import net.minecraft.world.entity.monster.piglin.PiglinBrute;
-import net.minecraft.world.entity.npc.AbstractVillager;
+import net.minecraft.world.entity.monster.skeleton.WitherSkeleton;
+import net.minecraft.world.entity.npc.villager.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.List;
@@ -29,8 +29,6 @@ public class AggresivePiglinSpecificSensor extends Sensor<LivingEntity> {
                 MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES,
                 MemoryModuleType.NEAREST_LIVING_ENTITIES,
                 MemoryModuleType.NEAREST_VISIBLE_NEMESIS,
-                MemoryModuleType.NEAREST_TARGETABLE_PLAYER_NOT_WEARING_GOLD,
-                MemoryModuleType.NEAREST_PLAYER_HOLDING_WANTED_ITEM,
                 MemoryModuleType.NEAREST_VISIBLE_HUNTABLE_HOGLIN,
                 MemoryModuleType.NEAREST_VISIBLE_BABY_HOGLIN,
                 MemoryModuleType.NEAREST_VISIBLE_ADULT_PIGLINS,

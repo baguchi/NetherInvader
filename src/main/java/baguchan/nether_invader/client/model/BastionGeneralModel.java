@@ -103,8 +103,24 @@ public class BastionGeneralModel<T extends BastionGeneralRenderState> extends En
     @Override
     public void setupAnim(T entity) {
         super.setupAnim(entity);
+        if (entity.isRiding) {
+            this.rightArm.xRot = (-(float) Math.PI / 5F);
+            this.rightArm.yRot = 0.0F;
+            this.rightArm.zRot = 0.0F;
+            this.leftArm.xRot = (-(float) Math.PI / 5F);
+            this.leftArm.yRot = 0.0F;
+            this.leftArm.zRot = 0.0F;
+            this.rightLeg.xRot = -1.4137167F;
+            this.rightLeg.yRot = ((float) Math.PI / 10F);
+            this.rightLeg.zRot = 0.07853982F;
+            this.leftLeg.xRot = -1.4137167F;
+            this.leftLeg.yRot = (-(float) Math.PI / 10F);
+            this.leftLeg.zRot = -0.07853982F;
+        } else {
+            this.walkAnimation.applyWalk(entity.walkAnimationPos, entity.walkAnimationSpeed, 1.0F, 2.5F);
+        }
+
         this.attackAnimation.apply(entity.attackAnimationState, entity.ageInTicks);
-        this.walkAnimation.applyWalk(entity.walkAnimationPos, entity.walkAnimationSpeed, 1.0F, 2.5F);
         if (!entity.attackAnimationState.isStarted()) {
             this.idleAnimation.applyWalk(entity.ageInTicks, 1.0F, 2.0F, 2.5F);
         }

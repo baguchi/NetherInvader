@@ -5,17 +5,17 @@ import baguchan.nether_invader.registry.ModCriterionTriggers;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.advancements.Criterion;
-import net.minecraft.advancements.critereon.ContextAwarePredicate;
-import net.minecraft.advancements.critereon.EntityPredicate;
-import net.minecraft.advancements.critereon.SimpleCriterionTrigger;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.advancements.criterion.ContextAwarePredicate;
+import net.minecraft.advancements.criterion.EntityPredicate;
+import net.minecraft.advancements.criterion.SimpleCriterionTrigger;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.util.Optional;
 
 public class PiglinSlayerTrigger extends SimpleCriterionTrigger<PiglinSlayerTrigger.Instance> {
 
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(NetherInvader.MODID, "piglin_slayer");
+    public static final Identifier ID = Identifier.fromNamespaceAndPath(NetherInvader.MODID, "piglin_slayer");
 
     public void trigger(ServerPlayer player) {
         this.trigger(player, (instance) -> true);

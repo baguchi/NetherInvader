@@ -7,8 +7,8 @@ import baguchan.nether_invader.entity.ChainedGhast;
 import baguchan.nether_invader.entity.Scaffolding;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.SpawnPlacementTypes;
@@ -22,7 +22,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 @EventBusSubscriber(modid = NetherInvader.MODID)
-public class ModEntitys {
+public class ModEntities {
     public static final DeferredRegister<EntityType<?>> ENTITIES_REGISTRY = DeferredRegister.create(BuiltInRegistries.ENTITY_TYPE, NetherInvader.MODID);
 
 
@@ -43,6 +43,7 @@ public class ModEntitys {
             .ridingOffset(-0.7F)
             .notInPeaceful()
             .clientTrackingRange(8).build(prefix("agressive_piglin")));
+
     public static final DeferredHolder<EntityType<?>, EntityType<BastionGeneral>> BASTION_GENERAL = ENTITIES_REGISTRY.register("bastion_general", () -> EntityType.Builder.of(BastionGeneral::new, MobCategory.MONSTER)
             .sized(0.9F, 2.15F)
             .eyeHeight(1.85F)
@@ -68,6 +69,6 @@ public class ModEntitys {
     }
 
     private static ResourceKey<EntityType<?>> prefix(String path) {
-        return ResourceKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath(NetherInvader.MODID, path));
+        return ResourceKey.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath(NetherInvader.MODID, path));
     }
 }

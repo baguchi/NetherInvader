@@ -31,7 +31,7 @@ public class NetherInvader
         ModPotions.POTIONS.register(modEventBus);
         ModMemoryModuleType.MEMORY_MODULE_TYPES.register(modEventBus);
         ModSensors.SENSOR_TYPE.register(modEventBus);
-        ModEntitys.ENTITIES_REGISTRY.register(modEventBus);
+        ModEntities.ENTITIES_REGISTRY.register(modEventBus);
         ModCriterionTriggers.CRITERIONS_REGISTER.register(modEventBus);
 
         modContainer.registerConfig(ModConfig.Type.COMMON, NetherConfigs.COMMON_SPEC);
@@ -54,6 +54,7 @@ public class NetherInvader
             event.accept(ModItems.CHAINED_GHAST_SPAWN_EGG);
             event.accept(ModItems.AGRESSIVE_PIGLIN_SPAWN_EGG);
             event.accept(ModItems.BASTION_GENERAL_SPAWN_EGG);
+            event.accept(ModItems.PIGLIN_HUNTER_SPAWN_EGG);
         }
 
         if (event.getTabKey() == CreativeModeTabs.COMBAT) {
