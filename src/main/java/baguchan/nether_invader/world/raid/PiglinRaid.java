@@ -42,6 +42,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.component.TooltipDisplay;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BannerPattern;
 import net.minecraft.world.level.block.entity.BannerPatternLayers;
@@ -525,7 +526,7 @@ public class PiglinRaid {
                         this.joinRaid(level, i, raider, p_37756_, false);
                         flagRider += 1;
                     }
-                } else if (i >= 6 && this.random.nextFloat() < 0.1F * (i) && flagRider < 3) {
+                } else if (i >= 6 && this.random.nextFloat() < 0.1F * (i) && flagRider < 3 && raider.getType() == ModEntities.AGRESSIVE_PIGLIN.get()) {
                     Hoglin agressiveHoglin = EntityType.HOGLIN.create(level, EntitySpawnReason.EVENT);
 
                     if (agressiveHoglin != null) {
@@ -534,6 +535,11 @@ public class PiglinRaid {
                         agressiveHoglin.snapTo(p_37756_.getX(), p_37756_.getY(), p_37756_.getZ(), raider.getYRot(), 0.0F);
                         level.addFreshEntity(agressiveHoglin);
                         raider.startRiding(agressiveHoglin);
+                        ItemStack stack = new ItemStack(Items.GOLDEN_SPEAR);
+                        ItemStack enchanted = EnchantmentHelper.enchantItem(this.random, stack, (int) ((this.random.nextInt(5) + 5) * (1 + difficultyinstance.getEffectiveDifficulty())), level.registryAccess(), Optional.empty());
+
+                        raider.setItemSlot(EquipmentSlot.MAINHAND, enchanted);
+
                         this.joinRaid(level, i, raider, p_37756_, false);
                         flagRider += 1;
                     }
