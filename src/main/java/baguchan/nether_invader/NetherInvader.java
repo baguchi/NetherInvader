@@ -54,7 +54,6 @@ public class NetherInvader
             event.accept(ModItems.CHAINED_GHAST_SPAWN_EGG);
             event.accept(ModItems.AGRESSIVE_PIGLIN_SPAWN_EGG);
             event.accept(ModItems.BASTION_GENERAL_SPAWN_EGG);
-            event.accept(ModItems.PIGLIN_HUNTER_SPAWN_EGG);
         }
 
         if (event.getTabKey() == CreativeModeTabs.COMBAT) {

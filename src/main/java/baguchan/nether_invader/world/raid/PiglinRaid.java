@@ -1,7 +1,6 @@
 package baguchan.nether_invader.world.raid;
 
 import baguchan.nether_invader.entity.ChainedGhast;
-import baguchan.nether_invader.entity.PiglinHunter;
 import baguchan.nether_invader.entity.PiglinRaider;
 import baguchan.nether_invader.entity.Scaffolding;
 import baguchan.nether_invader.registry.ModCriterionTriggers;
@@ -538,18 +537,6 @@ public class PiglinRaid {
                         this.joinRaid(level, i, raider, p_37756_, false);
                         flagRider += 1;
                     }
-                } else if (raider instanceof PiglinHunter && flagRider < 6) {
-                    Hoglin agressiveHoglin = EntityType.HOGLIN.create(level, EntitySpawnReason.EVENT);
-
-                    if (agressiveHoglin != null) {
-                        agressiveHoglin.addEffect(new MobEffectInstance(ModPotions.AWKWARD, 120000));
-
-                        agressiveHoglin.snapTo(p_37756_.getX(), p_37756_.getY(), p_37756_.getZ(), raider.getYRot(), 0.0F);
-                        level.addFreshEntity(agressiveHoglin);
-                        raider.startRiding(agressiveHoglin);
-                        this.joinRaid(level, i, raider, p_37756_, false);
-                        flagRider += 1;
-                    }
                 } else {
                     this.joinRaid(level, i, raider, p_37756_, false);
                 }
@@ -805,7 +792,6 @@ public class PiglinRaid {
 
     public static enum RaiderType implements net.neoforged.fml.common.asm.enumextension.IExtensibleEnum {
         AGRESSIVE_PIGLIN(ModEntities.AGRESSIVE_PIGLIN.get(), new int[]{0, 4, 5, 5, 6, 6, 7, 8}),
-        PIGLIN_HUNTER(ModEntities.PIGLIN_HUNTER.get(), new int[]{0, 0, 2, 2, 2, 3, 3, 4}),
         BASTION_GENERAL(ModEntities.BASTION_GENERAL.get(), new int[]{0, 0, 0, 1, 1, 2, 2, 3});
         static final RaiderType[] VALUES = values();
         @Deprecated // Neo: null for custom types, use the supplier instead
