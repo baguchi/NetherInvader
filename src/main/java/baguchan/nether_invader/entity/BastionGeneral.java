@@ -110,7 +110,7 @@ public class BastionGeneral extends AbstractPiglin {
 
     @Override
     protected void updateWalkAnimation(float p_382793_) {
-        float f = Math.min(p_382793_ * 20.0F, 3.0F);
+        float f = Math.min(p_382793_ * 20.0F, 1.0F);
         this.walkAnimation.update(f, 0.4F, 1.0F);
     }
 
