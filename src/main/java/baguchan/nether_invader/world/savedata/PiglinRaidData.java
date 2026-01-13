@@ -127,7 +127,7 @@ public class PiglinRaidData extends SavedData {
             return null;
         } else {
             ServerLevel serverlevel = p_37964_.level();
-            if (serverlevel.getGameRules().get(GameRules.RAIDS)) {
+            if (!serverlevel.getGameRules().get(GameRules.RAIDS)) {
                 return null;
             } else {
                 ResourceKey<Level> dimensiontype = serverlevel.dimension();
