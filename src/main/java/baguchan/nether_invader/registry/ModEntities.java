@@ -31,11 +31,14 @@ public class ModEntities {
             .eyeHeight(2.6F)
             .passengerAttachments(4.0625F)
             .ridingOffset(0.5F)
-            .clientTrackingRange(10).build(prefix("chained_ghast")));
+            .clientTrackingRange(10)
+            .notInPeaceful().build(prefix("chained_ghast")));
     public static final DeferredHolder<EntityType<?>, EntityType<Scaffolding>> SCAFFOLDING = ENTITIES_REGISTRY.register("scaffolding", () -> EntityType.Builder.of(Scaffolding::new, MobCategory.MISC)
             .sized(1.375F, 0.5625F)
             .eyeHeight(0.5625F)
-            .clientTrackingRange(10).build(prefix("scaffolding")));
+            .clientTrackingRange(10)
+            .fireImmune()
+            .notInPeaceful().build(prefix("scaffolding")));
     public static final DeferredHolder<EntityType<?>, EntityType<AgressivePiglin>> AGRESSIVE_PIGLIN = ENTITIES_REGISTRY.register("agressive_piglin", () -> EntityType.Builder.of(AgressivePiglin::new, MobCategory.MONSTER)
             .sized(0.6F, 1.95F)
             .eyeHeight(1.79F)

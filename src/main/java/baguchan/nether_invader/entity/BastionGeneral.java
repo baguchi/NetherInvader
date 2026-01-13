@@ -94,6 +94,11 @@ public class BastionGeneral extends AbstractPiglin {
     }
 
     @Override
+    public boolean removeWhenFarAway(double p_34775_) {
+        return this instanceof PiglinRaider piglinRaider && !piglinRaider.netherInvader$hasRaid() ? super.removeWhenFarAway(p_34775_) : false;
+    }
+
+    @Override
     public void baseTick() {
         super.baseTick();
         if (this.level().isClientSide()) {
@@ -137,11 +142,6 @@ public class BastionGeneral extends AbstractPiglin {
         this.populateDefaultEquipmentSlots(randomsource, p_21435_);
         this.populateDefaultEquipmentEnchantments(p_21434_, randomsource, p_21435_);
         return super.finalizeSpawn(p_21434_, p_21435_, p_363352_, p_21437_);
-    }
-
-    @Override
-    public boolean removeWhenFarAway(double p_34775_) {
-        return !this.isPersistenceRequired();
     }
 
     @Override

@@ -1,5 +1,6 @@
 package baguchan.nether_invader.client.render;
 
+import baguchan.nether_invader.NetherInvader;
 import baguchan.nether_invader.client.model.TestModel;
 import baguchan.nether_invader.client.render.state.ScaffoldingRenderState;
 import baguchan.nether_invader.entity.Chainable;
@@ -25,7 +26,7 @@ import net.minecraft.world.phys.Vec3;
 import java.util.ArrayList;
 
 public class ScaffoldRenderer extends LivingEntityRenderer<Scaffolding, ScaffoldingRenderState, TestModel> {
-    public static final Identifier TEXTURE = Identifier.withDefaultNamespace("textures/entity/boat/bamboo.png");
+    public static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(NetherInvader.MODID, "textures/entity/crimson_platform.png");
     public static final Identifier CHAIN_TEXTURE = Identifier.withDefaultNamespace("textures/item/iron_chain.png");
 
     public ScaffoldRenderer(EntityRendererProvider.Context p_174304_) {

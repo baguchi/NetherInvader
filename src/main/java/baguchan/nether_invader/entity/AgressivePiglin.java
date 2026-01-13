@@ -171,7 +171,7 @@ public class AgressivePiglin extends AbstractPiglin implements CrossbowAttackMob
 
     @Override
     public boolean removeWhenFarAway(double p_34775_) {
-        return !this.isPersistenceRequired();
+        return this instanceof PiglinRaider piglinRaider && !piglinRaider.netherInvader$hasRaid() ? super.removeWhenFarAway(p_34775_) : false;
     }
 
     @Override
