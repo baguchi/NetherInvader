@@ -12,7 +12,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.PoiTypeTags;
@@ -130,8 +129,8 @@ public class PiglinRaidData extends SavedData {
             if (!serverlevel.getGameRules().get(GameRules.RAIDS)) {
                 return null;
             } else {
-                ResourceKey<Level> dimensiontype = serverlevel.dimension();
-                if (!NetherConfigs.COMMON.ENABLE_DIMENSIONS.get().contains(dimensiontype.identifier().toString())) {
+                Holder<DimensionType> dimensiontype = serverlevel.dimensionTypeRegistration();
+                if (!NetherConfigs.COMMON.ENABLE_DIMENSIONS.get().contains(dimensiontype.getRegisteredName())) {
                     return null;
                 } else {
                     List<PoiRecord> list = serverlevel.getPoiManager().getInRange((p_219845_) -> p_219845_.is(PoiTypeTags.VILLAGE), p_338602_, 64, PoiManager.Occupancy.IS_OCCUPIED).toList();
