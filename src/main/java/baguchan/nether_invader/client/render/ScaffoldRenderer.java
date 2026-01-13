@@ -23,7 +23,7 @@ import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.phys.Vec3;
 
 public class ScaffoldRenderer extends LivingEntityRenderer<Scaffolding, TestModel> {
-    public static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(NetherInvader.MODID, "textures/entity/crimson_platform.png");
+    public static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(NetherInvader.MODID, "textures/entity/crimson_platform.png");
     public static final ResourceLocation CHAIN_TEXTURE = ResourceLocation.withDefaultNamespace("textures/item/chain.png");
 
     public ScaffoldRenderer(EntityRendererProvider.Context p_174304_) {
