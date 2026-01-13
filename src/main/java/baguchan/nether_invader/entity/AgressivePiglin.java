@@ -193,14 +193,14 @@ public class AgressivePiglin extends AbstractPiglin implements CrossbowAttackMob
                 this.setDropChance(EquipmentSlot.CHEST, 0.0F);
                 this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.NETHERITE_SWORD));
                 this.setDropChance(EquipmentSlot.MAINHAND, 0.0F);
-            }
-            if (this.getControlledVehicle() != null) {
+            } else if (this.getControlledVehicle() != null) {
                 if (this.getType() == ModEntities.AGRESSIVE_PIGLIN.get()) {
                     this.setItemSlot(EquipmentSlot.MAINHAND, Items.CROSSBOW.getDefaultInstance());
                 }
             } else {
                 this.setItemSlot(EquipmentSlot.MAINHAND, this.createSpawnWeapon());
             }
+
         }
     }
 
