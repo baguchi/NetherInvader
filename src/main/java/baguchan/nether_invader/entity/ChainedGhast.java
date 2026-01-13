@@ -70,7 +70,7 @@ public class ChainedGhast extends Ghast {
         this.goalSelector.addGoal(7, new GhastLookGoal(this));
         this.goalSelector.addGoal(7, new GhastShootFireballGoal(this));
         this.targetSelector
-                .addGoal(1, new NearestAttackableTargetGoal<>(this, Player.class, 10, true, false, p_352811_ -> Math.abs(p_352811_.getY() - this.getY()) <= 4.0));
+                .addGoal(1, new NearestAttackableTargetGoal<>(this, Player.class, 10, true, false, p_352811_ -> Math.abs(p_352811_.getY() - this.getY()) <= 8.0));
     }
 
     public static AttributeSupplier.Builder createAttributes() {

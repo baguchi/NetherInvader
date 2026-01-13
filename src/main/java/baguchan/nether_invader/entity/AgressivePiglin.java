@@ -170,11 +170,20 @@ public class AgressivePiglin extends AbstractPiglin implements CrossbowAttackMob
 
     @Override
     public boolean removeWhenFarAway(double p_34775_) {
-        return !this.isPersistenceRequired();
+        return this instanceof PiglinRaider piglinRaider && !piglinRaider.netherInvader$hasRaid() ? super.removeWhenFarAway(p_34775_) : false;
     }
 
     @Override
     protected void populateDefaultEquipmentSlots(RandomSource p_219189_, DifficultyInstance p_219190_) {
+        if (this.isAdult()) {
+            this.maybeWearArmor(EquipmentSlot.HEAD, new ItemStack(Items.GOLDEN_HELMET), p_219189_);
+            this.maybeWearArmor(EquipmentSlot.CHEST, new ItemStack(Items.GOLDEN_CHESTPLATE), p_219189_);
+            this.maybeWearArmor(EquipmentSlot.LEGS, new ItemStack(Items.GOLDEN_LEGGINGS), p_219189_);
+            this.maybeWearArmor(EquipmentSlot.FEET, new ItemStack(Items.GOLDEN_BOOTS), p_219189_);
+        } else {
+            this.maybeWearArmor(EquipmentSlot.FEET, new ItemStack(Items.GOLDEN_BOOTS), p_219189_);
+
+        }
 
         if (this instanceof PiglinRaider piglinRaider) {
             if (piglinRaider.netherInvader$isPatrolLeader()) {
@@ -183,29 +192,12 @@ public class AgressivePiglin extends AbstractPiglin implements CrossbowAttackMob
                 this.setDropChance(EquipmentSlot.CHEST, 0.0F);
                 this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.NETHERITE_SWORD));
                 this.setDropChance(EquipmentSlot.MAINHAND, 0.0F);
-            } else {
-                if (p_219189_.nextFloat() < 0.2F) {
-                    this.setBaby(true);
+            } else if (this.getControlledVehicle() != null) {
+                if (this.getType() == ModEntitys.AGRESSIVE_PIGLIN.get()) {
+                    this.setItemSlot(EquipmentSlot.MAINHAND, Items.CROSSBOW.getDefaultInstance());
                 }
-
-
-                if (this.getControlledVehicle() != null) {
-                    if (this.getType() == ModEntitys.AGRESSIVE_PIGLIN.get()) {
-                        this.setItemSlot(EquipmentSlot.MAINHAND, Items.CROSSBOW.getDefaultInstance());
-                    }
-                } else {
-                    this.setItemSlot(EquipmentSlot.MAINHAND, this.createSpawnWeapon());
-                }
-            }
-
-            if (this.isAdult()) {
-                this.maybeWearArmor(EquipmentSlot.HEAD, new ItemStack(Items.GOLDEN_HELMET), p_219189_);
-                this.maybeWearArmor(EquipmentSlot.CHEST, new ItemStack(Items.GOLDEN_CHESTPLATE), p_219189_);
-                this.maybeWearArmor(EquipmentSlot.LEGS, new ItemStack(Items.GOLDEN_LEGGINGS), p_219189_);
-                this.maybeWearArmor(EquipmentSlot.FEET, new ItemStack(Items.GOLDEN_BOOTS), p_219189_);
             } else {
-                this.maybeWearArmor(EquipmentSlot.FEET, new ItemStack(Items.GOLDEN_BOOTS), p_219189_);
-
+                this.setItemSlot(EquipmentSlot.MAINHAND, this.createSpawnWeapon());
             }
 
         }

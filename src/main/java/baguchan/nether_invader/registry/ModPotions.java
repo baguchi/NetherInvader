@@ -3,6 +3,7 @@ package baguchan.nether_invader.registry;
 import baguchan.nether_invader.NetherInvader;
 import baguchan.nether_invader.effect.DefMobEffect;
 import baguchan.nether_invader.effect.PiglinRaidEffect;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.effect.MobEffect;
@@ -24,7 +25,7 @@ public class ModPotions {
     public static final DeferredRegister<Potion> POTIONS = DeferredRegister.create(BuiltInRegistries.POTION, NetherInvader.MODID);
     public static final DeferredHolder<MobEffect, MobEffect> AWKWARD = MOB_EFFECTS.register(
             "awkward",
-            () -> new DefMobEffect(MobEffectCategory.NEUTRAL, 0xBD665C)
+            () -> new DefMobEffect(MobEffectCategory.NEUTRAL, 0xBD665C, ParticleTypes.CRIMSON_SPORE)
     );
     public static final DeferredHolder<MobEffect, MobEffect> HORDE_OMEN = MOB_EFFECTS.register(
             "horde_omen",
