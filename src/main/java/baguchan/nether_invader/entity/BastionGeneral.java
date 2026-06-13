@@ -337,6 +337,14 @@ public class BastionGeneral extends AbstractPiglin {
     }
 
     @Override
+    public float getSecondsToDisableBlocking() {
+        if (this.isSpinAttack()) {
+            return 10.0F;
+        }
+        return super.getSecondsToDisableBlocking();
+    }
+
+    @Override
     protected void playConvertedSound() {
         this.makeSound(SoundEvents.PIGLIN_BRUTE_CONVERTED_TO_ZOMBIFIED);
     }
