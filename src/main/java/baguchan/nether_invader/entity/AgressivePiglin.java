@@ -1,6 +1,6 @@
 package baguchan.nether_invader.entity;
 
-import baguchan.nether_invader.entity.ai.RevampedPiglinAi;
+import baguchan.nether_invader.entity.ai.AgressivePiglinAi;
 import baguchan.nether_invader.registry.ModEntities;
 import baguchan.nether_invader.registry.ModMemoryModuleType;
 import baguchan.nether_invader.registry.ModSensors;
@@ -106,7 +106,7 @@ public class AgressivePiglin extends AbstractPiglin implements CrossbowAttackMob
             List.of(
                     baguchi.bagus_lib.register.ModSensors.SMART_NEAREST_LIVING_ENTITY_SENSOR.get(), SensorType.NEAREST_PLAYERS, SensorType.NEAREST_ITEMS, SensorType.HURT_BY, ModSensors.ANGER_PIGLIN_SENSOR.get()
             ),
-            RevampedPiglinAi::getActivities
+            AgressivePiglinAi::getActivities
     );
 
     protected static final ImmutableList<SensorType<? extends Sensor<? super AgressivePiglin>>> SENSOR_TYPES = ImmutableList.of(
@@ -207,7 +207,7 @@ public class AgressivePiglin extends AbstractPiglin implements CrossbowAttackMob
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor p_34717_, DifficultyInstance p_34718_, EntitySpawnReason p_34719_, @Nullable SpawnGroupData p_34720_) {
         RandomSource randomsource = p_34717_.getRandom();
 
-        RevampedPiglinAi.initMemories(this, p_34717_.getRandom());
+        AgressivePiglinAi.initMemories(this, p_34717_.getRandom());
         this.populateDefaultEquipmentSlots(randomsource, p_34718_);
         this.populateDefaultEquipmentEnchantments(p_34717_, randomsource, p_34718_);
         return super.finalizeSpawn(p_34717_, p_34718_, p_34719_, p_34720_);
@@ -304,7 +304,7 @@ public class AgressivePiglin extends AbstractPiglin implements CrossbowAttackMob
         profilerfiller.push("piglinBrain");
         this.getBrain().tick((ServerLevel) this.level(), this);
         profilerfiller.pop();
-        RevampedPiglinAi.updateActivity(this);
+        AgressivePiglinAi.updateActivity(this);
         super.customServerAiStep(p_376586_);
     }
 
@@ -364,7 +364,7 @@ public class AgressivePiglin extends AbstractPiglin implements CrossbowAttackMob
             return false;
         } else {
             if (flag && p_34694_.getEntity() instanceof LivingEntity) {
-                RevampedPiglinAi.wasHurtBy(serverLevel, this, (LivingEntity) p_34694_.getEntity());
+                AgressivePiglinAi.wasHurtBy(serverLevel, this, (LivingEntity) p_34694_.getEntity());
             }
 
             return flag;
@@ -381,6 +381,10 @@ public class AgressivePiglin extends AbstractPiglin implements CrossbowAttackMob
         return p_482058_.is(net.neoforged.neoforge.common.Tags.Items.PIGLIN_USABLE_CROSSBOWS) || p_482058_.has(DataComponents.KINETIC_WEAPON);
     }
 
+    @Override
+    public boolean wantsToPickUp(ServerLevel level, ItemStack itemStack) {
+        return false;
+    }
 
     @Override
     public boolean startRiding(Entity p_34701_, boolean p_34702_, boolean b2) {
@@ -398,7 +402,7 @@ public class AgressivePiglin extends AbstractPiglin implements CrossbowAttackMob
 
     @Override
     protected SoundEvent getAmbientSound() {
-        return this.level().isClientSide() ? null : RevampedPiglinAi.getSoundForCurrentActivity(this).orElse(null);
+        return this.level().isClientSide() ? null : AgressivePiglinAi.getSoundForCurrentActivity(this).orElse(null);
     }
 
     @Override

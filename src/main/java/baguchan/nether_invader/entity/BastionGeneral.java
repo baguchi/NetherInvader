@@ -27,6 +27,7 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.monster.piglin.AbstractPiglin;
 import net.minecraft.world.entity.monster.piglin.PiglinArmPose;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
@@ -114,6 +115,12 @@ public class BastionGeneral extends AbstractPiglin {
         }
 
     }
+
+    @Override
+    public boolean wantsToPickUp(ServerLevel level, ItemStack itemStack) {
+        return itemStack.is(ModItems.LAVA_INFUSED_SWORD.asItem()) || itemStack.is(Items.NETHERITE_SWORD.asItem()) ? super.wantsToPickUp(level, itemStack) : false;
+    }
+
 
     @Override
     public void tick() {

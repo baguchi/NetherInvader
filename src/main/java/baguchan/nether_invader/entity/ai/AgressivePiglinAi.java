@@ -32,7 +32,7 @@ import net.minecraft.world.phys.Vec3;
 import java.util.List;
 import java.util.Optional;
 
-public class RevampedPiglinAi {
+public class AgressivePiglinAi {
     public static final int PLAYER_ANGER_RANGE = 35;
     protected static final UniformInt TIME_BETWEEN_HUNTS = TimeUtil.rangeOfSeconds(30, 120);
 
@@ -59,7 +59,7 @@ public class RevampedPiglinAi {
                         new MoveToTargetSink(),
                         InteractWithDoor.create(),
                         babyAvoidNemesis(),
-                        StartCelebratingIfTargetDead.create(300, RevampedPiglinAi::wantsToDance),
+                        StartCelebratingIfTargetDead.create(300, AgressivePiglinAi::wantsToDance),
                         StopBeingAngryIfTargetDead.create()
                 )
         );
@@ -70,8 +70,8 @@ public class RevampedPiglinAi {
                 Activity.IDLE,
                 10,
                 ImmutableList.of(
-                        SetEntityLookTarget.create(RevampedPiglinAi::isPlayerHoldingLovedItem, 14.0F),
-                        StartAttacking.create(RevampedPiglinAi::findNearestValidAttackTarget),
+                        SetEntityLookTarget.create(AgressivePiglinAi::isPlayerHoldingLovedItem, 14.0F),
+                        StartAttacking.create(AgressivePiglinAi::findNearestValidAttackTarget),
                         createIdleLookBehaviors(),
                         createIdleMovementBehaviors(),
                         SetLookAndInteract.create(EntityType.PLAYER, 4)
@@ -85,12 +85,12 @@ public class RevampedPiglinAi {
                 10,
                 ImmutableList.<net.minecraft.world.entity.ai.behavior.BehaviorControl<? super AgressivePiglin>>of(
                         StopAttackingIfTargetInvalid.create((p_375910_, p_375911_) -> !isNearestValidAttackTarget(p_375910_, p_34904_, p_375911_)),
-                        BehaviorBuilder.triggerIf(RevampedPiglinAi::hasCrossbow, BackUpIfTooClose.create(5, 0.75F)),
+                        BehaviorBuilder.triggerIf(AgressivePiglinAi::hasCrossbow, BackUpIfTooClose.create(5, 0.75F)),
                         SetWalkTargetFromAttackTargetIfTargetOutOfReach.create(1.0F),
                         new SpearApproach(1.0F, 10.0F), new SpearAttack(1.0F, 1.0F, 10.0F), new SpearRetreat(1.0F),
                         MeleeAttack.create(20),
                         new CrossbowAttack<>(),
-                        EraseMemoryIf.create(RevampedPiglinAi::isNearZombified, MemoryModuleType.ATTACK_TARGET)
+                        EraseMemoryIf.create(AgressivePiglinAi::isNearZombified, MemoryModuleType.ATTACK_TARGET)
                 ),
                 MemoryModuleType.ATTACK_TARGET
         );
@@ -102,8 +102,8 @@ public class RevampedPiglinAi {
                 10,
                 ImmutableList.<net.minecraft.world.entity.ai.behavior.BehaviorControl<? super AgressivePiglin>>of(
                         avoidRepellent(),
-                        SetEntityLookTarget.create(RevampedPiglinAi::isPlayerHoldingLovedItem, 14.0F),
-                        StartAttacking.create((p_412930_, p_412931_) -> p_412931_.isAdult(), RevampedPiglinAi::findNearestValidAttackTarget),
+                        SetEntityLookTarget.create(AgressivePiglinAi::isPlayerHoldingLovedItem, 14.0F),
+                        StartAttacking.create((p_412930_, p_412931_) -> p_412931_.isAdult(), AgressivePiglinAi::findNearestValidAttackTarget),
                         //BehaviorBuilder.triggerIf(p_34804_ -> !p_34804_.isDancing(), GoToTargetLocation.create(MemoryModuleType.CELEBRATE_LOCATION, 2, 1.0F)),
                         BehaviorBuilder.triggerIf(AgressivePiglin::isDancing, GoToTargetLocation.create(MemoryModuleType.CELEBRATE_LOCATION, 4, 0.6F)),
                         new RunOne<AgressivePiglin>(
@@ -126,7 +126,7 @@ public class RevampedPiglinAi {
                         SetWalkTargetAwayFrom.entity(MemoryModuleType.AVOID_TARGET, 1.0F, 12, true),
                         createIdleLookBehaviors(),
                         createIdleMovementBehaviors(),
-                        EraseMemoryIf.create(RevampedPiglinAi::wantsToStopFleeing, MemoryModuleType.AVOID_TARGET)
+                        EraseMemoryIf.create(AgressivePiglinAi::wantsToStopFleeing, MemoryModuleType.AVOID_TARGET)
                 ),
                 MemoryModuleType.AVOID_TARGET
         );
@@ -263,7 +263,7 @@ public class RevampedPiglinAi {
 
     public static void angerNearbyPiglins(ServerLevel serverLevel, Player p_34874_, boolean p_34875_) {
         List<AgressivePiglin> list = p_34874_.level().getEntitiesOfClass(AgressivePiglin.class, p_34874_.getBoundingBox().inflate(16.0));
-        list.stream().filter(RevampedPiglinAi::isIdle).filter(p_34881_ -> !p_34875_ || BehaviorUtils.canSee(p_34881_, p_34874_)).forEach(p_352819_ -> {
+        list.stream().filter(AgressivePiglinAi::isIdle).filter(p_34881_ -> !p_34875_ || BehaviorUtils.canSee(p_34881_, p_34874_)).forEach(p_352819_ -> {
             if (serverLevel.getGameRules().get(GameRules.UNIVERSAL_ANGER)) {
                 setAngerTargetToNearestTargetablePlayerIfFound(serverLevel, p_352819_, p_34874_);
             } else {
@@ -476,7 +476,7 @@ public class RevampedPiglinAi {
 
 
     public static boolean isPlayerHoldingLovedItem(LivingEntity p_34884_) {
-        return p_34884_.getType() == EntityType.PLAYER && p_34884_.isHolding(RevampedPiglinAi::isLovedItem);
+        return p_34884_.getType() == EntityType.PLAYER && p_34884_.isHolding(AgressivePiglinAi::isLovedItem);
     }
 
     private static boolean isAdmiringDisabled(AgressivePiglin p_35025_) {
