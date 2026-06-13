@@ -21,7 +21,6 @@
       "translate": "advancements.nether_invader.root.description"
     },
     "icon": {
-      "count": 1,
       "id": "minecraft:piglin_brute_spawn_egg"
     },
     "title": {

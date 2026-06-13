@@ -1,5 +1,6 @@
 package baguchan.nether_invader.entity.sensor;
 
+import baguchan.nether_invader.registry.ModMemoryModuleType;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
@@ -10,6 +11,7 @@ import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.NearestVisibleLivingEntities;
 import net.minecraft.world.entity.ai.sensing.Sensor;
+import net.minecraft.world.entity.animal.golem.IronGolem;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.monster.piglin.AbstractPiglin;
 import net.minecraft.world.entity.monster.piglin.Piglin;
@@ -48,6 +50,7 @@ public class AggresivePiglinSpecificSensor extends Sensor<LivingEntity> {
         int i = 0;
         List<AbstractPiglin> list = Lists.newArrayList();
         List<AbstractPiglin> list1 = Lists.newArrayList();
+        List<LivingEntity> list2 = Lists.newArrayList();
         NearestVisibleLivingEntities nearestvisiblelivingentities = brain.getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES)
                 .orElse(NearestVisibleLivingEntities.empty());
 
@@ -76,6 +79,12 @@ public class AggresivePiglinSpecificSensor extends Sensor<LivingEntity> {
                 if (abstractpiglin.isAdult()) {
                     list1.add(abstractpiglin);
                 }
+            } else if (livingentity1 instanceof IronGolem || livingentity1 instanceof AbstractVillager || livingentity1 instanceof Player) {
+                list2.add(livingentity1);
+            } else if (livingentity1 instanceof Mob mob) {
+                if (mob.getTarget() == p_26727_) {
+                    list2.add(mob);
+                }
             }
         }
 
@@ -84,6 +93,7 @@ public class AggresivePiglinSpecificSensor extends Sensor<LivingEntity> {
         brain.setMemory(MemoryModuleType.NEAREST_VISIBLE_ADULT_PIGLINS, list);
         brain.setMemory(MemoryModuleType.VISIBLE_ADULT_PIGLIN_COUNT, list.size());
         brain.setMemory(MemoryModuleType.VISIBLE_ADULT_HOGLIN_COUNT, i);
+        brain.setMemory(ModMemoryModuleType.NEAREST_VISIBLE_ENEMY.get(), list2);
     }
 
 

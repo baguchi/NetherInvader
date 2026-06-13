@@ -8,13 +8,12 @@ import baguchan.nether_invader.entity.Scaffolding;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.geom.ModelLayers;
-import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
-import net.minecraft.client.renderer.state.CameraRenderState;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
@@ -136,7 +135,7 @@ public class ScaffoldRenderer extends LivingEntityRenderer<Scaffolding, Scaffold
         float f5 = f * f3;
         p_435977_.pushPose();
         p_435977_.translate((float) p_435610_.offset.x, (float) p_435610_.offset.y, (float) p_435610_.offset.z);
-        p_433388_.submitCustomGeometry(p_435977_, RenderTypes.entityCutoutNoCull(CHAIN_TEXTURE), (pose, vertexConsumer) -> {
+        p_433388_.submitCustomGeometry(p_435977_, RenderTypes.entityCutout(CHAIN_TEXTURE), (pose, vertexConsumer) -> {
 
             for (int i = 0; i <= 24; i++) {
                 addVertexPair(vertexConsumer, pose, f, f1, f2, 0.5F, f4, f5, i, false, p_435610_);
@@ -165,7 +164,7 @@ public class ScaffoldRenderer extends LivingEntityRenderer<Scaffolding, Scaffold
         float f = p_436038_ / 24.0F;
         int i = (int) Mth.lerp(f, (float) p_435559_.startBlockLight, (float) p_435559_.endBlockLight);
         int j = (int) Mth.lerp(f, (float) p_435559_.startSkyLight, (float) p_435559_.endSkyLight);
-        int k = LightTexture.pack(i, j);
+        int k = OverlayTexture.pack(i, j);
         float f2 = 1F;
         float f3 = 1F;
         float f4 = 1F;

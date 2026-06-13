@@ -34,7 +34,9 @@ public class BastionGeneralModel<T extends BastionGeneralRenderState> extends En
     private final KeyframeAnimation idleAnimation;
     private final KeyframeAnimation walkAnimation;
     private final KeyframeAnimation attackAnimation;
-
+    private final KeyframeAnimation spinAttackStartAnimation;
+    private final KeyframeAnimation spinAttackAnimation;
+    private final KeyframeAnimation spinAttackStopAnimation;
 
     public BastionGeneralModel(ModelPart root) {
         super(root);
@@ -56,6 +58,9 @@ public class BastionGeneralModel<T extends BastionGeneralRenderState> extends En
         this.idleAnimation = BastionGeneralAnimations.idle.bake(root);
         this.attackAnimation = BastionGeneralAnimations.swing.bake(root);
         this.walkAnimation = BastionGeneralAnimations.walk.bake(root);
+        this.spinAttackStartAnimation = BastionGeneralAnimations.spin_attack_start.bake(root);
+        this.spinAttackAnimation = BastionGeneralAnimations.spin_loop.bake(root);
+        this.spinAttackStopAnimation = BastionGeneralAnimations.spin_attack_stop.bake(root);
     }
 
     public static LayerDefinition createBodyLayer() {
@@ -121,6 +126,9 @@ public class BastionGeneralModel<T extends BastionGeneralRenderState> extends En
         }
 
         this.attackAnimation.apply(entity.attackAnimationState, entity.ageInTicks);
+        this.spinAttackStartAnimation.apply(entity.spinAttackAnimationState, entity.ageInTicks);
+        this.spinAttackAnimation.apply(entity.spinAttackPoseAnimationState, entity.ageInTicks);
+        this.spinAttackStopAnimation.apply(entity.spinAttackStopAnimationState, entity.ageInTicks);
         if (!entity.attackAnimationState.isStarted()) {
             this.idleAnimation.applyWalk(entity.ageInTicks, 1.0F, 2.0F, 2.5F);
         }

@@ -103,8 +103,8 @@ public class PiglinRaid {
     private Optional<BlockPos> waveSpawnPos = Optional.empty();
 
     public PiglinRaid(BlockPos p_401301_, Difficulty p_401426_) {
-        this.raidEvent = new ServerBossEvent(RAID_NAME_COMPONENT, BossEvent.BossBarColor.RED, BossEvent.BossBarOverlay.NOTCHED_10);
         this.random = RandomSource.create();
+        this.raidEvent = new ServerBossEvent(Mth.createInsecureUUID(this.random), RAID_NAME_COMPONENT, BossEvent.BossBarColor.RED, BossEvent.BossBarOverlay.NOTCHED_10);
         this.waveSpawnPos = Optional.empty();
         this.active = true;
         this.raidCooldownTicks = 300;
@@ -115,8 +115,8 @@ public class PiglinRaid {
     }
 
     private PiglinRaid(boolean p_401323_, boolean p_401294_, long p_401064_, int p_37692_, int p_401428_, int p_401382_, int p_401117_, float p_401178_, int p_401042_, RaidStatus p_401122_, BlockPos p_37694_, Set<UUID> p_401136_) {
-        this.raidEvent = new ServerBossEvent(RAID_NAME_COMPONENT, BossEvent.BossBarColor.RED, BossEvent.BossBarOverlay.NOTCHED_10);
         this.random = RandomSource.create();
+        this.raidEvent = new ServerBossEvent(Mth.createInsecureUUID(this.random), RAID_NAME_COMPONENT, BossEvent.BossBarColor.RED, BossEvent.BossBarOverlay.NOTCHED_10);
         this.waveSpawnPos = Optional.empty();
         this.started = p_401323_;
         this.active = p_401294_;
@@ -646,9 +646,9 @@ public class PiglinRaid {
         SpawnPlacementType spawnplacementtype = SpawnPlacements.getPlacementType(EntityType.RAVAGER);
 
         for (int i1 = 0; i1 < p_37709_; i1++) {
-            float f = serverLevel.random.nextFloat() * (float) (Math.PI * 2);
-            int j = this.center.getX() + Mth.floor(Mth.cos(f) * 32.0F * (float) i) + serverLevel.random.nextInt(5);
-            int l = this.center.getZ() + Mth.floor(Mth.sin(f) * 32.0F * (float) i) + serverLevel.random.nextInt(5);
+            float f = serverLevel.getRandom().nextFloat() * (float) (Math.PI * 2);
+            int j = this.center.getX() + Mth.floor(Mth.cos(f) * 32.0F * (float) i) + serverLevel.getRandom().nextInt(5);
+            int l = this.center.getZ() + Mth.floor(Mth.sin(f) * 32.0F * (float) i) + serverLevel.getRandom().nextInt(5);
             int k = serverLevel.getHeight(Heightmap.Types.WORLD_SURFACE, j, l);
             blockpos$mutableblockpos.set(j, k, l);
             if (!serverLevel.isVillage(blockpos$mutableblockpos) || p_37708_ >= 2) {

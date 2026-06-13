@@ -1,12 +1,13 @@
 package baguchan.nether_invader.entity;
 
-import baguchan.nether_invader.entity.ai.BastionPiglinAi;
+import baguchan.nether_invader.entity.ai.BastionGeneralAi;
 import baguchan.nether_invader.registry.ModItems;
+import baguchan.nether_invader.registry.ModMemoryModuleType;
 import baguchan.nether_invader.registry.ModSensors;
-import com.google.common.collect.ImmutableList;
-import com.mojang.serialization.Dynamic;
+import com.google.common.annotations.VisibleForTesting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
@@ -21,7 +22,6 @@ import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.sensing.Sensor;
 import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.monster.piglin.AbstractPiglin;
@@ -30,48 +30,57 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 
 import java.util.List;
 
 public class BastionGeneral extends AbstractPiglin {
-    protected static final ImmutableList<SensorType<? extends Sensor<? super BastionGeneral>>> SENSOR_TYPES = ImmutableList.of(
-            baguchi.bagus_lib.register.ModSensors.SMART_NEAREST_LIVING_ENTITY_SENSOR.get(), SensorType.NEAREST_PLAYERS, SensorType.NEAREST_ITEMS, SensorType.HURT_BY, ModSensors.ANGER_PIGLIN_SENSOR.get()
-    );
-    protected static final ImmutableList<MemoryModuleType<?>> MEMORY_TYPES = ImmutableList.of(
-            MemoryModuleType.LOOK_TARGET,
-            MemoryModuleType.DOORS_TO_CLOSE,
-            MemoryModuleType.NEAREST_LIVING_ENTITIES,
-            MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES,
-            MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES,
-            MemoryModuleType.NEAREST_VISIBLE_PLAYER,
-            MemoryModuleType.NEAREST_VISIBLE_ATTACKABLE_PLAYER,
-            MemoryModuleType.NEAREST_VISIBLE_ADULT_PIGLINS,
-            MemoryModuleType.NEARBY_ADULT_PIGLINS,
-            MemoryModuleType.NEAREST_VISIBLE_WANTED_ITEM,
-            MemoryModuleType.ITEM_PICKUP_COOLDOWN_TICKS,
-            MemoryModuleType.HURT_BY,
-            MemoryModuleType.HURT_BY_ENTITY,
-            MemoryModuleType.WALK_TARGET,
-            MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE,
-            MemoryModuleType.ATTACK_TARGET,
-            MemoryModuleType.ATTACK_COOLING_DOWN,
-            MemoryModuleType.INTERACTION_TARGET,
-            MemoryModuleType.PATH,
-            MemoryModuleType.ANGRY_AT,
-            MemoryModuleType.UNIVERSAL_ANGER,
-            MemoryModuleType.AVOID_TARGET,
-            MemoryModuleType.CELEBRATE_LOCATION,
-            MemoryModuleType.DANCING,
-            MemoryModuleType.NEAREST_VISIBLE_BABY_HOGLIN,
-            MemoryModuleType.NEAREST_VISIBLE_NEMESIS,
-            MemoryModuleType.NEAREST_VISIBLE_ZOMBIFIED,
-            MemoryModuleType.VISIBLE_ADULT_PIGLIN_COUNT,
-            MemoryModuleType.VISIBLE_ADULT_HOGLIN_COUNT,
-            MemoryModuleType.ATE_RECENTLY,
-            MemoryModuleType.NEAREST_REPELLENT
+
+    public static final Brain.Provider<BastionGeneral> BRAIN_PROVIDER = Brain.provider(
+            List.of(MemoryModuleType.LOOK_TARGET,
+                    MemoryModuleType.DOORS_TO_CLOSE,
+                    MemoryModuleType.NEAREST_LIVING_ENTITIES,
+                    MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES,
+                    MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES,
+                    MemoryModuleType.NEAREST_VISIBLE_PLAYER,
+                    MemoryModuleType.NEAREST_VISIBLE_ATTACKABLE_PLAYER,
+                    MemoryModuleType.NEAREST_VISIBLE_ADULT_PIGLINS,
+                    MemoryModuleType.NEARBY_ADULT_PIGLINS,
+                    MemoryModuleType.NEAREST_VISIBLE_WANTED_ITEM,
+                    MemoryModuleType.ITEM_PICKUP_COOLDOWN_TICKS,
+                    MemoryModuleType.HURT_BY,
+                    MemoryModuleType.HURT_BY_ENTITY,
+                    MemoryModuleType.WALK_TARGET,
+                    MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE,
+                    MemoryModuleType.ATTACK_TARGET,
+                    MemoryModuleType.ATTACK_COOLING_DOWN,
+                    MemoryModuleType.INTERACTION_TARGET,
+                    MemoryModuleType.PATH,
+                    MemoryModuleType.ANGRY_AT,
+                    MemoryModuleType.UNIVERSAL_ANGER,
+                    MemoryModuleType.AVOID_TARGET,
+                    MemoryModuleType.CELEBRATE_LOCATION,
+                    MemoryModuleType.DANCING,
+                    MemoryModuleType.NEAREST_VISIBLE_BABY_HOGLIN,
+                    MemoryModuleType.NEAREST_VISIBLE_NEMESIS,
+                    MemoryModuleType.NEAREST_VISIBLE_ZOMBIFIED,
+                    MemoryModuleType.VISIBLE_ADULT_PIGLIN_COUNT,
+                    MemoryModuleType.VISIBLE_ADULT_HOGLIN_COUNT,
+                    MemoryModuleType.ATE_RECENTLY,
+                    MemoryModuleType.NEAREST_REPELLENT,
+                    ModMemoryModuleType.NEAREST_VISIBLE_ENEMY.get()),
+            List.of(baguchi.bagus_lib.register.ModSensors.SMART_NEAREST_LIVING_ENTITY_SENSOR.get(), SensorType.NEAREST_PLAYERS, SensorType.NEAREST_ITEMS, SensorType.HURT_BY, ModSensors.ANGER_PIGLIN_SENSOR.get()),
+            BastionGeneralAi::getActivities
     );
 
-    public AnimationState attackAnimationState = new AnimationState();
+    public static final EntityDataAccessor<Long> LAST_POSE_CHANGE_TICK = SynchedEntityData.defineId(BastionGeneral.class, EntityDataSerializers.LONG);
+
+
+    public final AnimationState spinAttackAnimationState = new AnimationState();
+    public final AnimationState spinAttackPoseAnimationState = new AnimationState();
+    public final AnimationState spinAttackStopAnimationState = new AnimationState();
+
+    public final AnimationState attackAnimationState = new AnimationState();
     private final int attackAnimationLength = 34;
 
     private int attackAnimationTick;
@@ -79,8 +88,21 @@ public class BastionGeneral extends AbstractPiglin {
 
     public BastionGeneral(EntityType<? extends AbstractPiglin> p_34683_, Level p_34684_) {
         super(p_34683_, p_34684_);
-        this.xpReward = 5;
+        this.xpReward = 30;
     }
+
+
+    @Override
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(LAST_POSE_CHANGE_TICK, 0L);
+    }
+
+    @Override
+    public void onSyncedDataUpdated(EntityDataAccessor<?> p_34727_) {
+        super.onSyncedDataUpdated(p_34727_);
+    }
+
 
     @Override
     public void handleEntityEvent(byte p_219360_) {
@@ -93,9 +115,62 @@ public class BastionGeneral extends AbstractPiglin {
 
     }
 
+    private void setupAnimationStates() {
+        if (this.isVisuallySpin()) {
+            this.spinAttackStopAnimationState.stop();
+            if (this.isVisuallySpin()) {
+                this.spinAttackAnimationState.startIfStopped(this.tickCount);
+                this.spinAttackPoseAnimationState.stop();
+            } else {
+                this.spinAttackAnimationState.stop();
+                this.spinAttackPoseAnimationState.startIfStopped(this.tickCount);
+            }
+        } else {
+            this.spinAttackAnimationState.stop();
+            this.spinAttackPoseAnimationState.stop();
+            this.spinAttackStopAnimationState.animateWhen(this.isInPoseTransition() && this.getPoseTime() >= 0L, this.tickCount);
+        }
+    }
+
+    public boolean isInPoseTransition() {
+        long poseTime = this.getPoseTime();
+        return poseTime < (this.isSpinAttack() ? 13 : 32);
+    }
+
+    public boolean isSpinAttack() {
+        return this.entityData.get(LAST_POSE_CHANGE_TICK) < 0L;
+    }
+
+    public boolean isVisuallySpin() {
+        return this.getPoseTime() < 0L != this.isSpinAttack();
+    }
+
+    public long getPoseTime() {
+        return this.level().getGameTime() - Math.abs(this.entityData.get(LAST_POSE_CHANGE_TICK));
+    }
+
+    @VisibleForTesting
+    public void resetLastPoseChangeTick(long syncedPoseTickTime) {
+        this.entityData.set(LAST_POSE_CHANGE_TICK, syncedPoseTickTime);
+    }
+
+    public void startSpin() {
+        if (!this.isSpinAttack()) {
+            this.gameEvent(GameEvent.ENTITY_ACTION);
+            this.resetLastPoseChangeTick(-this.level().getGameTime());
+        }
+    }
+
+    public void stopSpin() {
+        if (this.isSpinAttack()) {
+            this.gameEvent(GameEvent.ENTITY_ACTION);
+            this.resetLastPoseChangeTick(this.level().getGameTime());
+        }
+    }
+
     @Override
     public boolean removeWhenFarAway(double p_34775_) {
-        return this instanceof PiglinRaider piglinRaider && !piglinRaider.netherInvader$hasRaid() ? super.removeWhenFarAway(p_34775_) : false;
+        return this instanceof PiglinRaider piglinRaider && !piglinRaider.netherInvader$hasRaid() && super.removeWhenFarAway(p_34775_);
     }
 
     @Override
@@ -119,26 +194,15 @@ public class BastionGeneral extends AbstractPiglin {
         this.walkAnimation.update(f, 0.4F, 1.0F);
     }
 
-
-    @Override
-    protected void defineSynchedData(SynchedEntityData.Builder p_326106_) {
-        super.defineSynchedData(p_326106_);
-    }
-
-    @Override
-    public void onSyncedDataUpdated(EntityDataAccessor<?> p_34727_) {
-        super.onSyncedDataUpdated(p_34727_);
-    }
-
     public static AttributeSupplier.Builder createAttributes() {
-        return Monster.createMonsterAttributes().add(Attributes.MAX_HEALTH, 60.0).add(Attributes.ARMOR, 4.0F).add(Attributes.ARMOR_TOUGHNESS, 3.0F).add(Attributes.MOVEMENT_SPEED, 0.35F).add(Attributes.ATTACK_DAMAGE, 5.0).add(Attributes.FOLLOW_RANGE, 35);
+        return Monster.createMonsterAttributes().add(Attributes.MAX_HEALTH, 80.0).add(Attributes.ARMOR, 4.0F).add(Attributes.ARMOR_TOUGHNESS, 3.0F).add(Attributes.MOVEMENT_SPEED, 0.35F).add(Attributes.ATTACK_DAMAGE, 5.0).add(Attributes.FOLLOW_RANGE, 35);
     }
 
     @Override
     public @org.jetbrains.annotations.Nullable SpawnGroupData finalizeSpawn(ServerLevelAccessor p_21434_, DifficultyInstance p_21435_, EntitySpawnReason p_363352_, @org.jetbrains.annotations.Nullable SpawnGroupData p_21437_) {
         RandomSource randomsource = p_21434_.getRandom();
 
-        BastionPiglinAi.initMemories(this, p_21434_.getRandom());
+        BastionGeneralAi.initMemories(this);
         this.populateDefaultEquipmentSlots(randomsource, p_21435_);
         this.populateDefaultEquipmentEnchantments(p_21434_, randomsource, p_21435_);
         return super.finalizeSpawn(p_21434_, p_21435_, p_363352_, p_21437_);
@@ -150,13 +214,8 @@ public class BastionGeneral extends AbstractPiglin {
     }
 
     @Override
-    protected Brain.Provider<BastionGeneral> brainProvider() {
-        return Brain.provider(MEMORY_TYPES, SENSOR_TYPES);
-    }
-
-    @Override
-    protected Brain<?> makeBrain(Dynamic<?> p_34723_) {
-        return BastionPiglinAi.makeBrain(this, this.brainProvider().makeBrain(p_34723_));
+    protected Brain<BastionGeneral> makeBrain(Brain.Packed packedBrain) {
+        return BRAIN_PROVIDER.makeBrain(this, packedBrain);
     }
 
     @Override
@@ -180,7 +239,7 @@ public class BastionGeneral extends AbstractPiglin {
         profilerfiller.push("piglinBrain");
         this.getBrain().tick(serverLevel, this);
         profilerfiller.pop();
-        BastionPiglinAi.updateActivity(this);
+        BastionGeneralAi.updateActivity(this);
         super.customServerAiStep(serverLevel);
     }
 
@@ -210,7 +269,7 @@ public class BastionGeneral extends AbstractPiglin {
             return false;
         } else {
             if (flag && p_34694_.getEntity() instanceof LivingEntity) {
-                BastionPiglinAi.wasHurtBy(serverLevel, this, (LivingEntity) p_34694_.getEntity());
+                BastionGeneralAi.wasHurtBy(serverLevel, this, (LivingEntity) p_34694_.getEntity());
             }
 
             return flag;
@@ -232,7 +291,7 @@ public class BastionGeneral extends AbstractPiglin {
 
     @Override
     protected SoundEvent getAmbientSound() {
-        return this.level().isClientSide() ? null : BastionPiglinAi.getSoundForCurrentActivity(this).orElse(null);
+        return this.level().isClientSide() ? null : BastionGeneralAi.getSoundForCurrentActivity(this).orElse(null);
     }
 
     @Override

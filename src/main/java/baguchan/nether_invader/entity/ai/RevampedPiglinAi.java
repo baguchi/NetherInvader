@@ -3,7 +3,6 @@ package baguchan.nether_invader.entity.ai;
 import baguchan.nether_invader.entity.AgressivePiglin;
 import baguchan.nether_invader.entity.behavior.PiglinRaiding;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
@@ -13,6 +12,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.util.TimeUtil;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.ActivityData;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.behavior.*;
 import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder;
@@ -42,23 +42,16 @@ public class RevampedPiglinAi {
     private static final UniformInt AVOID_ZOMBIFIED_DURATION = TimeUtil.rangeOfSeconds(5, 7);
     private static final UniformInt BABY_AVOID_NEMESIS_DURATION = TimeUtil.rangeOfSeconds(5, 7);
 
-    public static Brain<?> makeBrain(AgressivePiglin p_34841_, Brain<AgressivePiglin> p_34842_) {
-        initCoreActivity(p_34842_);
-        initIdleActivity(p_34842_);
-        initFightActivity(p_34841_, p_34842_);
-        initCelebrateActivity(p_34842_);
-        initRetreatActivity(p_34842_);
-        p_34842_.setCoreActivities(ImmutableSet.of(Activity.CORE));
-        p_34842_.setDefaultActivity(Activity.IDLE);
-        p_34842_.useDefaultActivity();
-        return p_34842_;
+
+    public static List<ActivityData<AgressivePiglin>> getActivities(AgressivePiglin piglin) {
+        return List.of(initCoreActivity(), initIdleActivity(), initFightActivity(piglin), initCelebrateActivity(), initRetreatActivity());
     }
 
     public static void initMemories(AgressivePiglin p_219206_, RandomSource p_219207_) {
     }
 
-    private static void initCoreActivity(Brain<AgressivePiglin> p_34821_) {
-        p_34821_.addActivity(
+    private static ActivityData<AgressivePiglin> initCoreActivity() {
+        return ActivityData.create(
                 Activity.CORE,
                 0,
                 ImmutableList.of(
@@ -72,13 +65,13 @@ public class RevampedPiglinAi {
         );
     }
 
-    private static void initIdleActivity(Brain<AgressivePiglin> p_34892_) {
-        p_34892_.addActivity(
+    private static ActivityData<AgressivePiglin> initIdleActivity() {
+        return ActivityData.create(
                 Activity.IDLE,
                 10,
                 ImmutableList.of(
                         SetEntityLookTarget.create(RevampedPiglinAi::isPlayerHoldingLovedItem, 14.0F),
-                        StartAttacking.<AgressivePiglin>create(RevampedPiglinAi::findNearestValidAttackTarget),
+                        StartAttacking.create(RevampedPiglinAi::findNearestValidAttackTarget),
                         createIdleLookBehaviors(),
                         createIdleMovementBehaviors(),
                         SetLookAndInteract.create(EntityType.PLAYER, 4)
@@ -86,15 +79,15 @@ public class RevampedPiglinAi {
         );
     }
 
-    private static void initFightActivity(AgressivePiglin p_34904_, Brain<AgressivePiglin> p_34905_) {
-        p_34905_.addActivityAndRemoveMemoryWhenStopped(
+    private static ActivityData<AgressivePiglin> initFightActivity(AgressivePiglin p_34904_) {
+        return ActivityData.create(
                 Activity.FIGHT,
                 10,
                 ImmutableList.<net.minecraft.world.entity.ai.behavior.BehaviorControl<? super AgressivePiglin>>of(
-                        StopAttackingIfTargetInvalid.<AgressivePiglin>create((p_375910_, p_375911_) -> !isNearestValidAttackTarget(p_375910_, p_34904_, p_375911_)),
+                        StopAttackingIfTargetInvalid.create((p_375910_, p_375911_) -> !isNearestValidAttackTarget(p_375910_, p_34904_, p_375911_)),
                         BehaviorBuilder.triggerIf(RevampedPiglinAi::hasCrossbow, BackUpIfTooClose.create(5, 0.75F)),
                         SetWalkTargetFromAttackTargetIfTargetOutOfReach.create(1.0F),
-                        new SpearApproach((double) 1.0F, 10.0F), new SpearAttack((double) 1.0F, (double) 1.0F, 10.0F, 2.0F), new SpearRetreat((double) 1.0F),
+                        new SpearApproach(1.0F, 10.0F), new SpearAttack(1.0F, 1.0F, 10.0F), new SpearRetreat(1.0F),
                         MeleeAttack.create(20),
                         new CrossbowAttack<>(),
                         EraseMemoryIf.create(RevampedPiglinAi::isNearZombified, MemoryModuleType.ATTACK_TARGET)
@@ -103,14 +96,14 @@ public class RevampedPiglinAi {
         );
     }
 
-    private static void initCelebrateActivity(Brain<AgressivePiglin> p_34921_) {
-        p_34921_.addActivityAndRemoveMemoryWhenStopped(
+    private static ActivityData<AgressivePiglin> initCelebrateActivity() {
+        return ActivityData.create(
                 Activity.CELEBRATE,
                 10,
                 ImmutableList.<net.minecraft.world.entity.ai.behavior.BehaviorControl<? super AgressivePiglin>>of(
                         avoidRepellent(),
                         SetEntityLookTarget.create(RevampedPiglinAi::isPlayerHoldingLovedItem, 14.0F),
-                        StartAttacking.<AgressivePiglin>create((p_412930_, p_412931_) -> p_412931_.isAdult(), RevampedPiglinAi::findNearestValidAttackTarget),
+                        StartAttacking.create((p_412930_, p_412931_) -> p_412931_.isAdult(), RevampedPiglinAi::findNearestValidAttackTarget),
                         //BehaviorBuilder.triggerIf(p_34804_ -> !p_34804_.isDancing(), GoToTargetLocation.create(MemoryModuleType.CELEBRATE_LOCATION, 2, 1.0F)),
                         BehaviorBuilder.triggerIf(AgressivePiglin::isDancing, GoToTargetLocation.create(MemoryModuleType.CELEBRATE_LOCATION, 4, 0.6F)),
                         new RunOne<AgressivePiglin>(
@@ -125,8 +118,8 @@ public class RevampedPiglinAi {
         );
     }
 
-    private static void initRetreatActivity(Brain<AgressivePiglin> p_34959_) {
-        p_34959_.addActivityAndRemoveMemoryWhenStopped(
+    private static ActivityData<AgressivePiglin> initRetreatActivity() {
+        return ActivityData.create(
                 Activity.AVOID,
                 10,
                 ImmutableList.of(
@@ -455,7 +448,7 @@ public class RevampedPiglinAi {
         p_34968_.getBrain().eraseMemory(MemoryModuleType.ANGRY_AT);
         p_34968_.getBrain().eraseMemory(MemoryModuleType.ATTACK_TARGET);
         p_34968_.getBrain().eraseMemory(MemoryModuleType.WALK_TARGET);
-        p_34968_.getBrain().setMemoryWithExpiry(MemoryModuleType.AVOID_TARGET, p_34969_, RETREAT_DURATION.sample(p_34968_.level().random));
+        p_34968_.getBrain().setMemoryWithExpiry(MemoryModuleType.AVOID_TARGET, p_34969_, RETREAT_DURATION.sample(p_34968_.level().getRandom()));
     }
 
 

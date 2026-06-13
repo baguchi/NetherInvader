@@ -15,7 +15,7 @@ import net.minecraft.data.advancements.AdvancementSubProvider;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 
 import java.util.List;
@@ -36,7 +36,7 @@ public class ModAdvancements extends AdvancementProvider {
 
             AdvancementHolder root = Advancement.Builder.advancement()
                     .display(
-                            new ItemStack(Items.PIGLIN_BRUTE_SPAWN_EGG),
+                            new ItemStackTemplate(Items.PIGLIN_BRUTE_SPAWN_EGG),
                             Component.translatable("advancements.nether_invader.root.title"),
                             Component.translatable("advancements.nether_invader.root.description"),
                             // The background texture. Use null if you don't want a background texture (for non-root advancements).

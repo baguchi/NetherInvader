@@ -1,6 +1,7 @@
 package baguchan.nether_invader.world.savedata;
 
 import baguchan.nether_invader.NetherConfigs;
+import baguchan.nether_invader.NetherInvader;
 import baguchan.nether_invader.entity.PiglinRaider;
 import baguchan.nether_invader.world.raid.PiglinRaid;
 import com.mojang.serialization.Codec;
@@ -21,17 +22,16 @@ import net.minecraft.world.entity.ai.village.poi.PoiRecord;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
-import net.minecraft.world.level.storage.DimensionDataStorage;
+import net.minecraft.world.level.storage.SavedDataStorage;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 import java.util.*;
 
 public class PiglinRaidData extends SavedData {
-    private static final String RAID_FILE_ID = "raids";
+    private static final String RAID_FILE_ID = "piglin_raids";
     public static final Codec<PiglinRaidData> CODEC = RecordCodecBuilder.create((p_400930_) -> p_400930_.group(RaidWithId.CODEC.listOf().optionalFieldOf("raids", List.of()).forGetter((p_400932_) -> p_400932_.raidMap.int2ObjectEntrySet().stream().map(RaidWithId::from).toList()), Codec.INT.fieldOf("next_id").forGetter((p_400933_) -> p_400933_.nextId), Codec.INT.fieldOf("tick").forGetter((p_400931_) -> p_400931_.tick)).apply(p_400930_, PiglinRaidData::new));
-    public static final SavedDataType<PiglinRaidData> TYPE;
-    public static final SavedDataType<PiglinRaidData> TYPE_END;
+    public static final SavedDataType<PiglinRaidData> TYPE = new SavedDataType<>(Identifier.fromNamespaceAndPath(NetherInvader.MODID, "piglin_raids"), PiglinRaidData::new, CODEC);
     private final Int2ObjectMap<PiglinRaid> raidMap = new Int2ObjectOpenHashMap();
     private int nextId = 1;
     private int tick;
@@ -57,7 +57,7 @@ public class PiglinRaidData extends SavedData {
 
             PiglinRaidData fromMap = dataMap.get(overworld);
             if (fromMap == null) {
-                DimensionDataStorage storage = overworld.getDataStorage();
+                SavedDataStorage storage = overworld.getDataStorage();
                 PiglinRaidData data = storage.computeIfAbsent(TYPE);
                 if (data != null) {
                     data.setDirty();
@@ -195,11 +195,6 @@ public class PiglinRaidData extends SavedData {
         }
 
         return raid;
-    }
-
-    static {
-        TYPE = new SavedDataType<>("piglin_raids", PiglinRaidData::new, CODEC);
-        TYPE_END = new SavedDataType<>("piglin_raids_end", PiglinRaidData::new, CODEC);
     }
 
     static record RaidWithId(int id, PiglinRaid raid) {

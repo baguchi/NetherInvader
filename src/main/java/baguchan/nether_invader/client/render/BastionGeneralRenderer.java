@@ -27,12 +27,16 @@ public class BastionGeneralRenderer extends MobRenderer<BastionGeneral, BastionG
     }
 
     @Override
-    public void extractRenderState(BastionGeneral p_362733_, BastionGeneralRenderState p_360515_, float p_361157_) {
-        super.extractRenderState(p_362733_, p_360515_, p_361157_);
-        ArmedEntityRenderState.extractArmedEntityRenderState(p_362733_, p_360515_, this.itemModelResolver, p_361157_);
-        p_360515_.attackAnimationState = p_362733_.attackAnimationState;
-        p_360515_.converting = p_362733_.isConverting();
-        p_360515_.isRiding = p_362733_.isPassenger();
+    public void extractRenderState(BastionGeneral bastionGeneral, BastionGeneralRenderState renderState, float p_361157_) {
+        super.extractRenderState(bastionGeneral, renderState, p_361157_);
+        ArmedEntityRenderState.extractArmedEntityRenderState(bastionGeneral, renderState, this.itemModelResolver, p_361157_);
+        renderState.attackAnimationState.copyFrom(bastionGeneral.attackAnimationState);
+        renderState.spinAttackAnimationState.copyFrom(bastionGeneral.spinAttackPoseAnimationState);
+        renderState.spinAttackPoseAnimationState.copyFrom(bastionGeneral.spinAttackPoseAnimationState);
+        renderState.spinAttackStopAnimationState.copyFrom(bastionGeneral.spinAttackStopAnimationState);
+        renderState.converting = bastionGeneral.isConverting();
+        renderState.isRiding = bastionGeneral.isPassenger();
+        renderState.idle = !bastionGeneral.attackAnimationState.isStarted() && !bastionGeneral.isSpinAttack();
     }
 
     @Override

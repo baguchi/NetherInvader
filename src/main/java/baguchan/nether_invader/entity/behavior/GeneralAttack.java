@@ -17,6 +17,16 @@ public class GeneralAttack<E extends PathfinderMob> extends AttackWithAnimation<
     }
 
     @Override
+    protected boolean checkExtraStartConditions(ServerLevel level, E mob) {
+        return super.checkExtraStartConditions(level, mob);
+    }
+
+    @Override
+    protected boolean canStillUse(ServerLevel p_22545_, E p_22546_, long p_22547_) {
+        return super.canStillUse(p_22545_, p_22546_, p_22547_);
+    }
+
+    @Override
     protected void doAttack(E attacker, LivingEntity living) {
         Level var3 = attacker.level();
 
