@@ -79,7 +79,7 @@ public class AggresivePiglinSpecificSensor extends Sensor<LivingEntity> {
                 if (abstractpiglin.isAdult()) {
                     list1.add(abstractpiglin);
                 }
-            } else if (livingentity1 instanceof IronGolem || livingentity1 instanceof AbstractVillager || livingentity1 instanceof Player) {
+            } else if (livingentity1 instanceof IronGolem || livingentity1 instanceof AbstractVillager || livingentity1 instanceof Player player && !player.getAbilities().invulnerable) {
                 list2.add(livingentity1);
             } else if (livingentity1 instanceof Mob mob) {
                 if (mob.getTarget() == p_26727_) {

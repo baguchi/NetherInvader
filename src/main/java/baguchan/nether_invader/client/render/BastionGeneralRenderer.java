@@ -31,7 +31,7 @@ public class BastionGeneralRenderer extends MobRenderer<BastionGeneral, BastionG
         super.extractRenderState(bastionGeneral, renderState, p_361157_);
         ArmedEntityRenderState.extractArmedEntityRenderState(bastionGeneral, renderState, this.itemModelResolver, p_361157_);
         renderState.attackAnimationState.copyFrom(bastionGeneral.attackAnimationState);
-        renderState.spinAttackAnimationState.copyFrom(bastionGeneral.spinAttackPoseAnimationState);
+        renderState.spinAttackStartAnimationState.copyFrom(bastionGeneral.spinAttackStartAnimationState);
         renderState.spinAttackPoseAnimationState.copyFrom(bastionGeneral.spinAttackPoseAnimationState);
         renderState.spinAttackStopAnimationState.copyFrom(bastionGeneral.spinAttackStopAnimationState);
         renderState.converting = bastionGeneral.isConverting();

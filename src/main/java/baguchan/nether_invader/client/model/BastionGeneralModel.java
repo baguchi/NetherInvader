@@ -126,7 +126,7 @@ public class BastionGeneralModel<T extends BastionGeneralRenderState> extends En
         }
 
         this.attackAnimation.apply(entity.attackAnimationState, entity.ageInTicks);
-        this.spinAttackStartAnimation.apply(entity.spinAttackAnimationState, entity.ageInTicks);
+        this.spinAttackStartAnimation.apply(entity.spinAttackStartAnimationState, entity.ageInTicks);
         this.spinAttackAnimation.apply(entity.spinAttackPoseAnimationState, entity.ageInTicks);
         this.spinAttackStopAnimation.apply(entity.spinAttackStopAnimationState, entity.ageInTicks);
         if (!entity.attackAnimationState.isStarted()) {

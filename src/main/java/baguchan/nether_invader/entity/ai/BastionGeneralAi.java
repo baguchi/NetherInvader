@@ -13,9 +13,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.TimeUtil;
 import net.minecraft.util.valueproviders.UniformInt;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.ActivityData;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.behavior.*;
@@ -29,7 +27,9 @@ import net.minecraft.world.entity.monster.piglin.Piglin;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gamerules.GameRules;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
@@ -372,14 +372,51 @@ public class BastionGeneralAi {
         protected void start(ServerLevel level, BastionGeneral body, long timestamp) {
             Optional<List<LivingEntity>> list = body.getBrain().getMemory(ModMemoryModuleType.NEAREST_VISIBLE_ENEMY.get());
 
+            if (body.isVisuallySpin() && !body.isVisuallySpinningStart()) {
+                this.doAttack(body);
+            }
 
-            if (body.isSpinAttack() && !body.isInWater() && level.getGameTime() - 200 >= this.lastSpinTick) {
+            if (body.isSpinAttack() && !body.isInWater() && level.getGameTime() - 60 >= this.lastSpinTick) {
                 this.lastSpinTick = level.getGameTime();
                 body.stopSpin();
-            } else if (list.isPresent() && list.get().size() > 2 && !body.hasControllingPassenger() && level.getGameTime() - 600 >= this.lastSpinTick) {
+            } else if (list.isPresent() && list.get().size() > 3 && !body.hasControllingPassenger() && level.getGameTime() - 600 >= this.lastSpinTick) {
                 this.lastSpinTick = level.getGameTime();
                 body.startSpin();
             }
+        }
+
+
+        protected void doAttack(BastionGeneral attacker) {
+            Level var3 = attacker.level();
+
+            if (var3 instanceof ServerLevel serverLevel) {
+                List<LivingEntity> entitiesHit = serverLevel.getEntitiesOfClass(LivingEntity.class, getAttackBoundingBox(attacker));
+                for (LivingEntity entity : entitiesHit) {
+                    if (entity != attacker) {
+                        if (attacker.canAttack(entity) && !attacker.isAlliedTo(entity)) {
+                            Vec3 vec3 = entity.getEyePosition();
+                            Vec3 yVector = attacker.calculateViewVector(attacker.getXRot(), attacker.getYHeadRot());
+                            Vec3 vec32 = vec3.subtract(attacker.getEyePosition());
+                            Vec3 vec33 = (new Vec3(vec32.x, vec32.y, vec32.z)).normalize();
+                            attacker.doHurtTarget(serverLevel, entity);
+                        }
+                    }
+                }
+            }
+        }
+
+        public AABB getAttackBoundingBox(PathfinderMob attacker) {
+            Entity entity = attacker.getVehicle();
+            AABB aabb;
+            if (entity != null) {
+                AABB aabb1 = entity.getBoundingBox();
+                AABB aabb2 = attacker.getBoundingBox();
+                aabb = new AABB(Math.min(aabb2.minX, aabb1.minX), aabb2.minY, Math.min(aabb2.minZ, aabb1.minZ), Math.max(aabb2.maxX, aabb1.maxX), aabb2.maxY, Math.max(aabb2.maxZ, aabb1.maxZ));
+            } else {
+                aabb = attacker.getBoundingBox();
+            }
+
+            return aabb.inflate(Math.sqrt(2.04F), 0.0F, Math.sqrt(2.04F));
         }
     }
 }

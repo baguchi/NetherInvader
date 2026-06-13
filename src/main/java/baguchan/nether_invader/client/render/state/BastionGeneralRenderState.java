@@ -8,7 +8,7 @@ public class BastionGeneralRenderState extends ArmedEntityRenderState {
     public boolean converting;
     public boolean idle;
     public AnimationState attackAnimationState = new AnimationState();
-    public final AnimationState spinAttackAnimationState = new AnimationState();
+    public final AnimationState spinAttackStartAnimationState = new AnimationState();
     public final AnimationState spinAttackPoseAnimationState = new AnimationState();
     public final AnimationState spinAttackStopAnimationState = new AnimationState();
 

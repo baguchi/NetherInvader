@@ -76,7 +76,7 @@ public class BastionGeneral extends AbstractPiglin {
     public static final EntityDataAccessor<Long> LAST_POSE_CHANGE_TICK = SynchedEntityData.defineId(BastionGeneral.class, EntityDataSerializers.LONG);
 
 
-    public final AnimationState spinAttackAnimationState = new AnimationState();
+    public final AnimationState spinAttackStartAnimationState = new AnimationState();
     public final AnimationState spinAttackPoseAnimationState = new AnimationState();
     public final AnimationState spinAttackStopAnimationState = new AnimationState();
 
@@ -115,21 +115,33 @@ public class BastionGeneral extends AbstractPiglin {
 
     }
 
+    @Override
+    public void tick() {
+        super.tick();
+        if (this.level().isClientSide()) {
+            this.setupAnimationStates();
+        }
+    }
+
     private void setupAnimationStates() {
         if (this.isVisuallySpin()) {
             this.spinAttackStopAnimationState.stop();
-            if (this.isVisuallySpin()) {
-                this.spinAttackAnimationState.startIfStopped(this.tickCount);
+            if (this.isVisuallySpinningStart()) {
+                this.spinAttackStartAnimationState.startIfStopped(this.tickCount);
                 this.spinAttackPoseAnimationState.stop();
             } else {
-                this.spinAttackAnimationState.stop();
+                this.spinAttackStartAnimationState.stop();
                 this.spinAttackPoseAnimationState.startIfStopped(this.tickCount);
             }
         } else {
-            this.spinAttackAnimationState.stop();
+            this.spinAttackStartAnimationState.stop();
             this.spinAttackPoseAnimationState.stop();
             this.spinAttackStopAnimationState.animateWhen(this.isInPoseTransition() && this.getPoseTime() >= 0L, this.tickCount);
         }
+    }
+
+    public boolean isVisuallySpinningStart() {
+        return this.isSpinAttack() && this.getPoseTime() < 13L && this.getPoseTime() >= 0L;
     }
 
     public boolean isInPoseTransition() {
@@ -195,7 +207,7 @@ public class BastionGeneral extends AbstractPiglin {
     }
 
     public static AttributeSupplier.Builder createAttributes() {
-        return Monster.createMonsterAttributes().add(Attributes.MAX_HEALTH, 80.0).add(Attributes.ARMOR, 4.0F).add(Attributes.ARMOR_TOUGHNESS, 3.0F).add(Attributes.MOVEMENT_SPEED, 0.35F).add(Attributes.ATTACK_DAMAGE, 5.0).add(Attributes.FOLLOW_RANGE, 35);
+        return Monster.createMonsterAttributes().add(Attributes.MAX_HEALTH, 80.0).add(Attributes.ARMOR, 4.0F).add(Attributes.ARMOR_TOUGHNESS, 3.0F).add(Attributes.MOVEMENT_SPEED, 0.35F).add(Attributes.ATTACK_DAMAGE, 5.0).add(Attributes.FOLLOW_RANGE, 20);
     }
 
     @Override
