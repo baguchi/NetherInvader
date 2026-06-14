@@ -21,6 +21,7 @@ public class DataGenerators {
         event.getGenerator().addProvider(true, new RegistryDataGenerator(packOutput, lookupProvider));
 
         DatapackBuiltinEntriesProvider datapackProvider = new RegistryDataGenerator(packOutput, lookupProvider);
+        generator.addProvider(true, ModLootTableProvider.create(packOutput, lookupProvider));
         generator.addProvider(true, new ModAdvancements(packOutput, lookupProvider));
     }
 }

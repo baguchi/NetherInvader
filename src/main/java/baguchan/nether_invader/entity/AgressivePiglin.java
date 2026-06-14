@@ -2,10 +2,8 @@ package baguchan.nether_invader.entity;
 
 import baguchan.nether_invader.entity.ai.AgressivePiglinAi;
 import baguchan.nether_invader.registry.ModEntities;
-import baguchan.nether_invader.registry.ModMemoryModuleType;
 import baguchan.nether_invader.registry.ModSensors;
 import baguchan.nether_invader.world.raid.PiglinRaid;
-import com.google.common.collect.ImmutableList;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
@@ -28,7 +26,6 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.sensing.Sensor;
 import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.monster.CrossbowAttackMob;
 import net.minecraft.world.entity.monster.Monster;
@@ -66,89 +63,16 @@ public class AgressivePiglin extends AbstractPiglin implements CrossbowAttackMob
     private static final double PROBABILITY_OF_SPAWNING_WITH_CROSSBOW_INSTEAD_OF_SWORD = 0.5;
     private boolean cannotHunt;
     public static final Brain.Provider<AgressivePiglin> BRAIN_PROVIDER = Brain.provider(
-            List.of(MemoryModuleType.LOOK_TARGET,
-                    MemoryModuleType.DOORS_TO_CLOSE,
-                    MemoryModuleType.NEAREST_LIVING_ENTITIES,
-                    MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES,
-                    MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES,
-                    MemoryModuleType.NEAREST_VISIBLE_PLAYER,
-                    MemoryModuleType.NEAREST_VISIBLE_ATTACKABLE_PLAYER,
-                    MemoryModuleType.NEAREST_VISIBLE_ADULT_PIGLINS,
-                    MemoryModuleType.NEARBY_ADULT_PIGLINS,
-                    MemoryModuleType.NEAREST_VISIBLE_WANTED_ITEM,
-                    MemoryModuleType.ITEM_PICKUP_COOLDOWN_TICKS,
-                    MemoryModuleType.HURT_BY,
-                    MemoryModuleType.HURT_BY_ENTITY,
-                    MemoryModuleType.WALK_TARGET,
-                    MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE,
-                    MemoryModuleType.ATTACK_TARGET,
-                    MemoryModuleType.ATTACK_COOLING_DOWN,
-                    MemoryModuleType.INTERACTION_TARGET,
-                    MemoryModuleType.PATH,
-                    MemoryModuleType.ANGRY_AT,
-                    MemoryModuleType.UNIVERSAL_ANGER,
-                    MemoryModuleType.AVOID_TARGET,
-                    MemoryModuleType.CELEBRATE_LOCATION,
-                    MemoryModuleType.DANCING,
-                    MemoryModuleType.NEAREST_VISIBLE_BABY_HOGLIN,
-                    MemoryModuleType.NEAREST_VISIBLE_NEMESIS,
-                    MemoryModuleType.NEAREST_VISIBLE_ZOMBIFIED,
-                    MemoryModuleType.VISIBLE_ADULT_PIGLIN_COUNT,
-                    MemoryModuleType.VISIBLE_ADULT_HOGLIN_COUNT,
+            List.of(MemoryModuleType.UNIVERSAL_ANGER,
                     MemoryModuleType.ATE_RECENTLY,
-                    MemoryModuleType.NEAREST_REPELLENT,
                     MemoryModuleType.SPEAR_FLEEING_TIME,
                     MemoryModuleType.SPEAR_FLEEING_POSITION,
                     MemoryModuleType.SPEAR_CHARGE_POSITION,
-                    MemoryModuleType.SPEAR_ENGAGE_TIME,
-                    MemoryModuleType.SPEAR_STATUS,
-                    ModMemoryModuleType.NEAREST_VISIBLE_ENEMY.get()),
+                    MemoryModuleType.SPEAR_ENGAGE_TIME),
             List.of(
                     baguchi.bagus_lib.register.ModSensors.SMART_NEAREST_LIVING_ENTITY_SENSOR.get(), SensorType.NEAREST_PLAYERS, SensorType.NEAREST_ITEMS, SensorType.HURT_BY, ModSensors.ANGER_PIGLIN_SENSOR.get()
             ),
             AgressivePiglinAi::getActivities
-    );
-
-    protected static final ImmutableList<SensorType<? extends Sensor<? super AgressivePiglin>>> SENSOR_TYPES = ImmutableList.of(
-            baguchi.bagus_lib.register.ModSensors.SMART_NEAREST_LIVING_ENTITY_SENSOR.get(), SensorType.NEAREST_PLAYERS, SensorType.NEAREST_ITEMS, SensorType.HURT_BY, ModSensors.ANGER_PIGLIN_SENSOR.get()
-    );
-    protected static final ImmutableList<MemoryModuleType<?>> MEMORY_TYPES = ImmutableList.of(
-            MemoryModuleType.LOOK_TARGET,
-            MemoryModuleType.DOORS_TO_CLOSE,
-            MemoryModuleType.NEAREST_LIVING_ENTITIES,
-            MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES,
-            MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES,
-            MemoryModuleType.NEAREST_VISIBLE_PLAYER,
-            MemoryModuleType.NEAREST_VISIBLE_ATTACKABLE_PLAYER,
-            MemoryModuleType.NEAREST_VISIBLE_ADULT_PIGLINS,
-            MemoryModuleType.NEARBY_ADULT_PIGLINS,
-            MemoryModuleType.NEAREST_VISIBLE_WANTED_ITEM,
-            MemoryModuleType.ITEM_PICKUP_COOLDOWN_TICKS,
-            MemoryModuleType.HURT_BY,
-            MemoryModuleType.HURT_BY_ENTITY,
-            MemoryModuleType.WALK_TARGET,
-            MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE,
-            MemoryModuleType.ATTACK_TARGET,
-            MemoryModuleType.ATTACK_COOLING_DOWN,
-            MemoryModuleType.INTERACTION_TARGET,
-            MemoryModuleType.PATH,
-            MemoryModuleType.ANGRY_AT,
-            MemoryModuleType.UNIVERSAL_ANGER,
-            MemoryModuleType.AVOID_TARGET,
-            MemoryModuleType.CELEBRATE_LOCATION,
-            MemoryModuleType.DANCING,
-            MemoryModuleType.NEAREST_VISIBLE_BABY_HOGLIN,
-            MemoryModuleType.NEAREST_VISIBLE_NEMESIS,
-            MemoryModuleType.NEAREST_VISIBLE_ZOMBIFIED,
-            MemoryModuleType.VISIBLE_ADULT_PIGLIN_COUNT,
-            MemoryModuleType.VISIBLE_ADULT_HOGLIN_COUNT,
-            MemoryModuleType.ATE_RECENTLY,
-            MemoryModuleType.NEAREST_REPELLENT,
-            MemoryModuleType.SPEAR_FLEEING_TIME,
-            MemoryModuleType.SPEAR_FLEEING_POSITION,
-            MemoryModuleType.SPEAR_CHARGE_POSITION,
-            MemoryModuleType.SPEAR_ENGAGE_TIME,
-            MemoryModuleType.SPEAR_STATUS
     );
 
     public AgressivePiglin(EntityType<? extends AbstractPiglin> p_34683_, Level p_34684_) {

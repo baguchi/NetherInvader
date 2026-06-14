@@ -1,10 +1,7 @@
 package baguchan.nether_invader.registry;
 
 import baguchan.nether_invader.NetherInvader;
-import baguchan.nether_invader.entity.AgressivePiglin;
-import baguchan.nether_invader.entity.BastionGeneral;
-import baguchan.nether_invader.entity.ChainedGhast;
-import baguchan.nether_invader.entity.Scaffolding;
+import baguchan.nether_invader.entity.*;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
@@ -54,6 +51,13 @@ public class ModEntities {
             .ridingOffset(-0.7F)
             .notInPeaceful()
             .clientTrackingRange(8).build(prefix("bastion_general")));
+    public static final DeferredHolder<EntityType<?>, EntityType<PiglinWarrior>> PIGLIN_WARRIOR = ENTITIES_REGISTRY.register("piglin_warrior", () -> EntityType.Builder.of(PiglinWarrior::new, MobCategory.MONSTER)
+            .sized(0.7F, 2.15F)
+            .eyeHeight(1.85F)
+            .passengerAttachments(2.0125F)
+            .ridingOffset(-0.7F)
+            .notInPeaceful()
+            .clientTrackingRange(8).build(prefix("piglin_warrior")));
 
 
     @SubscribeEvent
@@ -62,6 +66,7 @@ public class ModEntities {
         event.put(SCAFFOLDING.get(), Scaffolding.createAttributes().build());
         event.put(AGRESSIVE_PIGLIN.get(), AgressivePiglin.createAttributes().build());
         event.put(BASTION_GENERAL.get(), BastionGeneral.createAttributes().build());
+        event.put(PIGLIN_WARRIOR.get(), PiglinWarrior.createAttributes().build());
     }
 
     @SubscribeEvent
@@ -69,6 +74,7 @@ public class ModEntities {
         event.register(CHAINED_GHAST.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, ChainedGhast::checkChainGhastSpawnRules, RegisterSpawnPlacementsEvent.Operation.OR);
         event.register(AGRESSIVE_PIGLIN.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, AbstractPiglin::checkMonsterSpawnRules, RegisterSpawnPlacementsEvent.Operation.OR);
         event.register(BASTION_GENERAL.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, AbstractPiglin::checkMonsterSpawnRules, RegisterSpawnPlacementsEvent.Operation.OR);
+        event.register(PIGLIN_WARRIOR.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, AbstractPiglin::checkMonsterSpawnRules, RegisterSpawnPlacementsEvent.Operation.OR);
     }
 
     private static ResourceKey<EntityType<?>> prefix(String path) {

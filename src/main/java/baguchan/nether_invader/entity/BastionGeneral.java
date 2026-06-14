@@ -2,7 +2,6 @@ package baguchan.nether_invader.entity;
 
 import baguchan.nether_invader.entity.ai.BastionGeneralAi;
 import baguchan.nether_invader.registry.ModItems;
-import baguchan.nether_invader.registry.ModMemoryModuleType;
 import baguchan.nether_invader.registry.ModSensors;
 import com.google.common.annotations.VisibleForTesting;
 import net.minecraft.core.BlockPos;
@@ -38,38 +37,7 @@ import java.util.List;
 public class BastionGeneral extends AbstractPiglin {
 
     public static final Brain.Provider<BastionGeneral> BRAIN_PROVIDER = Brain.provider(
-            List.of(MemoryModuleType.LOOK_TARGET,
-                    MemoryModuleType.DOORS_TO_CLOSE,
-                    MemoryModuleType.NEAREST_LIVING_ENTITIES,
-                    MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES,
-                    MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES,
-                    MemoryModuleType.NEAREST_VISIBLE_PLAYER,
-                    MemoryModuleType.NEAREST_VISIBLE_ATTACKABLE_PLAYER,
-                    MemoryModuleType.NEAREST_VISIBLE_ADULT_PIGLINS,
-                    MemoryModuleType.NEARBY_ADULT_PIGLINS,
-                    MemoryModuleType.NEAREST_VISIBLE_WANTED_ITEM,
-                    MemoryModuleType.ITEM_PICKUP_COOLDOWN_TICKS,
-                    MemoryModuleType.HURT_BY,
-                    MemoryModuleType.HURT_BY_ENTITY,
-                    MemoryModuleType.WALK_TARGET,
-                    MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE,
-                    MemoryModuleType.ATTACK_TARGET,
-                    MemoryModuleType.ATTACK_COOLING_DOWN,
-                    MemoryModuleType.INTERACTION_TARGET,
-                    MemoryModuleType.PATH,
-                    MemoryModuleType.ANGRY_AT,
-                    MemoryModuleType.UNIVERSAL_ANGER,
-                    MemoryModuleType.AVOID_TARGET,
-                    MemoryModuleType.CELEBRATE_LOCATION,
-                    MemoryModuleType.DANCING,
-                    MemoryModuleType.NEAREST_VISIBLE_BABY_HOGLIN,
-                    MemoryModuleType.NEAREST_VISIBLE_NEMESIS,
-                    MemoryModuleType.NEAREST_VISIBLE_ZOMBIFIED,
-                    MemoryModuleType.VISIBLE_ADULT_PIGLIN_COUNT,
-                    MemoryModuleType.VISIBLE_ADULT_HOGLIN_COUNT,
-                    MemoryModuleType.ATE_RECENTLY,
-                    MemoryModuleType.NEAREST_REPELLENT,
-                    ModMemoryModuleType.NEAREST_VISIBLE_ENEMY.get()),
+            List.of(MemoryModuleType.UNIVERSAL_ANGER),
             List.of(baguchi.bagus_lib.register.ModSensors.SMART_NEAREST_LIVING_ENTITY_SENSOR.get(), SensorType.NEAREST_PLAYERS, SensorType.NEAREST_ITEMS, SensorType.HURT_BY, ModSensors.ANGER_PIGLIN_SENSOR.get()),
             BastionGeneralAi::getActivities
     );
@@ -214,7 +182,7 @@ public class BastionGeneral extends AbstractPiglin {
     }
 
     public static AttributeSupplier.Builder createAttributes() {
-        return Monster.createMonsterAttributes().add(Attributes.MAX_HEALTH, 80.0).add(Attributes.ARMOR, 4.0F).add(Attributes.ARMOR_TOUGHNESS, 3.0F).add(Attributes.MOVEMENT_SPEED, 0.32F).add(Attributes.ATTACK_DAMAGE, 5.0).add(Attributes.FOLLOW_RANGE, 20);
+        return Monster.createMonsterAttributes().add(Attributes.MAX_HEALTH, 80.0).add(Attributes.ARMOR, 4.0F).add(Attributes.ARMOR_TOUGHNESS, 3.0F).add(Attributes.MOVEMENT_SPEED, 0.3F).add(Attributes.ATTACK_DAMAGE, 5.0).add(Attributes.FOLLOW_RANGE, 20);
     }
 
     @Override

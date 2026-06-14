@@ -1,6 +1,6 @@
 package baguchan.nether_invader.entity.behavior;
 
-import baguchan.nether_invader.entity.BastionGeneral;
+import baguchan.nether_invader.entity.PiglinWarrior;
 import baguchi.bagus_lib.entity.brain.behaviors.AttackWithAnimation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -12,19 +12,9 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 
-public class GeneralAttack<E extends BastionGeneral> extends AttackWithAnimation<E> {
-    public GeneralAttack(int actionPoint, int attackLength, int cooldownBetweenAttacks, float speed) {
+public class PiglinWarriorAttack<E extends PiglinWarrior> extends AttackWithAnimation<E> {
+    public PiglinWarriorAttack(int actionPoint, int attackLength, int cooldownBetweenAttacks, float speed) {
         super(actionPoint, attackLength, cooldownBetweenAttacks, speed);
-    }
-
-    @Override
-    protected boolean checkExtraStartConditions(ServerLevel level, E mob) {
-        return !mob.isSpinAttack() && super.checkExtraStartConditions(level, mob);
-    }
-
-    @Override
-    protected boolean canStillUse(ServerLevel p_22545_, E mob, long p_22547_) {
-        return !mob.isSpinAttack() && super.canStillUse(p_22545_, mob, p_22547_);
     }
 
     @Override
@@ -61,7 +51,7 @@ public class GeneralAttack<E extends BastionGeneral> extends AttackWithAnimation
             aabb = attacker.getBoundingBox();
         }
 
-        return aabb.inflate(Math.sqrt(2.04F), 0.0F, Math.sqrt(2.04F));
+        return aabb.inflate(Math.sqrt(1.8F), 0.0F, Math.sqrt(1.8F));
     }
 
     public boolean resolveAttack(double yRot, double yRotAttackRange) {

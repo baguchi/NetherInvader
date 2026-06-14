@@ -376,10 +376,10 @@ public class BastionGeneralAi {
                 this.doAttack(body);
             }
 
-            if (body.isSpinAttack() && !body.isInWater() && !body.hasControllingPassenger() && level.getGameTime() - 60 >= this.lastSpinTick) {
+            if (body.isSpinAttack() && !body.isInWater() && level.getGameTime() - 60 >= this.lastSpinTick) {
                 this.lastSpinTick = level.getGameTime();
                 body.stopSpin();
-            } else if (list.isPresent() && list.get().size() > 3 && !body.hasControllingPassenger() && level.getGameTime() - 600 >= this.lastSpinTick) {
+            } else if (list.isPresent() && list.get().size() > 3 && body.getVehicle() != null && level.getGameTime() - 600 >= this.lastSpinTick) {
                 this.lastSpinTick = level.getGameTime();
                 body.startSpin();
             }

@@ -37,7 +37,8 @@ public class AggresivePiglinSpecificSensor extends Sensor<LivingEntity> {
                 MemoryModuleType.NEARBY_ADULT_PIGLINS,
                 MemoryModuleType.VISIBLE_ADULT_PIGLIN_COUNT,
                 MemoryModuleType.VISIBLE_ADULT_HOGLIN_COUNT,
-                MemoryModuleType.NEAREST_REPELLENT
+                MemoryModuleType.NEAREST_REPELLENT,
+                ModMemoryModuleType.NEAREST_VISIBLE_ENEMY.get()
         );
     }
 
