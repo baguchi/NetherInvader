@@ -93,7 +93,7 @@ public class PiglinWarriorAi {
                 ImmutableList.<net.minecraft.world.entity.ai.behavior.BehaviorControl<? super PiglinWarrior>>of(
                         StopAttackingIfTargetInvalid.create((level, target) -> !isNearestValidAttackTarget(level, body, target)),
                         SetWalkTargetFromAttackTargetIfTargetOutOfReach.create(1.0F),
-                        new PiglinWarriorAttack<>(13, 32, 32, 0.8F),
+                        new PiglinWarriorAttack<>((int) (13 * 0.5F), (int) (32 * 0.5F), (int) (26), 0.8F),
                         RememberIfHoglinWasKilled.create()),
                 MemoryModuleType.ATTACK_TARGET
         );

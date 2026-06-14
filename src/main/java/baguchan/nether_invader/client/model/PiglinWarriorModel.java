@@ -111,7 +111,7 @@ public class PiglinWarriorModel<T extends PiglinWarriorRenderState> extends Enti
 			this.walkAnimation.applyWalk(entity.walkAnimationPos, entity.walkAnimationSpeed, 1.0F, 2.5F);
 		}
 
-		this.attackAnimation.apply(entity.attackAnimationState, entity.ageInTicks);
+		this.attackAnimation.apply(entity.attackAnimationState, entity.ageInTicks, 2.0F);
 		if (!entity.idle) {
 			this.idleAnimation.applyWalk(entity.ageInTicks, 1.0F, 2.0F, 2.5F);
 		}
@@ -119,8 +119,15 @@ public class PiglinWarriorModel<T extends PiglinWarriorRenderState> extends Enti
 			this.rightArm.resetPose();
 			this.leftArm.resetPose();
 			this.head.resetPose();
-
-			this.bartingAnimation.applyWalk(entity.ageInTicks, 1.0F, 1.0F, 1.0F);
+			this.head.xRot = 0.5F;
+			this.head.yRot = 0.0F;
+			if (entity.mainArm == HumanoidArm.LEFT) {
+				this.rightArm.yRot = -0.5F;
+				this.rightArm.xRot = -0.9F;
+			} else {
+				this.leftArm.yRot = 0.5F;
+				this.leftArm.xRot = -0.9F;
+			}
 		}
 	}
 

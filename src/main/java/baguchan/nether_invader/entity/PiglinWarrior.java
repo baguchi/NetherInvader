@@ -62,7 +62,7 @@ public class PiglinWarrior extends AbstractPiglin {
     );
 
     public final AnimationState attackAnimationState = new AnimationState();
-    private final int attackAnimationLength = 34;
+    private final int attackAnimationLength = (int) (34 * 0.5F);
 
     private int attackAnimationTick;
 
@@ -223,6 +223,13 @@ public class PiglinWarrior extends AbstractPiglin {
         }
     }
 
+    //sorry. I want to create diversity, but it was difficult for now...
+    @Override
+    public HumanoidArm getMainArm() {
+        return HumanoidArm.RIGHT;
+    }
+
+
     @Override
     public boolean hurtServer(ServerLevel serverLevel, DamageSource p_34694_, float p_34695_) {
         boolean flag = super.hurtServer(serverLevel, p_34694_, p_34695_);
@@ -323,4 +330,12 @@ public class PiglinWarrior extends AbstractPiglin {
         PiglinWarriorAi.pickUpItem(level, this, entity);
     }
 
+    @Override
+    protected boolean considersEntityAsAlly(Entity p_360600_) {
+        if (super.considersEntityAsAlly(p_360600_)) {
+            return true;
+        } else {
+            return p_360600_ instanceof AbstractPiglin && this.getTeam() == null && p_360600_.getTeam() == null;
+        }
+    }
 }
