@@ -175,6 +175,8 @@ public class PiglinSpearerModel<T extends PiglinSpearerRenderState> extends Enti
         this.body.translateAndRotate(poseStack);
         this.head_ext.translateAndRotate(poseStack);
         modelPart.translateAndRotate(poseStack);
+        poseStack.translate(0, (2F / 16F), 0);
+        poseStack.scale(1.1F, 1.1F, 1.1F);
     }
 
     @Override
