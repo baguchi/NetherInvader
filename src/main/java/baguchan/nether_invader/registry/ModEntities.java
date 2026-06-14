@@ -58,6 +58,14 @@ public class ModEntities {
             .ridingOffset(-0.7F)
             .notInPeaceful()
             .clientTrackingRange(8).build(prefix("piglin_warrior")));
+    public static final DeferredHolder<EntityType<?>, EntityType<PiglinSpearer>> PIGLIN_SPEARER = ENTITIES_REGISTRY.register("piglin_spearer", () -> EntityType.Builder.of(PiglinSpearer::new, MobCategory.MONSTER)
+            .sized(0.6F, 1.95F)
+            .eyeHeight(1.79F)
+            .passengerAttachments(2.0125F)
+            .ridingOffset(-0.7F)
+            .clientTrackingRange(8)
+            .notInPeaceful()
+            .clientTrackingRange(8).build(prefix("piglin_spearer")));
 
 
     @SubscribeEvent
@@ -67,6 +75,7 @@ public class ModEntities {
         event.put(AGRESSIVE_PIGLIN.get(), AgressivePiglin.createAttributes().build());
         event.put(BASTION_GENERAL.get(), BastionGeneral.createAttributes().build());
         event.put(PIGLIN_WARRIOR.get(), PiglinWarrior.createAttributes().build());
+        event.put(PIGLIN_SPEARER.get(), PiglinSpearer.createAttributes().build());
     }
 
     @SubscribeEvent
@@ -75,6 +84,7 @@ public class ModEntities {
         event.register(AGRESSIVE_PIGLIN.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, AbstractPiglin::checkMonsterSpawnRules, RegisterSpawnPlacementsEvent.Operation.OR);
         event.register(BASTION_GENERAL.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, AbstractPiglin::checkMonsterSpawnRules, RegisterSpawnPlacementsEvent.Operation.OR);
         event.register(PIGLIN_WARRIOR.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, AbstractPiglin::checkMonsterSpawnRules, RegisterSpawnPlacementsEvent.Operation.OR);
+        event.register(PIGLIN_SPEARER.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, AbstractPiglin::checkMonsterSpawnRules, RegisterSpawnPlacementsEvent.Operation.OR);
     }
 
     private static ResourceKey<EntityType<?>> prefix(String path) {

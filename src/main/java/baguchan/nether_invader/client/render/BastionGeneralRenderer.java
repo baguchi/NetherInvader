@@ -15,9 +15,9 @@ public class BastionGeneralRenderer extends MobRenderer<BastionGeneral, BastionG
     private static final Identifier TEXTURES = Identifier.fromNamespaceAndPath(NetherInvader.MODID, "textures/entity/bastion_general.png");
 
     public BastionGeneralRenderer(
-            EntityRendererProvider.Context p_174344_
+            EntityRendererProvider.Context context
     ) {
-        super(p_174344_, new BastionGeneralModel<>(p_174344_.bakeLayer(ModModelLayers.BASTION_GENERAL)), 0.5F);
+        super(context, new BastionGeneralModel<>(context.bakeLayer(ModModelLayers.BASTION_GENERAL)), 0.5F);
         this.addLayer(new ItemInHandLayer<>(this));
     }
 

@@ -1,7 +1,6 @@
 package baguchan.nether_invader.entity;
 
 import baguchan.nether_invader.entity.ai.AgressivePiglinAi;
-import baguchan.nether_invader.registry.ModEntities;
 import baguchan.nether_invader.registry.ModSensors;
 import baguchan.nether_invader.world.raid.PiglinRaid;
 import net.minecraft.core.BlockPos;
@@ -117,7 +116,7 @@ public class AgressivePiglin extends AbstractPiglin implements CrossbowAttackMob
     }
 
     public static AttributeSupplier.Builder createAttributes() {
-        return Monster.createMonsterAttributes().add(Attributes.MAX_HEALTH, 16.0).add(Attributes.MOVEMENT_SPEED, 0.35F).add(Attributes.ATTACK_DAMAGE, 5.0).add(Attributes.FOLLOW_RANGE, 20);
+        return Monster.createMonsterAttributes().add(Attributes.MAX_HEALTH, 16.0).add(Attributes.MOVEMENT_SPEED, 0.35F).add(Attributes.ATTACK_DAMAGE, 5.0).add(Attributes.FOLLOW_RANGE, 16);
     }
 
     public static boolean checkPiglinSpawnRules(
@@ -162,9 +161,7 @@ public class AgressivePiglin extends AbstractPiglin implements CrossbowAttackMob
                 this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.NETHERITE_SWORD));
                 this.setDropChance(EquipmentSlot.MAINHAND, 0.0F);
             } else if (this.getControlledVehicle() != null) {
-                if (this.getType() == ModEntities.AGRESSIVE_PIGLIN.get()) {
-                    this.setItemSlot(EquipmentSlot.MAINHAND, Items.CROSSBOW.getDefaultInstance());
-                }
+                this.setItemSlot(EquipmentSlot.MAINHAND, Items.CROSSBOW.getDefaultInstance());
             } else {
                 this.setItemSlot(EquipmentSlot.MAINHAND, this.createSpawnWeapon());
             }

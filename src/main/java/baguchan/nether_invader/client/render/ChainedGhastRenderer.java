@@ -13,8 +13,8 @@ public class ChainedGhastRenderer extends MobRenderer<Ghast, GhastRenderState, G
     private static final Identifier GHAST_LOCATION = Identifier.fromNamespaceAndPath(NetherInvader.MODID, "textures/entity/chained_ghast/chained_ghast.png");
     private static final Identifier GHAST_SHOOTING_LOCATION = Identifier.fromNamespaceAndPath(NetherInvader.MODID, "textures/entity/chained_ghast/chained_ghast_shooting.png");
 
-    public ChainedGhastRenderer(EntityRendererProvider.Context p_174129_) {
-        super(p_174129_, new GhastModel(p_174129_.bakeLayer(ModelLayers.GHAST)), 1.5F);
+    public ChainedGhastRenderer(EntityRendererProvider.Context context) {
+        super(context, new GhastModel(context.bakeLayer(ModelLayers.GHAST)), 1.5F);
     }
 
     public Identifier getTextureLocation(GhastRenderState p_361669_) {

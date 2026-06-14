@@ -122,14 +122,14 @@ public class BastionGeneralModel<T extends BastionGeneralRenderState> extends En
             this.leftLeg.yRot = (-(float) Math.PI / 10F);
             this.leftLeg.zRot = -0.07853982F;
         } else {
-            this.walkAnimation.applyWalk(entity.walkAnimationPos, entity.walkAnimationSpeed, 1.0F, 2.5F);
+            this.walkAnimation.applyWalk(entity.walkAnimationPos, entity.walkAnimationSpeed, 2.0F, 2.5F);
         }
 
         this.attackAnimation.apply(entity.attackAnimationState, entity.ageInTicks);
         this.spinAttackStartAnimation.apply(entity.spinAttackStartAnimationState, entity.ageInTicks);
         this.spinAttackAnimation.apply(entity.spinAttackPoseAnimationState, entity.ageInTicks);
         this.spinAttackStopAnimation.apply(entity.spinAttackStopAnimationState, entity.ageInTicks);
-        if (!entity.idle) {
+        if (entity.idle) {
             this.idleAnimation.applyWalk(entity.ageInTicks, 1.0F, 2.0F, 2.5F);
         }
     }

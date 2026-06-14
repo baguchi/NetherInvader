@@ -31,7 +31,6 @@ public class PiglinWarriorModel<T extends PiglinWarriorRenderState> extends Enti
 	private final KeyframeAnimation idleAnimation;
 	private final KeyframeAnimation walkAnimation;
 	private final KeyframeAnimation attackAnimation;
-	private final KeyframeAnimation bartingAnimation;
 
 	public PiglinWarriorModel(ModelPart root) {
         super(root);
@@ -50,7 +49,6 @@ public class PiglinWarriorModel<T extends PiglinWarriorRenderState> extends Enti
 		this.idleAnimation = PiglinWarriorAnimations.idle.bake(root);
 		this.attackAnimation = PiglinWarriorAnimations.swing.bake(root);
 		this.walkAnimation = PiglinWarriorAnimations.walk.bake(root);
-		this.bartingAnimation = PiglinWarriorAnimations.barter_loop.bake(root);
 	}
 
     public static LayerDefinition createBodyLayer() {
@@ -108,11 +106,11 @@ public class PiglinWarriorModel<T extends PiglinWarriorRenderState> extends Enti
 			this.leftLeg.yRot = (-(float) Math.PI / 10F);
 			this.leftLeg.zRot = -0.07853982F;
 		} else {
-			this.walkAnimation.applyWalk(entity.walkAnimationPos, entity.walkAnimationSpeed, 1.0F, 2.5F);
+			this.walkAnimation.applyWalk(entity.walkAnimationPos, entity.walkAnimationSpeed, 2.0F, 2.5F);
 		}
 
 		this.attackAnimation.apply(entity.attackAnimationState, entity.ageInTicks, 2.0F);
-		if (!entity.idle) {
+		if (entity.idle) {
 			this.idleAnimation.applyWalk(entity.ageInTicks, 1.0F, 2.0F, 2.5F);
 		}
 		if (entity.barting) {

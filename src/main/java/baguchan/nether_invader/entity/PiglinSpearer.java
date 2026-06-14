@@ -1,9 +1,11 @@
 package baguchan.nether_invader.entity;
 
-import baguchan.nether_invader.entity.ai.PiglinWarriorAi;
+import baguchan.nether_invader.entity.ai.PiglinSpearerAi;
 import baguchan.nether_invader.registry.ModSensors;
+import baguchan.nether_invader.world.raid.PiglinRaid;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
@@ -42,7 +44,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class PiglinWarrior extends AbstractPiglin {
+public class PiglinSpearer extends AbstractPiglin {
 
     private static final int MAX_HEALTH = 16;
     private static final float MOVEMENT_SPEED_WHEN_FIGHTING = 0.35F;
@@ -52,13 +54,13 @@ public class PiglinWarrior extends AbstractPiglin {
     private static final float PROBABILITY_OF_SPAWNING_AS_BABY = 0.2F;
     private static final double PROBABILITY_OF_SPAWNING_WITH_CROSSBOW_INSTEAD_OF_SWORD = 0.5;
     private boolean cannotHunt;
-    public static final Brain.Provider<PiglinWarrior> BRAIN_PROVIDER = Brain.provider(
+    public static final Brain.Provider<PiglinSpearer> BRAIN_PROVIDER = Brain.provider(
             List.of(MemoryModuleType.UNIVERSAL_ANGER,
                     MemoryModuleType.ATE_RECENTLY),
             List.of(
                     baguchi.bagus_lib.register.ModSensors.SMART_NEAREST_LIVING_ENTITY_SENSOR.get(), SensorType.NEAREST_PLAYERS, SensorType.NEAREST_ITEMS, SensorType.HURT_BY, ModSensors.PIGLIN_WARRIOR_SENSOR.get()
             ),
-            PiglinWarriorAi::getActivities
+            PiglinSpearerAi::getActivities
     );
 
     public final AnimationState attackAnimationState = new AnimationState();
@@ -67,7 +69,7 @@ public class PiglinWarrior extends AbstractPiglin {
     private int attackAnimationTick;
 
 
-    public PiglinWarrior(EntityType<? extends AbstractPiglin> p_34683_, Level p_34684_) {
+    public PiglinSpearer(EntityType<? extends AbstractPiglin> p_34683_, Level p_34684_) {
         super(p_34683_, p_34684_);
         this.xpReward = 6;
     }
@@ -123,9 +125,9 @@ public class PiglinWarrior extends AbstractPiglin {
         if (interactionResult.consumesAction()) {
             return interactionResult;
         } else if (this.level() instanceof ServerLevel level) {
-            return PiglinWarriorAi.mobInteract(level, this, player, hand);
+            return PiglinSpearerAi.mobInteract(level, this, player, hand);
         } else {
-            boolean canAdmire = PiglinWarriorAi.canAdmire(this, player.getItemInHand(hand)) && this.getArmPose() != PiglinArmPose.ADMIRING_ITEM;
+            boolean canAdmire = PiglinSpearerAi.canAdmire(this, player.getItemInHand(hand)) && this.getArmPose() != PiglinArmPose.ADMIRING_ITEM;
             return (InteractionResult) (canAdmire ? InteractionResult.SUCCESS : InteractionResult.PASS);
         }
     }
@@ -142,7 +144,7 @@ public class PiglinWarrior extends AbstractPiglin {
     }
 
     public static AttributeSupplier.Builder createAttributes() {
-        return Monster.createMonsterAttributes().add(Attributes.MAX_HEALTH, 30.0).add(Attributes.MOVEMENT_SPEED, 0.35F).add(Attributes.ATTACK_DAMAGE, 6.0).add(Attributes.FOLLOW_RANGE, 16);
+        return Monster.createMonsterAttributes().add(Attributes.MAX_HEALTH, 16.0).add(Attributes.MOVEMENT_SPEED, 0.35F).add(Attributes.ATTACK_DAMAGE, 5.0).add(Attributes.FOLLOW_RANGE, 16);
     }
 
     @Nullable
@@ -150,7 +152,7 @@ public class PiglinWarrior extends AbstractPiglin {
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor p_34717_, DifficultyInstance p_34718_, EntitySpawnReason p_34719_, @Nullable SpawnGroupData p_34720_) {
         RandomSource randomsource = p_34717_.getRandom();
 
-        PiglinWarriorAi.initMemories(this, p_34717_.getRandom());
+        PiglinSpearerAi.initMemories(this, p_34717_.getRandom());
         this.populateDefaultEquipmentSlots(randomsource, p_34718_);
         this.populateDefaultEquipmentEnchantments(p_34717_, randomsource, p_34718_);
         return super.finalizeSpawn(p_34717_, p_34718_, p_34719_, p_34720_);
@@ -163,17 +165,44 @@ public class PiglinWarrior extends AbstractPiglin {
 
     @Override
     protected void populateDefaultEquipmentSlots(RandomSource p_219189_, DifficultyInstance p_219190_) {
-        this.setItemSlot(EquipmentSlot.MAINHAND, this.createSpawnWeapon());
+        if (this.isAdult()) {
+            this.maybeWearArmor(EquipmentSlot.HEAD, new ItemStack(Items.GOLDEN_HELMET), p_219189_);
+            this.maybeWearArmor(EquipmentSlot.CHEST, new ItemStack(Items.GOLDEN_CHESTPLATE), p_219189_);
+            this.maybeWearArmor(EquipmentSlot.LEGS, new ItemStack(Items.GOLDEN_LEGGINGS), p_219189_);
+            this.maybeWearArmor(EquipmentSlot.FEET, new ItemStack(Items.GOLDEN_BOOTS), p_219189_);
+        } else {
+            this.maybeWearArmor(EquipmentSlot.FEET, new ItemStack(Items.GOLDEN_BOOTS), p_219189_);
+
+        }
+
+        if (this instanceof PiglinRaider piglinRaider) {
+            if (piglinRaider.netherInvader$isPatrolLeader()) {
+                this.setItemSlotAndDropWhenKilled(EquipmentSlot.HEAD, PiglinRaid.getLeaderBannerInstance(this.registryAccess().lookupOrThrow(Registries.BANNER_PATTERN)));
+                this.setItemSlot(EquipmentSlot.CHEST, new ItemStack(Items.NETHERITE_CHESTPLATE));
+                this.setDropChance(EquipmentSlot.CHEST, 0.0F);
+                this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.NETHERITE_SPEAR));
+                this.setDropChance(EquipmentSlot.MAINHAND, 0.0F);
+            } else {
+                this.setItemSlot(EquipmentSlot.MAINHAND, this.createSpawnWeapon());
+            }
+
+        }
+    }
+
+    private void maybeWearArmor(EquipmentSlot p_219192_, ItemStack p_219193_, RandomSource p_219194_) {
+        if (p_219194_.nextFloat() < 0.1F) {
+            this.setItemSlot(p_219192_, p_219193_);
+        }
     }
 
     @Override
-    protected Brain<PiglinWarrior> makeBrain(Brain.Packed packedBrain) {
+    protected Brain<PiglinSpearer> makeBrain(Brain.Packed packedBrain) {
         return BRAIN_PROVIDER.makeBrain(this, packedBrain);
     }
 
     @Override
-    public Brain<PiglinWarrior> getBrain() {
-        return (Brain<PiglinWarrior>) super.getBrain();
+    public Brain<PiglinSpearer> getBrain() {
+        return (Brain<PiglinSpearer>) super.getBrain();
     }
 
 
@@ -189,12 +218,11 @@ public class PiglinWarrior extends AbstractPiglin {
 
     @Override
     protected void customServerAiStep(ServerLevel p_376586_) {
-
         ProfilerFiller profilerfiller = Profiler.get();
         profilerfiller.push("piglinBrain");
         this.getBrain().tick((ServerLevel) this.level(), this);
         profilerfiller.pop();
-        PiglinWarriorAi.updateActivity(this);
+        PiglinSpearerAi.updateActivity(this);
         super.customServerAiStep(p_376586_);
     }
 
@@ -209,14 +237,14 @@ public class PiglinWarrior extends AbstractPiglin {
     }
 
     private ItemStack createSpawnWeapon() {
-        return new ItemStack(Items.GOLDEN_SWORD);
+        return new ItemStack(Items.GOLDEN_SPEAR);
     }
 
     @Override
     public PiglinArmPose getArmPose() {
         if (this.isAggressive() && this.isHoldingMeleeWeapon()) {
             return PiglinArmPose.ATTACKING_WITH_MELEE_WEAPON;
-        } else if (PiglinWarriorAi.isLovedItem(this.getOffhandItem())) {
+        } else if (PiglinSpearerAi.isLovedItem(this.getOffhandItem())) {
             return PiglinArmPose.ADMIRING_ITEM;
         } else {
             return PiglinArmPose.DEFAULT;
@@ -237,7 +265,7 @@ public class PiglinWarrior extends AbstractPiglin {
             return false;
         } else {
             if (flag && p_34694_.getEntity() instanceof LivingEntity) {
-                PiglinWarriorAi.wasHurtBy(serverLevel, this, (LivingEntity) p_34694_.getEntity());
+                PiglinSpearerAi.wasHurtBy(serverLevel, this, (LivingEntity) p_34694_.getEntity());
             }
 
             return flag;
@@ -265,7 +293,7 @@ public class PiglinWarrior extends AbstractPiglin {
 
     @Override
     protected SoundEvent getAmbientSound() {
-        return this.level().isClientSide() ? null : PiglinWarriorAi.getSoundForCurrentActivity(this).orElse(null);
+        return this.level().isClientSide() ? null : PiglinSpearerAi.getSoundForCurrentActivity(this).orElse(null);
     }
 
     @Override
@@ -299,7 +327,7 @@ public class PiglinWarrior extends AbstractPiglin {
 
     @Override
     public boolean wantsToPickUp(ServerLevel level, ItemStack itemStack) {
-        return net.neoforged.neoforge.event.EventHooks.canEntityGrief(level, this) && this.canPickUpLoot() && PiglinWarriorAi.wantsToPickup(this, itemStack);
+        return net.neoforged.neoforge.event.EventHooks.canEntityGrief(level, this) && this.canPickUpLoot() && PiglinSpearerAi.wantsToPickup(this, itemStack);
     }
 
     protected boolean canReplaceCurrentItem(ItemStack newItemStack) {
@@ -314,8 +342,8 @@ public class PiglinWarrior extends AbstractPiglin {
             return false;
         } else {
             TagKey<Item> preferredWeaponType = this.getPreferredWeaponType();
-            boolean newItemWanted = PiglinWarriorAi.isLovedItem(newItemStack) || preferredWeaponType != null && newItemStack.is(preferredWeaponType);
-            boolean currentItemWanted = PiglinWarriorAi.isLovedItem(currentItemStack) || preferredWeaponType != null && currentItemStack.is(preferredWeaponType);
+            boolean newItemWanted = PiglinSpearerAi.isLovedItem(newItemStack) || preferredWeaponType != null && newItemStack.is(preferredWeaponType);
+            boolean currentItemWanted = PiglinSpearerAi.isLovedItem(currentItemStack) || preferredWeaponType != null && currentItemStack.is(preferredWeaponType);
             if (newItemWanted && !currentItemWanted) {
                 return true;
             } else {
@@ -327,7 +355,7 @@ public class PiglinWarrior extends AbstractPiglin {
     @Override
     protected void pickUpItem(ServerLevel level, ItemEntity entity) {
         this.onItemPickup(entity);
-        PiglinWarriorAi.pickUpItem(level, this, entity);
+        PiglinSpearerAi.pickUpItem(level, this, entity);
     }
 
     @Override
