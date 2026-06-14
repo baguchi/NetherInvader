@@ -418,7 +418,7 @@ public class PiglinWarriorAi {
         p_35007_.getNavigation().stop();
     }
 
-    protected static void dontKillAnyMoreHoglinsForAWhile(AbstractPiglin body) {
+    public static void dontKillAnyMoreHoglinsForAWhile(AbstractPiglin body) {
         body.getBrain().setMemoryWithExpiry(MemoryModuleType.HUNTED_RECENTLY, true, TIME_BETWEEN_HUNTS.sample(body.level().getRandom()));
     }
 

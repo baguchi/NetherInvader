@@ -1,0 +1,4 @@
+{
+  "type": "minecraft:entity",
+  "random_sequence": "nether_invader:entities/agressive_piglin"
+}

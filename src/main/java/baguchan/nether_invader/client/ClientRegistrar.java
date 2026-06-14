@@ -2,8 +2,10 @@ package baguchan.nether_invader.client;
 
 import baguchan.nether_invader.NetherInvader;
 import baguchan.nether_invader.client.model.BastionGeneralModel;
+import baguchan.nether_invader.client.model.PiglinWarriorModel;
 import baguchan.nether_invader.client.render.BastionGeneralRenderer;
 import baguchan.nether_invader.client.render.ChainedGhastRenderer;
+import baguchan.nether_invader.client.render.PiglinWarriorRenderer;
 import baguchan.nether_invader.client.render.ScaffoldRenderer;
 import baguchan.nether_invader.registry.ModEntities;
 import net.minecraft.client.model.geom.ModelLayers;
@@ -28,10 +30,12 @@ public class ClientRegistrar {
                 ModelLayers.PIGLIN_BABY_ARMOR
         ));
         event.registerEntityRenderer(ModEntities.BASTION_GENERAL.get(), BastionGeneralRenderer::new);
+        event.registerEntityRenderer(ModEntities.PIGLIN_WARRIOR.get(), PiglinWarriorRenderer::new);
     }
 
     @SubscribeEvent
     public static void registerLayerDefinition(EntityRenderersEvent.RegisterLayerDefinitions event) {
         event.registerLayerDefinition(ModModelLayers.BASTION_GENERAL, BastionGeneralModel::createBodyLayer);
+        event.registerLayerDefinition(ModModelLayers.PIGLIN_WARRIOR, PiglinWarriorModel::createBodyLayer);
     }
 }

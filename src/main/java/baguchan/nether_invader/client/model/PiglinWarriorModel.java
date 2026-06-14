@@ -3,16 +3,55 @@ package baguchan.nether_invader.client.model;// Made with Blockbench 5.1.4
 // Paste this class into your mod and generate all required imports
 
 
+import baguchan.nether_invader.client.animation.PiglinWarriorAnimations;
+import baguchan.nether_invader.client.render.state.PiglinWarriorRenderState;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.animation.KeyframeAnimation;
+import net.minecraft.client.model.ArmedModel;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
+import net.minecraft.world.entity.HumanoidArm;
 
-public class PiglinWarriorModel<T extends PiglinWarriorRenderState> extends EntityModel<T> {
+public class PiglinWarriorModel<T extends PiglinWarriorRenderState> extends EntityModel<T> implements ArmedModel<T> {
 
-    public PiglinWarriorModel(ModelPart root) {
+	private final ModelPart everything;
+	private final ModelPart body;
+	private final ModelPart head;
+	private final ModelPart snout;
+	private final ModelPart leftEar;
+	private final ModelPart rightEar;
+	private final ModelPart rightEye;
+	private final ModelPart leftEye;
+	private final ModelPart leftArm;
+	private final ModelPart rightArm;
+	private final ModelPart leftLeg;
+	private final ModelPart rightLeg;
+	private final KeyframeAnimation idleAnimation;
+	private final KeyframeAnimation walkAnimation;
+	private final KeyframeAnimation attackAnimation;
+	private final KeyframeAnimation bartingAnimation;
+
+	public PiglinWarriorModel(ModelPart root) {
         super(root);
-    }
+		this.everything = root.getChild("everything");
+		this.body = this.everything.getChild("body");
+		this.head = this.body.getChild("head");
+		this.snout = this.head.getChild("snout");
+		this.leftEar = this.head.getChild("leftEar");
+		this.rightEar = this.head.getChild("rightEar");
+		this.rightEye = this.head.getChild("rightEye");
+		this.leftEye = this.head.getChild("leftEye");
+		this.leftArm = this.body.getChild("leftArm");
+		this.rightArm = this.body.getChild("rightArm");
+		this.leftLeg = this.everything.getChild("leftLeg");
+		this.rightLeg = this.everything.getChild("rightLeg");
+		this.idleAnimation = PiglinWarriorAnimations.idle.bake(root);
+		this.attackAnimation = PiglinWarriorAnimations.swing.bake(root);
+		this.walkAnimation = PiglinWarriorAnimations.walk.bake(root);
+		this.bartingAnimation = PiglinWarriorAnimations.barter_loop.bake(root);
+	}
 
     public static LayerDefinition createBodyLayer() {
         MeshDefinition meshdefinition = new MeshDefinition();
@@ -54,6 +93,45 @@ public class PiglinWarriorModel<T extends PiglinWarriorRenderState> extends Enti
 
     @Override
     public void setupAnim(PiglinWarriorRenderState entity) {
+		if (entity.isRiding) {
+			this.rightArm.xRot = (-(float) Math.PI / 5F);
+			this.rightArm.yRot = 0.0F;
+			this.rightArm.zRot = 0.0F;
+			this.leftArm.xRot = (-(float) Math.PI / 5F);
+			this.leftArm.yRot = 0.0F;
+			this.leftArm.zRot = 0.0F;
+			this.rightLeg.xRot = -1.4137167F;
+			this.rightLeg.yRot = ((float) Math.PI / 10F);
+			this.rightLeg.zRot = 0.07853982F;
+			this.leftLeg.xRot = -1.4137167F;
+			this.leftLeg.yRot = (-(float) Math.PI / 10F);
+			this.leftLeg.zRot = -0.07853982F;
+		} else {
+			this.walkAnimation.applyWalk(entity.walkAnimationPos, entity.walkAnimationSpeed, 1.0F, 2.5F);
+		}
 
-    }
+		this.attackAnimation.apply(entity.attackAnimationState, entity.ageInTicks);
+		if (!entity.idle) {
+			this.idleAnimation.applyWalk(entity.ageInTicks, 1.0F, 2.0F, 2.5F);
+		}
+		if (entity.barting) {
+			this.rightArm.resetPose();
+			this.leftArm.resetPose();
+			this.head.resetPose();
+
+			this.bartingAnimation.applyWalk(entity.ageInTicks, 1.0F, 1.0F, 1.0F);
+		}
+	}
+
+	private ModelPart getArm(HumanoidArm p_102923_) {
+		return p_102923_ == HumanoidArm.LEFT ? this.leftArm : this.rightArm;
+	}
+
+	@Override
+	public void translateToHand(T entityRenderState, HumanoidArm humanoidArm, PoseStack poseStack) {
+		this.everything.translateAndRotate(poseStack);
+		this.body.translateAndRotate(poseStack);
+
+		this.getArm(humanoidArm).translateAndRotate(poseStack);
+	}
 }

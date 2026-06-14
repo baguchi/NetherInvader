@@ -6,8 +6,6 @@ import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.monster.hoglin.Hoglin;
 import net.minecraft.world.entity.monster.piglin.AbstractPiglin;
-import net.minecraft.world.entity.monster.piglin.PiglinAi;
-import net.minecraft.world.entity.monster.piglin.StartHuntingHoglin;
 
 public class StartHuntingHoglinUniversal {
     public static OneShot<AbstractPiglin> create() {
@@ -19,12 +17,12 @@ public class StartHuntingHoglinUniversal {
                                 i.registered(MemoryModuleType.NEAREST_VISIBLE_ADULT_PIGLINS)
                         )
                         .apply(i, (huntable, angryAt, huntedRecently, nearestPiglins) -> (level, body, timestamp) -> {
-                            if (!body.isBaby() && !i.tryGet(nearestPiglins).filter(p -> p.stream().anyMatch(StartHuntingHoglin::hasHuntedRecently)).isPresent()) {
+                            if (!body.isBaby() && !i.tryGet(nearestPiglins).filter(p -> p.stream().anyMatch(StartHuntingHoglinUniversal::hasHuntedRecently)).isPresent()) {
                                 Hoglin target = i.get(huntable);
                                 PiglinWarriorAi.setAngerTarget(level, body, target);
                                 PiglinWarriorAi.dontKillAnyMoreHoglinsForAWhile(body);
                                 PiglinWarriorAi.broadcastAngerTarget(level, body, target);
-                                i.tryGet(nearestPiglins).ifPresent(p -> p.forEach(PiglinAi::dontKillAnyMoreHoglinsForAWhile));
+                                i.tryGet(nearestPiglins).ifPresent(p -> p.forEach(PiglinWarriorAi::dontKillAnyMoreHoglinsForAWhile));
                                 return true;
                             } else {
                                 return false;

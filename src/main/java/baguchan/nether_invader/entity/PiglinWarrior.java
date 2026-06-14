@@ -216,6 +216,8 @@ public class PiglinWarrior extends AbstractPiglin {
     public PiglinArmPose getArmPose() {
         if (this.isAggressive() && this.isHoldingMeleeWeapon()) {
             return PiglinArmPose.ATTACKING_WITH_MELEE_WEAPON;
+        } else if (PiglinWarriorAi.isLovedItem(this.getOffhandItem())) {
+            return PiglinArmPose.ADMIRING_ITEM;
         } else {
             return PiglinArmPose.DEFAULT;
         }
