@@ -92,7 +92,8 @@ public class PiglinWarriorModel<T extends PiglinWarriorRenderState> extends Enti
     }
 
     @Override
-    public void setupAnim(PiglinWarriorRenderState entity) {
+	public void setupAnim(T entity) {
+		super.setupAnim(entity);
 		if (entity.isRiding) {
 			this.rightArm.xRot = (-(float) Math.PI / 5F);
 			this.rightArm.yRot = 0.0F;
