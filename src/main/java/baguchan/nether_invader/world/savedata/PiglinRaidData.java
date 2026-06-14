@@ -10,8 +10,6 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -42,18 +40,18 @@ public class PiglinRaidData extends SavedData {
         this.setDirty();
     }
 
-    private PiglinRaidData(List<RaidWithId> p_401252_, int p_401028_, int p_401314_) {
-        for (RaidWithId raids$raidwithid : p_401252_) {
+    private PiglinRaidData(List<RaidWithId> raid, int nextId, int tick) {
+        for (RaidWithId raids$raidwithid : raid) {
             this.raidMap.put(raids$raidwithid.id, raids$raidwithid.raid);
         }
 
-        this.nextId = p_401028_;
-        this.tick = p_401314_;
+        this.nextId = nextId;
+        this.tick = tick;
     }
 
-    public static PiglinRaidData get(Level world) {
-        if (world instanceof ServerLevel serverLevel) {
-            ServerLevel overworld = world.getServer().getLevel(world.dimension());
+    public static PiglinRaidData get(Level level) {
+        if (level instanceof ServerLevel serverLevel) {
+            ServerLevel overworld = level.getServer().getLevel(level.dimension());
 
             PiglinRaidData fromMap = dataMap.get(overworld);
             if (fromMap == null) {
@@ -62,7 +60,7 @@ public class PiglinRaidData extends SavedData {
                 if (data != null) {
                     data.setDirty();
                 }
-                dataMap.put(world, data);
+                dataMap.put(level, data);
                 return data;
             }
             return fromMap;
@@ -72,15 +70,15 @@ public class PiglinRaidData extends SavedData {
 
     @Nullable
     public PiglinRaid get(int p_37959_) {
-        return (PiglinRaid) this.raidMap.get(p_37959_);
+        return this.raidMap.get(p_37959_);
     }
 
-    public OptionalInt getId(PiglinRaid p_401241_) {
+    public OptionalInt getId(PiglinRaid piglinRaid) {
         ObjectIterator var2 = this.raidMap.int2ObjectEntrySet().iterator();
 
         while (var2.hasNext()) {
             Int2ObjectMap.Entry<PiglinRaid> entry = (Int2ObjectMap.Entry) var2.next();
-            if (entry.getValue() == p_401241_) {
+            if (entry.getValue() == piglinRaid) {
                 return OptionalInt.of(entry.getIntKey());
             }
         }
@@ -93,7 +91,7 @@ public class PiglinRaidData extends SavedData {
         Iterator<PiglinRaid> iterator = this.raidMap.values().iterator();
 
         while (iterator.hasNext()) {
-            PiglinRaid raid = (PiglinRaid) iterator.next();
+            PiglinRaid raid = iterator.next();
             Identifier dimensiontype = serverLevel.dimension().identifier();
             if (!NetherConfigs.COMMON.ENABLE_DIMENSIONS.get().contains(dimensiontype.toString())) {
                 raid.stop();
@@ -112,22 +110,22 @@ public class PiglinRaidData extends SavedData {
         }
     }
 
-    public static boolean canJoinPiglinRaid(PiglinRaider p_37966_) {
-        return p_37966_ instanceof Mob entity && entity.isAlive() && p_37966_.netherInvader$canJoinRaid() && entity.getNoActionTime() <= 2400;
+    public static boolean canJoinPiglinRaid(PiglinRaider piglinRaider) {
+        return piglinRaider instanceof Mob entity && entity.isAlive() && piglinRaider.netherInvader$canJoinRaid() && entity.getNoActionTime() <= 2400;
     }
 
     @Nullable
-    public PiglinRaid createOrExtendPiglinRaid(ServerPlayer p_37964_, BlockPos p_338602_) {
-        if (p_37964_.isSpectator()) {
+    public PiglinRaid createOrExtendPiglinRaid(ServerPlayer serverPlayer, BlockPos blockPos) {
+        if (serverPlayer.isSpectator()) {
             return null;
         } else {
-            ServerLevel serverlevel = p_37964_.level();
+            ServerLevel serverlevel = serverPlayer.level();
             Identifier dimensiontype = serverlevel.dimension().identifier();
             if (!NetherConfigs.COMMON.ENABLE_DIMENSIONS.get().contains(dimensiontype.toString())) {
                 return null;
             } else {
                 List<PoiRecord> list = serverlevel.getPoiManager()
-                        .getInRange(p_219845_ -> p_219845_.is(PoiTypeTags.VILLAGE), p_338602_, 64, PoiManager.Occupancy.IS_OCCUPIED)
+                        .getInRange(p_219845_ -> p_219845_.is(PoiTypeTags.VILLAGE), blockPos, 64, PoiManager.Occupancy.IS_OCCUPIED)
                         .toList();
                 int i = 0;
                 Vec3 vec3 = Vec3.ZERO;
@@ -143,7 +141,7 @@ public class PiglinRaidData extends SavedData {
                     vec3 = vec3.scale(1.0 / i);
                     blockpos1 = BlockPos.containing(vec3);
                 } else {
-                    blockpos1 = p_338602_;
+                    blockpos1 = blockPos;
                 }
 
                 PiglinRaid raid = this.getOrCreatePiglinRaid(serverlevel, blockpos1);
@@ -152,7 +150,7 @@ public class PiglinRaidData extends SavedData {
                 }
 
                 if (!raid.isStarted() || raid.getRaidOmenLevel() < raid.getMaxRaidOmenLevel()) {
-                    raid.absorbRaidOmen(p_37964_);
+                    raid.absorbRaidOmen(serverPlayer);
                 }
 
                 this.setDirty();
@@ -161,33 +159,30 @@ public class PiglinRaidData extends SavedData {
         }
     }
 
-    private PiglinRaid getOrCreatePiglinRaid(ServerLevel p_37961_, BlockPos p_37962_) {
-        PiglinRaid raid = getPiglinRaidAt(p_37962_);
-        return raid != null ? raid : new PiglinRaid(p_37962_, p_37961_.getDifficulty());
+    private PiglinRaid getOrCreatePiglinRaid(ServerLevel serverLevel, BlockPos blockPos) {
+        PiglinRaid raid = getPiglinRaidAt(blockPos);
+        return raid != null ? raid : new PiglinRaid(blockPos, serverLevel.getDifficulty());
     }
 
     @Nullable
-    public PiglinRaid getPiglinRaidAt(BlockPos p_8833_) {
-        return this.getNearbyPiglinRaid(p_8833_, 9216);
+    public PiglinRaid getPiglinRaidAt(BlockPos blockPos) {
+        return this.getNearbyPiglinRaid(blockPos, 9216);
     }
 
-    public static PiglinRaidData load(CompoundTag p_150237_) {
-        return (PiglinRaidData) CODEC.parse(NbtOps.INSTANCE, p_150237_).resultOrPartial().orElseGet(PiglinRaidData::new);
-    }
 
     private int getUniqueId() {
         return ++this.nextId;
     }
 
     @Nullable
-    public PiglinRaid getNearbyPiglinRaid(BlockPos p_37971_, int p_37972_) {
+    public PiglinRaid getNearbyPiglinRaid(BlockPos blockPos, int range) {
         PiglinRaid raid = null;
-        double d0 = (double) p_37972_;
-        ObjectIterator var6 = this.raidMap.values().iterator();
+        double d0 = range;
+        ObjectIterator<PiglinRaid> var6 = this.raidMap.values().iterator();
 
         while (var6.hasNext()) {
-            PiglinRaid raid1 = (PiglinRaid) var6.next();
-            double d1 = raid1.getCenter().distSqr(p_37971_);
+            PiglinRaid raid1 = var6.next();
+            double d1 = raid1.getCenter().distSqr(blockPos);
             if (raid1.isActive() && d1 < d0) {
                 raid = raid1;
                 d0 = d1;
@@ -197,7 +192,7 @@ public class PiglinRaidData extends SavedData {
         return raid;
     }
 
-    static record RaidWithId(int id, PiglinRaid raid) {
+    record RaidWithId(int id, PiglinRaid raid) {
         public static final Codec<RaidWithId> CODEC = RecordCodecBuilder.create((p_401087_) -> p_401087_.group(Codec.INT.fieldOf("id").forGetter(RaidWithId::id), PiglinRaid.MAP_CODEC.forGetter(RaidWithId::raid)).apply(p_401087_, RaidWithId::new));
 
         RaidWithId(int id, PiglinRaid raid) {
@@ -206,7 +201,7 @@ public class PiglinRaidData extends SavedData {
         }
 
         public static RaidWithId from(Int2ObjectMap.Entry<PiglinRaid> p_401228_) {
-            return new RaidWithId(p_401228_.getIntKey(), (PiglinRaid) p_401228_.getValue());
+            return new RaidWithId(p_401228_.getIntKey(), p_401228_.getValue());
         }
 
         public int id() {

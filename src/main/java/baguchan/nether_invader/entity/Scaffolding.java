@@ -31,7 +31,7 @@ public class Scaffolding extends LivingEntity implements Chainable {
             Chainable.tickChain(serverLevel, this);
         }
 
-        if (!this.level().isClientSide() && this.getControllingPassenger() == null && this.tickCount >= 5) {
+        if (!this.level().isClientSide() && this.getFirstPassenger() == null && this.tickCount >= 10) {
             this.remove(Entity.RemovalReason.KILLED);
         }
     }

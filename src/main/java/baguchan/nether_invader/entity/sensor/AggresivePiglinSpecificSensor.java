@@ -66,9 +66,15 @@ public class AggresivePiglinSpecificSensor extends Sensor<LivingEntity> {
                     list.add(piglin);
                 }
             } else {
-                if (livingentity instanceof WitherSkeleton || livingentity instanceof WitherBoss || livingentity instanceof AbstractVillager) {
+                if (livingentity instanceof WitherSkeleton || livingentity instanceof WitherBoss) {
                     if (optional.isEmpty() || optional.get().distanceTo(p_26727_) > livingentity.distanceTo(p_26727_)) {
                         optional = Optional.of((Mob) livingentity);
+                    }
+                } else if (livingentity instanceof IronGolem || livingentity instanceof AbstractVillager || livingentity instanceof Player player && !player.getAbilities().invulnerable) {
+                    list2.add(livingentity);
+                } else if (livingentity instanceof Mob mob) {
+                    if (mob.getTarget() == p_26727_) {
+                        list2.add(mob);
                     }
                 }
             }
@@ -79,12 +85,6 @@ public class AggresivePiglinSpecificSensor extends Sensor<LivingEntity> {
                 AbstractPiglin abstractpiglin = (AbstractPiglin) livingentity1;
                 if (abstractpiglin.isAdult()) {
                     list1.add(abstractpiglin);
-                }
-            } else if (livingentity1 instanceof IronGolem || livingentity1 instanceof AbstractVillager || livingentity1 instanceof Player player && !player.getAbilities().invulnerable) {
-                list2.add(livingentity1);
-            } else if (livingentity1 instanceof Mob mob) {
-                if (mob.getTarget() == p_26727_) {
-                    list2.add(mob);
                 }
             }
         }

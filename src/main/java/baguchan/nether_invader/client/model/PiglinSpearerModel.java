@@ -108,7 +108,7 @@ public class PiglinSpearerModel<T extends PiglinSpearerRenderState> extends Enti
 
         PartDefinition legs = body_main.addOrReplaceChild("legs", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
 
-        PartDefinition leg_right = legs.addOrReplaceChild("leg_right", CubeListBuilder.create().texOffs(0, 16).addBox(-3.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, new CubeDeformation(0.0F)), PartPose.offset(-2.0F, 0.0F, 0.0F));
+        PartDefinition leg_right = legs.addOrReplaceChild("leg_right", CubeListBuilder.create().texOffs(0, 16).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, new CubeDeformation(0.0F)), PartPose.offset(-3.0F, 0.0F, 0.0F));
 
         PartDefinition leg_left = legs.addOrReplaceChild("leg_left", CubeListBuilder.create().texOffs(16, 59).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, new CubeDeformation(0.0F)), PartPose.offset(3.0F, 0.0F, 0.0F));
 
@@ -184,15 +184,17 @@ public class PiglinSpearerModel<T extends PiglinSpearerRenderState> extends Enti
         this.root.translateAndRotate(poseStack);
         this.body_main.translateAndRotate(poseStack);
         modelPart.translateAndRotate(poseStack);
+        poseStack.translate(0, -(12F / 16F), 0);
     }
 
     @Override
     public void translateToLeg(T t, ModelPart modelPart, PoseStack poseStack) {
         this.root.translateAndRotate(poseStack);
         this.body_main.translateAndRotate(poseStack);
-        this.body.translateAndRotate(poseStack);
         this.legs.translateAndRotate(poseStack);
         modelPart.translateAndRotate(poseStack);
+        poseStack.translate(0, (0F / 16F), 0);
+        poseStack.scale(1.1F, 1.1F, 1.1F);
     }
 
     @Override
