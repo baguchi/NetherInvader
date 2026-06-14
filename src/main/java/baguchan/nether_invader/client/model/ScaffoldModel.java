@@ -10,7 +10,7 @@ import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 
-public class TestModel extends EntityModel<LivingEntityRenderState> {
+public class ScaffoldModel extends EntityModel<LivingEntityRenderState> {
     private static final String LEFT_PADDLE = "left_paddle";
     private static final String RIGHT_PADDLE = "right_paddle";
     private static final String BOTTOM = "bottom";
@@ -18,7 +18,7 @@ public class TestModel extends EntityModel<LivingEntityRenderState> {
     private final ModelPart rightPaddle;
     private final ImmutableList<ModelPart> parts;
 
-    public TestModel(ModelPart p_251383_) {
+    public ScaffoldModel(ModelPart p_251383_) {
         super(p_251383_);
         this.leftPaddle = p_251383_.getChild("left_paddle");
         this.rightPaddle = p_251383_.getChild("right_paddle");
