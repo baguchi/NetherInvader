@@ -52,8 +52,8 @@ public class ModEntities {
             .notInPeaceful()
             .clientTrackingRange(8).build(prefix("bastion_general")));
     public static final DeferredHolder<EntityType<?>, EntityType<PiglinWarrior>> PIGLIN_WARRIOR = ENTITIES_REGISTRY.register("piglin_warrior", () -> EntityType.Builder.of(PiglinWarrior::new, MobCategory.MONSTER)
-            .sized(0.7F, 2.15F)
-            .eyeHeight(1.85F)
+            .sized(0.7F, 1.95F)
+            .eyeHeight(1.79F)
             .passengerAttachments(2.0125F)
             .ridingOffset(-0.7F)
             .notInPeaceful()

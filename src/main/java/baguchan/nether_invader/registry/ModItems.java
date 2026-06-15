@@ -17,5 +17,7 @@ public class ModItems {
     public static final DeferredItem<SpawnEggItem> CHAINED_GHAST_SPAWN_EGG = ITEMS.registerItem("chained_ghast_spawn_egg", (properties) -> new SpawnEggItem((properties.spawnEgg(ModEntities.CHAINED_GHAST.get()))));
     public static final DeferredItem<SpawnEggItem> AGRESSIVE_PIGLIN_SPAWN_EGG = ITEMS.registerItem("agressive_piglin_spawn_egg", (properties) -> new SpawnEggItem((properties.spawnEgg(ModEntities.AGRESSIVE_PIGLIN.get()))));
     public static final DeferredItem<SpawnEggItem> BASTION_GENERAL_SPAWN_EGG = ITEMS.registerItem("bastion_general_spawn_egg", (properties) -> new SpawnEggItem((properties.spawnEgg(ModEntities.BASTION_GENERAL.get()))));
+    public static final DeferredItem<SpawnEggItem> PIGLIN_WARRIOR_SPAWN_EGG = ITEMS.registerItem("piglin_warrior_spawn_egg", (properties) -> new SpawnEggItem((properties.spawnEgg(ModEntities.PIGLIN_WARRIOR.get()))));
+    public static final DeferredItem<SpawnEggItem> PIGLIN_SPEARER_SPAWN_EGG = ITEMS.registerItem("piglin_spearer_spawn_egg", (properties) -> new SpawnEggItem((properties.spawnEgg(ModEntities.PIGLIN_SPEARER.get()))));
 
 }

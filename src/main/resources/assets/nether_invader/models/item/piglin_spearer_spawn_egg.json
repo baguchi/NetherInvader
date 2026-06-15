@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "nether_invader:item/piglin_spearer_spawn_egg"
+  }
+}
